@@ -20,7 +20,7 @@ import AdminAiPanel from '@/components/admin-ai-panel'
 // Single stable barrel — one import entry prevents multiple async-loader chunks
 // that go stale across Turbopack rebuilds
 import {
-  getAllUsers, changeUserRole, deleteUser, createAdminUser,
+  getAllUsers, changeUserRole, deleteUser, createAdminUser, setUserBotActivation,
   createProTraderUser, resetUserPassword,
   getAllDepositAddresses, getAllFundRequests, upsertDepositAddress, reviewFundRequest,
   getAllAutoTradePlans, createAutoTradePlan, updateAutoTradePlanStatus,
@@ -32,7 +32,7 @@ type Tab = 'users' | 'deposit-addresses' | 'fund-requests' | 'auto-trade' | 'act
 type Network = 'TRC20' | 'BEP20' | 'ERC20'
 
 interface User {
-  id: string; name: string | null; email: string; role: string; createdAt: Date
+  id: string; name: string | null; email: string; role: string; isActivated: boolean; createdAt: Date
   lastLoginAt: Date | string | null; lastLoginIp: string | null
 }
 interface DepositAddress { id: number; network: string; address: string; label: string | null; isActive: boolean; createdAt: Date }
@@ -214,6 +214,16 @@ export default function AdminClient() {
       setFundRequests((await getAllFundRequests()) as FundRequest[])
     } catch (e) { showToast(e instanceof Error ? e.message : 'Failed to load requests', 'error') }
     finally { setLoadingRequests(false) }
+  }
+
+  const handleBotActivation = async (target: User) => {
+    try {
+      await setUserBotActivation(target.id, !target.isActivated)
+      await loadUsers()
+      showToast(`${target.name || target.email} bot access ${target.isActivated ? 'removed' : 'activated'}`)
+    } catch (e) {
+      showToast(e instanceof Error ? e.message : 'Failed to update bot access', 'error')
+    }
   }
 
   const handleRoleChange = async (userId: string, newRole: UserRole) => {
@@ -680,6 +690,19 @@ export default function AdminClient() {
                             >
                               <KeyRound className="w-4 h-4" />
                             </Button>
+                            {(u.role === 'trader' || u.role === 'protrader') && (
+                              <Button
+                                onClick={() => handleBotActivation(u)}
+                                variant="ghost"
+                                size="sm"
+                                className={u.isActivated
+                                  ? 'text-emerald-400 hover:text-red-400 hover:bg-red-900/20 h-8 px-2 text-xs'
+                                  : 'text-violet-400 hover:text-violet-300 hover:bg-violet-900/20 h-8 px-2 text-xs'}
+                                title={u.isActivated ? 'Remove bot access' : 'Activate bot access'}
+                              >
+                                {u.isActivated ? 'Bot active' : 'Activate bot'}
+                              </Button>
+                            )}
                             <Button
                               onClick={() => handleDeleteUser(u.id)}
                               disabled={deletingUserId === u.id}

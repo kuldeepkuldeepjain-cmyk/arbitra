@@ -13,6 +13,7 @@ export {
   createProTraderUser,
   resetUserPassword,
   updateUserProfile,
+  setUserBotActivation,
 } from '@/app/actions/users'
 
 export {

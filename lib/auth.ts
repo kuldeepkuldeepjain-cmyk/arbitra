@@ -33,7 +33,7 @@ export const auth = betterAuth({
     emailOTP({
       otpLength: 6,
       expiresIn: 900,
-      sendVerificationOnSignUp: true,
+      sendVerificationOnSignUp: false,
       sendVerificationOTP: async ({ email, otp, type }) => {
         const resend = new Resend(process.env.RESEND_API_KEY)
         const { error } = await resend.emails.send(

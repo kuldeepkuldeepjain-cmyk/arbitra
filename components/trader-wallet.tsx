@@ -172,7 +172,7 @@ export function TraderWallet() {
       await selfFundAutoTrade(amt)
       await load()
       setShiftAmount(''); setActivePanel(null)
-      showToast(`₹${amt.toFixed(2)} shifted to Auto-Trade successfully!`)
+      showToast(`USDT ${amt.toFixed(2)} shifted to Auto-Trade successfully!`)
     } catch (err) {
       showToast(err instanceof Error ? err.message : 'Failed to shift funds', 'error')
     } finally { setSubmittingShift(false) }
@@ -243,11 +243,10 @@ export function TraderWallet() {
             <div>
               <p className="text-slate-500 text-xs mb-1">Available Balance</p>
               <div className="flex items-baseline gap-2">
-                <span className="text-amber-400 text-3xl font-black">₹</span>
+                <span className="text-amber-400 text-3xl font-black">USDT</span>
                 <span className="text-white text-4xl sm:text-5xl font-black tracking-tight tabular-nums">
                   {available.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </span>
-                <span className="text-slate-600 text-sm font-medium">USDT</span>
               </div>
             </div>
             <div className={`shrink-0 flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-semibold ${
@@ -366,7 +365,7 @@ export function TraderWallet() {
                   <div>
                     <label className="text-slate-400 text-xs font-medium mb-1.5 block">Amount (USDT)</label>
                     <div className="relative">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm font-bold">₹</span>
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm font-bold">USDT </span>
                       <input
                         type="number" min="1" step="0.01"
                         value={depAmount} onChange={e => setDepAmount(e.target.value)}
@@ -444,11 +443,11 @@ export function TraderWallet() {
                     </span>
                   </div>
                   <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm font-bold">₹</span>
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm font-bold">USDT </span>
                     <input
                       type="number" min="100" max={Math.min(5000, available)} step="0.01"
                       value={shiftAmount} onChange={e => setShiftAmount(e.target.value)}
-                      required placeholder="Min ₹100"
+                      required placeholder="Min USDT 100"
                       className="w-full bg-slate-900 border border-slate-700 rounded-xl pl-7 pr-24 py-2.5 text-white placeholder-slate-600 text-sm focus:outline-none focus:border-amber-500/50 transition-colors"
                     />
                     <button
@@ -459,7 +458,7 @@ export function TraderWallet() {
                       Max ${Math.min(5000, available).toFixed(0)}
                     </button>
                   </div>
-                  <p className="text-slate-600 text-xs mt-1">Range: ₹100 – ₹5,000 per plan</p>
+                  <p className="text-slate-600 text-xs mt-1">Range: USDT 100 – USDT 5,000 per plan</p>
                 </div>
 
                 {/* Live profit preview */}
@@ -538,7 +537,7 @@ export function TraderWallet() {
               ) : (
                 <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-green-500/5 border border-green-500/15 text-xs text-green-400 font-medium">
                   <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
-                  Weekly withdrawal window is open &mdash; min. ₹100 USDT
+                  Weekly withdrawal window is open &mdash; min. USDT 100 USDT
                 </div>
               )}
 
@@ -573,11 +572,11 @@ export function TraderWallet() {
                         </button>
                       </div>
                       <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm font-bold">₹</span>
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm font-bold">USDT </span>
                         <input
                           type="number" min="100" step="0.01" max={available}
                           value={withAmount} onChange={e => setWithAmount(e.target.value)}
-                          required placeholder="Min ₹100"
+                          required placeholder="Min USDT 100"
                           className="w-full bg-slate-900 border border-slate-700 rounded-xl pl-7 pr-3 py-2.5 text-white placeholder-slate-600 text-sm focus:outline-none focus:border-red-500/50 transition-colors"
                         />
                       </div>
@@ -607,7 +606,7 @@ export function TraderWallet() {
                   <div className="space-y-1.5 px-3 py-3 rounded-xl bg-slate-800/50 border border-slate-700/50">
                     <p className="flex items-start gap-2 text-xs text-slate-400 leading-relaxed">
                       <AlertCircle className="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
-                      Processed within 24 hours. Minimum ₹100 per request.
+                      Processed within 24 hours. Minimum USDT 100 per request.
                     </p>
                     <p className="flex items-start gap-2 text-xs text-slate-500 leading-relaxed">
                       <AlertCircle className="w-3.5 h-3.5 text-red-400 shrink-0 mt-0.5" />
@@ -645,7 +644,7 @@ export function TraderWallet() {
           {
             label: 'Deposited',
             value: s?.totalDeposited ?? 0,
-            sub: s?.pendingDeposit ? `+₹${s.pendingDeposit.toFixed(2)} pending` : 'Confirmed',
+            sub: s?.pendingDeposit ? `+USDT ${s.pendingDeposit.toFixed(2)} pending` : 'Confirmed',
             icon: ArrowDownCircle, dot: 'bg-green-400', color: 'text-green-400',
           },
           {
@@ -657,7 +656,7 @@ export function TraderWallet() {
           {
             label: 'Referral Income',
             value: s?.referralEarnings ?? 0,
-            sub: 'L1 ₹30 · L2 ₹10 · L3 ₹5',
+            sub: 'L1 USDT 30 · L2 USDT 10 · L3 USDT 5',
             icon: Gift, dot: 'bg-purple-400', color: 'text-purple-400',
           },
           {
@@ -669,7 +668,7 @@ export function TraderWallet() {
           {
             label: 'Withdrawn',
             value: s?.totalWithdrawn ?? 0,
-            sub: s?.pendingWithdrawal ? `₹${s.pendingWithdrawal.toFixed(2)} pending` : 'All-time payouts',
+            sub: s?.pendingWithdrawal ? `USDT ${s.pendingWithdrawal.toFixed(2)} pending` : 'All-time payouts',
             icon: ArrowUpCircle, dot: 'bg-red-400', color: 'text-red-400',
           },
         ].map(({ label, value, sub, icon: Icon, dot, color }) => (
@@ -692,7 +691,7 @@ export function TraderWallet() {
           <ShieldCheck className="w-4 h-4 text-green-400 shrink-0" />
           <p className="text-slate-400 text-sm">
             <span className="text-green-400 font-semibold">Account activated</span>
-            {' '}— ₹100 one-time activation fee deducted.
+            {' '}— USDT 100 one-time activation fee deducted.
           </p>
         </div>
       ) : null}

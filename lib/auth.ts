@@ -1,5 +1,6 @@
 import { betterAuth } from 'better-auth'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
+import { Resend } from 'resend'
 import { db } from '@/lib/db'
 import * as schema from '@/lib/db/schema'
 
@@ -25,7 +26,27 @@ export const auth = betterAuth({
           : 'http://localhost:3000'),
   emailAndPassword: {
     enabled: true,
-    autoSignIn: true,
+    autoSignIn: false,
+  },
+  emailVerification: {
+    sendOnSignUp: true,
+    autoSignInAfterVerification: true,
+    sendVerificationEmail: async ({ user, url }) => {
+      const resend = new Resend(process.env.RESEND_API_KEY)
+      const { error } = await resend.emails.send(
+        {
+          from: process.env.RESEND_FROM_EMAIL ?? 'AlgoBot <onboarding@resend.dev>',
+          to: user.email,
+          subject: 'Verify your AlgoBot email',
+          html: `<div style="font-family:Arial,sans-serif;max-width:560px;margin:auto;color:#0b1220"><h1 style="color:#087ea4">Verify your AlgoBot email</h1><p>Welcome to AlgoBot. Confirm your email address to activate your account.</p><p><a href="${url}" style="display:inline-block;background:#00d4ff;color:#050816;padding:12px 20px;border-radius:8px;text-decoration:none;font-weight:700">Verify email</a></p><p style="color:#64748b;font-size:13px">This link expires soon. If you did not create an AlgoBot account, you can ignore this email.</p></div>`,
+        },
+        { idempotencyKey: `verify-email/${user.id}` },
+      )
+      if (error) {
+        console.error('[v0] Resend verification email failed:', error.message)
+        throw new Error('Unable to send verification email')
+      }
+    },
   },
   user: {
     additionalFields: {
@@ -67,11 +88,15 @@ export const auth = betterAuth({
     expiresIn: 60 * 60 * 24 * 7,
     updateAge: 60 * 60 * 24,
   },
-  advanced: {
-    defaultCookieAttributes: {
-      sameSite: 'none' as const,
-      secure: true,
-      httpOnly: true,
-    },
-  },
+  ...(process.env.NODE_ENV === 'development'
+    ? {
+        advanced: {
+          defaultCookieAttributes: {
+            sameSite: 'none' as const,
+            secure: true,
+            httpOnly: true,
+          },
+        },
+      }
+    : {}),
 })

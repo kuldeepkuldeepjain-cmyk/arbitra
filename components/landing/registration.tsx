@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { CheckCircle2, Zap, TrendingUp, ShieldCheck, Bell, Loader2, Shield, RefreshCw } from 'lucide-react'
 import Link from 'next/link'
@@ -43,7 +42,6 @@ function generateChallenge(): CaptchaChallenge {
 }
 
 export function Registration() {
-  const router = useRouter()
   const [form, setForm] = useState({
     name: '',
     email: '',
@@ -132,9 +130,8 @@ export function Registration() {
         country: form.country || undefined,
       })
 
-      // Step 4: Redirect to the account dashboard
+      // Step 4: Require email verification before opening the dashboard
       setSubmitted(true)
-      setTimeout(() => router.push('/trader'), 2000)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.')
       refreshChallenge()
@@ -209,25 +206,24 @@ export function Registration() {
                   <div className="w-16 h-16 rounded-full bg-[#00FF99]/10 border border-[#00FF99]/30 flex items-center justify-center mb-6">
                     <CheckCircle2 className="w-8 h-8 text-[#00FF99]" />
                   </div>
-                  <h3 className="text-xl font-bold text-white mb-2">Account Created!</h3>
+                  <h3 className="text-xl font-bold text-white mb-2">Check your email</h3>
                   <p className="text-[#98A2B3] text-sm mb-2">
-                    Welcome to AlgoBot. Your account is ready.
+                    We sent a verification link to <span className="text-white font-medium">{form.email}</span>.
                   </p>
-                  <p className="text-xs text-[#98A2B3]/60 mb-6 flex items-center gap-1.5">
-                    <Loader2 className="w-3 h-3 animate-spin" />
-                    Redirecting to your dashboard...
+                  <p className="text-xs text-[#98A2B3]/60 mb-6">
+                    Verify your email to securely continue to your AlgoBot dashboard.
                   </p>
                   <Link
-                    href="/trader"
+                    href="/sign-in"
                     className="px-5 py-2.5 rounded-xl text-sm font-semibold text-[#050816] bg-[#00D4FF] hover:bg-[#00D4FF]/90 transition-all"
                   >
-                    Go to Dashboard
+                    Continue to Sign In
                   </Link>
                 </div>
               ) : (
                 <>
                   <h3 className="text-xl font-bold text-white mb-2">Create Free Account</h3>
-                  <p className="text-sm text-[#98A2B3] mb-6">No credit card required. Cancel anytime.</p>
+                  <p className="text-sm text-[#98A2B3] mb-6">No credit card required. Verify your email to activate access.</p>
 
                   <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                     <div className="grid grid-cols-2 gap-4">

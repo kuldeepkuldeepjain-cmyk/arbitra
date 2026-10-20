@@ -326,7 +326,7 @@ export function TraderClient({ user, isActivated, createdAt }: { user: { id: str
         </div>
       </header>
 
-      {/* ── Tab Navigation ─────────────────────────���───────���───── */}
+      {/* ── Tab Navigation ─────────────────────────���───────�����──── */}
       <div className="border-b border-slate-800/60 bg-[#0a0f1e]/80 backdrop-blur-sm sticky top-14 z-30">
         <div className="max-w-screen-xl mx-auto overflow-x-auto scrollbar-none">
           <div className="flex min-w-max px-3 sm:px-4 md:px-6">
@@ -387,7 +387,7 @@ export function TraderClient({ user, isActivated, createdAt }: { user: { id: str
         {/* ── TAB: TRADING BOTS ── */}
         {activeTab === 'trading-bot' && (
           <Suspense fallback={<TabLoader />}>
-            <TradingBot />
+            <TradingBot isActivated={isActivated} />
           </Suspense>
         )}
 

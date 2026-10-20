@@ -23,6 +23,7 @@ import { SUPPORTED_EXCHANGES } from '@/lib/exchange-constants'
 import { BotAiAdvisorModal } from '@/components/bot-ai-advisor-modal'
 import { MetaTraderConnectWizard } from '@/components/metatrader-connect-wizard'
 import { StrategyExplainerModal } from '@/components/strategy-explainer-modal'
+import { BotSubscriptionCard } from '@/components/bot-subscription-card'
 
 // ─── Types ──────────────────────────────────────────────────────────────────────
 
@@ -2161,7 +2162,7 @@ function OverviewPanel({ bots, onNewBot, onGoTab }: {
 
 // ─── Main Component ────────────────────────────────────────��───────────────────────
 
-export function TradingBot() {
+export function TradingBot({ isActivated = false }: { isActivated?: boolean }) {
   const [bots, setBots] = useState<Bot[]>([])
   const [accounts, setAccounts] = useState<ExchangeAccount[]>([])
   const [loading, setLoading] = useState(true)
@@ -2209,8 +2210,9 @@ export function TradingBot() {
   ]
 
   return (
-    <div className="space-y-5">
-      {/* Algo trading command center */}
+  <div className="space-y-5">
+  <BotSubscriptionCard isActivated={isActivated} />
+  {/* Algo trading command center */}
       <section className="relative overflow-hidden rounded-2xl border border-amber-500/20 bg-gradient-to-br from-amber-500/[0.12] via-slate-900 to-slate-950 p-5 sm:p-6">
         <div className="pointer-events-none absolute -right-16 -top-20 h-52 w-52 rounded-full border border-amber-400/10" />
         <div className="pointer-events-none absolute -right-8 -top-12 h-36 w-36 rounded-full border border-amber-400/10" />

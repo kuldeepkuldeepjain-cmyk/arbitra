@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { getActivationStatus, submitActivationFee } from '@/app/actions/referral'
-import { getActivationPaymentMethods } from '@/app/actions/activation-payment-methods'
+import { getActiveBotActivationPlans, getActivationPaymentMethods } from '@/app/actions/activation-payment-methods'
 import {
   Shield, Clock, CheckCircle2, XCircle,
   ChevronRight, AlertTriangle, Wallet, X, RefreshCw, LogOut,
@@ -38,6 +38,8 @@ export function ActivationFeeModal({ serverIsActivated, createdAt }: { serverIsA
   const router = useRouter()
   const [status, setStatus] = useState<ActivationStatus | null>(null)
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([])
+  const [plans, setPlans] = useState<Array<{ id: number; name: string; durationMonths: number; priceInr: string; description: string | null }>>([])
+  const [selectedPlanId, setSelectedPlanId] = useState<number | null>(null)
   const [loading, setLoading] = useState(true)
   const [dismissed, setDismissed] = useState(false)
   const [signingOut, setSigningOut] = useState(false)
@@ -66,7 +68,8 @@ export function ActivationFeeModal({ serverIsActivated, createdAt }: { serverIsA
     setSubmitting(true)
     setSubmitError(null)
     try {
-      await submitActivationFee(txHash.trim())
+      const selectedPlan = plans.find(plan => plan.id === selectedPlanId)
+      await submitActivationFee(txHash.trim(), selectedPlan ? Number(selectedPlan.priceInr) : 999)
       setSubmitted(true)
     } catch (err) {
       setSubmitError(err instanceof Error ? err.message : 'Submission failed. Please try again.')
@@ -85,9 +88,11 @@ export function ActivationFeeModal({ serverIsActivated, createdAt }: { serverIsA
   const load = async () => {
     setLoading(true)
     try {
-      const [data, methods] = await Promise.all([getActivationStatus(), getActivationPaymentMethods()])
+      const [data, methods, loadedPlans] = await Promise.all([getActivationStatus(), getActivationPaymentMethods(), getActiveBotActivationPlans()])
       setStatus(data)
       setPaymentMethods(methods)
+      setPlans(loadedPlans)
+      setSelectedPlanId(loadedPlans[0]?.id ?? 1)
     } catch {
       // silent
     } finally {
@@ -115,6 +120,7 @@ export function ActivationFeeModal({ serverIsActivated, createdAt }: { serverIsA
   const hasRejected = status?.latestFee?.status === 'rejected'
   const addresses   = status?.depositAddresses ?? []
   const noAddresses = paymentMethods.length === 0
+  const selectedAmount = Number(plans.find(plan => plan.id === selectedPlanId)?.priceInr ?? (selectedPlanId === 2 ? 1999 : selectedPlanId === 3 ? 2999 : selectedPlanId === 4 ? 4999 : 999))
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
@@ -154,7 +160,7 @@ export function ActivationFeeModal({ serverIsActivated, createdAt }: { serverIsA
             <div>
               <h2 className="text-white font-bold text-lg leading-tight">Account Activation Required</h2>
               <p className="text-slate-400 text-xs mt-0.5">
-                Your {GRACE_PERIOD_DAYS}-day free trial has ended — activate your Algo Bot plan for ₹999/month
+                Your {GRACE_PERIOD_DAYS}-day free trial has ended — activate your Algo Bot plan with INR payment
               </p>
             </div>
           </div>
@@ -164,7 +170,7 @@ export function ActivationFeeModal({ serverIsActivated, createdAt }: { serverIsA
         <div className="mx-6 mb-5 flex items-center gap-4 bg-amber-500/5 border border-amber-500/20 rounded-xl px-5 py-4">
           <div>
             <p className="text-slate-400 text-xs font-medium uppercase tracking-wide">Activation Fee</p>
-            <p className="text-amber-400 font-black text-3xl font-mono leading-tight">₹999 <span className="text-base font-semibold text-slate-400">per month</span></p>
+            <p className="text-amber-400 font-black text-3xl font-mono leading-tight">₹{selectedAmount.toLocaleString('en-IN')} <span className="text-base font-semibold text-slate-400">selected plan</span></p>
           </div>
           <div className="ml-auto text-right">
             <p className="text-slate-500 text-xs">Multi-Level Referral Plan</p>
@@ -238,8 +244,22 @@ export function ActivationFeeModal({ serverIsActivated, createdAt }: { serverIsA
                   <div>
                     <p className="text-slate-300 text-sm font-semibold mb-2.5 flex items-center gap-1.5">
                       <span className="w-5 h-5 rounded-full bg-amber-500/20 text-amber-400 text-xs flex items-center justify-center font-bold">1</span>
-                      Choose payment method and pay ₹999
+                      Choose a plan and payment method
                     </p>
+                    <div className="grid grid-cols-2 gap-2 mb-3">
+                      {(plans.length ? plans : [
+                        { id: 1, name: '1 Month', durationMonths: 1, priceInr: '999', description: 'Starter access' },
+                        { id: 2, name: '3 Months', durationMonths: 3, priceInr: '1999', description: 'Quarterly access' },
+                        { id: 3, name: '6 Months', durationMonths: 6, priceInr: '2999', description: 'Popular plan' },
+                        { id: 4, name: '12 Months', durationMonths: 12, priceInr: '4999', description: 'Annual value' },
+                      ]).map(plan => (
+                        <button key={plan.id} type="button" onClick={() => setSelectedPlanId(plan.id)} className={`rounded-xl border p-3 text-left transition ${selectedPlanId === plan.id ? 'border-amber-400 bg-amber-500/10 ring-1 ring-amber-400/40' : 'border-slate-700 bg-slate-800/50 hover:border-slate-600'}`}>
+                          <span className="block text-xs font-semibold text-slate-300">{plan.name}</span>
+                          <span className="mt-1 block text-lg font-black text-amber-300">₹{Number(plan.priceInr).toLocaleString('en-IN')}</span>
+                          <span className="block text-[10px] text-slate-500">{plan.description}</span>
+                        </button>
+                      ))}
+                    </div>
                     <div className="space-y-2">
                       {paymentMethods.map((method) => {
                         const isSelected = selectedMethod === method.method
@@ -280,7 +300,7 @@ export function ActivationFeeModal({ serverIsActivated, createdAt }: { serverIsA
                   <div>
                     <p className="text-slate-300 text-sm font-semibold mb-2.5 flex items-center gap-1.5">
                       <span className="w-5 h-5 rounded-full bg-amber-500/20 text-amber-400 text-xs flex items-center justify-center font-bold">2</span>
-                      Paste UTR / transaction reference
+                      Paste UTR / transaction reference after paying in INR
                     </p>
                     <div className="relative">
                       <Wallet className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />

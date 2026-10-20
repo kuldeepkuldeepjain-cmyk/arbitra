@@ -1,7 +1,7 @@
 'use server'
 
 import { db } from '@/lib/db'
-import { walletTransactions, withdrawals, fundRequests, user, referralCommissions, autoTradeLogs } from '@/lib/db/schema'
+import { walletTransactions, walletBalances, withdrawals, fundRequests, user, referralCommissions, autoTradeLogs } from '@/lib/db/schema'
 import { eq, desc, sum, sql, and, gte } from 'drizzle-orm'
 import { auth } from '@/lib/auth'
 import { headers } from 'next/headers'
@@ -21,6 +21,27 @@ function setCachedBalance(userId: string, value: number) {
 }
 export async function invalidateBalanceCache(userId: string) {
   _balanceCache.delete(userId)
+}
+
+async function persistWalletSnapshot(userId: string, values: {
+  available?: number
+  totalDeposited?: number
+  totalProfit?: number
+  totalReferral?: number
+  totalWithdrawn?: number
+  pendingWithdrawal?: number
+}) {
+  const snapshot = Object.fromEntries(
+    Object.entries(values).map(([key, value]) => [key, value === undefined ? undefined : value.toFixed(2)])
+  )
+  await db.insert(walletBalances).values({
+    userId,
+    ...snapshot,
+    updatedAt: new Date(),
+  }).onConflictDoUpdate({
+    target: walletBalances.userId,
+    set: { ...snapshot, updatedAt: new Date() },
+  })
 }
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
@@ -72,6 +93,7 @@ export async function computeWalletBalance(userId: string): Promise<number> {
   const available = deposits + profits + commissions - withdrawn - pendingWith - activationDebit - autoTradeShifted
   const result = Math.max(0, parseFloat(available.toFixed(2)))
   setCachedBalance(userId, result)
+  await persistWalletSnapshot(userId, { available: result })
   return result
 }
 
@@ -145,6 +167,15 @@ export async function getWalletSummary() {
     ? new Date(new Date(lastWithdrawalAt).getTime() + 7 * 24 * 60 * 60 * 1000)
     : null
   const canWithdrawNow = !nextWithdrawalAvailable || new Date() >= nextWithdrawalAvailable
+
+  await persistWalletSnapshot(userId, {
+    available,
+    totalDeposited,
+    totalProfit: tradeProfits,
+    totalReferral: referralEarnings,
+    totalWithdrawn,
+    pendingWithdrawal,
+  })
 
   return {
     available,

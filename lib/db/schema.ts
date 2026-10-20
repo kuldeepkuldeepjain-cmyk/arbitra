@@ -273,6 +273,17 @@ export const walletTransactions = pgTable('wallet_transactions', {
   createdAt: timestamp('createdAt').notNull().defaultNow(),
 })
 
+export const walletBalances = pgTable('wallet_balances', {
+  userId: text('userId').primaryKey().references(() => user.id, { onDelete: 'cascade' }),
+  available: decimal('available', { precision: 18, scale: 2 }).notNull().default('0'),
+  totalDeposited: decimal('totalDeposited', { precision: 18, scale: 2 }).notNull().default('0'),
+  totalProfit: decimal('totalProfit', { precision: 18, scale: 2 }).notNull().default('0'),
+  totalReferral: decimal('totalReferral', { precision: 18, scale: 2 }).notNull().default('0'),
+  totalWithdrawn: decimal('totalWithdrawn', { precision: 18, scale: 2 }).notNull().default('0'),
+  pendingWithdrawal: decimal('pendingWithdrawal', { precision: 18, scale: 2 }).notNull().default('0'),
+  updatedAt: timestamp('updatedAt').notNull().defaultNow(),
+})
+
 export const withdrawals = pgTable('withdrawals', {
   id: serial('id').primaryKey(),
   userId: text('userId').notNull().references(() => user.id, { onDelete: 'cascade' }),

@@ -275,9 +275,24 @@ export async function getActivationStatus() {
     .where(eq(depositAddressesTable.isActive, true))
     .orderBy(depositAddressesTable.network)
 
+  const monthsForAmount = (amount: string | number) => {
+    const value = Number(amount)
+    return value >= 4999 ? 12 : value >= 2999 ? 6 : value >= 1999 ? 3 : 1
+  }
+  const activationMonths = latestFee?.status === 'confirmed' ? monthsForAmount(latestFee.amount) : 0
+  const activationExpiresAt = me.activationPaidAt && activationMonths > 0
+    ? new Date(new Date(me.activationPaidAt).setMonth(new Date(me.activationPaidAt).getMonth() + activationMonths))
+    : null
+  const remainingDays = activationExpiresAt
+    ? Math.max(0, Math.ceil((activationExpiresAt.getTime() - Date.now()) / 86400000))
+    : null
+
   return {
     isActivated: me.isActivated,
     activationPaidAt: me.activationPaidAt,
+    activationMonths,
+    activationExpiresAt,
+    remainingDays,
     latestFee: latestFee ?? null,
     depositAddresses: addresses,
   }

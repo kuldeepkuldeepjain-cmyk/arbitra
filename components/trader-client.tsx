@@ -60,7 +60,7 @@ const STATUS_META = {
 
 export function TraderClient({ user, isActivated, createdAt }: { user: { id: string; name?: string | null; email?: string }; isActivated: boolean; createdAt: string }) {
   const router = useRouter()
-  const [activeTab, setActiveTab] = useState<Tab>('opportunities')
+  const [activeTab, setActiveTab] = useState<Tab>('trading-bot')
 
   // Opportunities state — no auto-scan, user triggers manually
   const [opportunities, setOpportunities] = useState<Opportunity[]>([])
@@ -326,7 +326,7 @@ export function TraderClient({ user, isActivated, createdAt }: { user: { id: str
         </div>
       </header>
 
-      {/* ── Tab Navigation ─────────────────────────���───────────── */}
+      {/* ── Tab Navigation ─────────────────────────���───────���───── */}
       <div className="border-b border-slate-800/60 bg-[#0a0f1e]/80 backdrop-blur-sm sticky top-14 z-30">
         <div className="max-w-screen-xl mx-auto overflow-x-auto scrollbar-none">
           <div className="flex min-w-max px-3 sm:px-4 md:px-6">

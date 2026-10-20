@@ -2209,7 +2209,36 @@ export function TradingBot() {
   ]
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
+      {/* Algo trading command center */}
+      <section className="relative overflow-hidden rounded-2xl border border-amber-500/20 bg-gradient-to-br from-amber-500/[0.12] via-slate-900 to-slate-950 p-5 sm:p-6">
+        <div className="pointer-events-none absolute -right-16 -top-20 h-52 w-52 rounded-full border border-amber-400/10" />
+        <div className="pointer-events-none absolute -right-8 -top-12 h-36 w-36 rounded-full border border-amber-400/10" />
+        <div className="relative flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+          <div className="max-w-2xl">
+            <div className="mb-3 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.2em] text-amber-400">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.8)]" />
+              Algo trading command center
+            </div>
+            <h2 className="text-balance text-2xl font-bold tracking-tight text-white sm:text-3xl">Automate your edge with precision.</h2>
+            <p className="mt-2 max-w-xl text-sm leading-6 text-slate-400">Monitor every strategy, launch new bots, and keep your execution system focused from one professional workspace.</p>
+          </div>
+          <div className="flex shrink-0 items-center gap-2 rounded-xl border border-slate-700/80 bg-slate-950/60 px-4 py-3">
+            <Activity className="h-4 w-4 text-emerald-400" />
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">System status</p>
+              <p className="text-sm font-bold text-emerald-400">Ready to execute</p>
+            </div>
+          </div>
+        </div>
+        <div className="relative mt-5 grid grid-cols-2 gap-2 border-t border-slate-800/80 pt-4 sm:grid-cols-4">
+          <div><p className="text-[10px] uppercase tracking-wider text-slate-500">Bots deployed</p><p className="mt-1 text-lg font-bold text-white">{bots.length}</p></div>
+          <div><p className="text-[10px] uppercase tracking-wider text-slate-500">Active now</p><p className="mt-1 text-lg font-bold text-emerald-400">{bots.filter(bot => bot.status === 'active').length}</p></div>
+          <div><p className="text-[10px] uppercase tracking-wider text-slate-500">Strategies</p><p className="mt-1 text-lg font-bold text-cyan-400">{OPPORTUNITY_TYPES.length}</p></div>
+          <div><p className="text-[10px] uppercase tracking-wider text-slate-500">Capital deployed</p><p className="mt-1 text-lg font-bold text-white">${bots.reduce((sum, bot) => sum + parseFloat(String(bot.totalInvested || 0)), 0).toLocaleString('en-US', { maximumFractionDigits: 0 })}</p></div>
+        </div>
+      </section>
+
       {/* Compact action bar — no duplicate title, just controls */}
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div className="flex items-center gap-1 p-1 bg-slate-900 border border-slate-800 rounded-xl">

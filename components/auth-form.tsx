@@ -9,8 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card } from '@/components/ui/card'
-import { getRoleLabel, getRoleDescription, UserRole } from '@/lib/roles'
-import { RefreshCw, Shield, Eye, EyeOff, ArrowLeft } from 'lucide-react'
+import { RefreshCw, Shield, ArrowLeft } from 'lucide-react'
 
 // Server actions are imported dynamically inside event handlers to avoid bundling them on the client
 
@@ -46,7 +45,8 @@ function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [selectedRole, setSelectedRole] = useState<UserRole>('trader')
+  const [otp, setOtp] = useState('')
+  const [otpSent, setOtpSent] = useState(false)
   const [referralCode, setReferralCode] = useState('')
   const [referralValid, setReferralValid] = useState<boolean | null>(null)
   const [referralChecking, setReferralChecking] = useState(false)
@@ -112,6 +112,22 @@ function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
 
     setLoading(true)
 
+    if (otpSent) {
+      const { data, error: otpError } = await authClient.emailOtp.verifyEmail({
+        email: email.toLowerCase(),
+        otp: otp.trim(),
+      })
+      if (otpError) {
+        setError('That verification code is invalid or expired.')
+        setLoading(false)
+        return
+      }
+      if (data?.status) {
+        window.location.href = '/trader'
+      }
+      return
+    }
+
     if (isSignUp) {
       // Step 1 — Server pre-flight: captcha + rate limit + email uniqueness check
       const { registerWithCaptcha } = await import('@/app/actions/secure-registration')
@@ -129,9 +145,8 @@ function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
       // Step 2 — Let Better Auth create the account (it hashes the password correctly)
       const { data: signUpData, error: signUpError } = await authClient.signUp.email({
         email: email.toLowerCase(),
-        password,
+        password: '',
         name,
-        role: selectedRole,
       })
       if (signUpError) {
         setError(signUpError.message ?? 'Account creation failed.')
@@ -140,6 +155,17 @@ function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
         return
       }
 
+      const { error: otpError } = await authClient.emailOtp.sendVerificationOtp({
+        email: email.toLowerCase(),
+        type: 'email-verification',
+      })
+      if (otpError) {
+        setError('Account created, but we could not send the verification code. Please try again.')
+        setLoading(false)
+        return
+      }
+      setOtpSent(true)
+      setLoading(false)
       // Step 3 — Save extra profile fields via server action
       if (signUpData?.user?.id) {
         try {
@@ -156,9 +182,17 @@ function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
         } catch { /* non-fatal */ }
       }
     } else {
-      const { data: signInData, error } = await authClient.signIn.email({ email, password })
+      const { data: signInData, error } = await authClient.signIn.emailOtp({
+        email: email.toLowerCase(),
+        otp: otp.trim(),
+      })
       if (error) {
-        setError(error.message ?? 'Something went wrong')
+        setError('That verification code is invalid or expired.')
+        setLoading(false)
+        return
+      }
+      if (!signInData?.user) {
+        setError('Unable to complete sign in.')
         setLoading(false)
         return
       }
@@ -197,17 +231,35 @@ function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
             Back to Home
           </Link>
           <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-            {isSignUp ? 'Create an account' : 'Welcome back'}
+            {otpSent ? 'Enter your email code' : isSignUp ? 'Create an account' : 'Welcome back'}
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            {isSignUp
-              ? 'Sign up to get started'
-              : 'Sign in to your account to continue'}
+            {otpSent
+              ? `We sent a 6-digit verification code to ${email}`
+              : isSignUp
+                ? 'Sign up to get started'
+                : 'Sign in securely with a one-time email code'}
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          {isSignUp && (
+          {otpSent ? (
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="otp">Verification code</Label>
+              <Input
+                id="otp"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                pattern="[0-9]{6}"
+                maxLength={6}
+                value={otp}
+                onChange={(e) => setOtp(e.target.value.replace(/\\D/g, '').slice(0, 6))}
+                required
+                autoFocus
+                className="text-center text-2xl font-bold tracking-[0.45em]"
+              />
+            </div>
+          ) : isSignUp ? (
             <>
               <div className="flex flex-col gap-2">
                 <Label htmlFor="name">Name</Label>
@@ -218,34 +270,6 @@ function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
                   required
                   autoComplete="name"
                 />
-              </div>
-              <div className="flex flex-col gap-3 pb-2 border-b border-slate-200">
-                <Label className="text-base font-semibold">Select your role</Label>
-                <div className="space-y-2">
-                  {(['trader', 'viewer'] as const).map((role) => (
-                    <label
-                      key={role}
-                      className={`flex items-start gap-3 p-3 rounded-lg border-2 cursor-pointer transition-all ${
-                        selectedRole === role
-                          ? 'border-blue-500 bg-blue-50'
-                          : 'border-slate-200 hover:border-slate-300'
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name="role"
-                        value={role}
-                        checked={selectedRole === role}
-                        onChange={(e) => setSelectedRole(e.target.value as UserRole)}
-                        className="mt-1"
-                      />
-                      <div className="flex-1">
-                        <p className="font-medium text-slate-900">{getRoleLabel(role)}</p>
-                        <p className="text-xs text-slate-600">{getRoleDescription(role)}</p>
-                      </div>
-                    </label>
-                  ))}
-                </div>
               </div>
               {/* Referral code */}
               <div className="flex flex-col gap-2">
@@ -288,82 +312,45 @@ function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
                 )}
               </div>
             </>
-          )}
-
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              autoComplete="email"
-            />
-          </div>
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="password">Password</Label>
-            <div className="relative">
-              <Input
-                id="password"
-                type={showPassword ? 'text' : 'password'}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                minLength={8}
-                autoComplete={isSignUp ? 'new-password' : 'current-password'}
-                className="pr-10"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(v => !v)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                aria-label={showPassword ? 'Hide password' : 'Show password'}
-              >
-                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-              </button>
-            </div>
-          </div>
-
-          {/* Math captcha — sign-up only */}
-          {isSignUp && challenge && (
-            <div className="rounded-lg border border-border bg-muted/40 p-4 flex flex-col gap-3">
-              <div className="flex items-center gap-2">
-                <Shield className="w-3.5 h-3.5 text-primary shrink-0" />
-                <span className="text-xs font-semibold text-foreground uppercase tracking-wide">Security Check</span>
-              </div>
-              <p className="text-xs text-muted-foreground">Solve the equation to prove you&apos;re human:</p>
-              <div className="flex items-center gap-3">
-                {/* Challenge display */}
-                <div className="flex-1 flex items-center justify-center px-4 py-2.5 rounded-lg bg-background border border-border select-none">
-                  <span className="text-base font-bold font-mono tracking-widest text-foreground">
-                    {challenge.question} = ?
-                  </span>
-                </div>
-                {/* Answer input */}
+          ) : (
+            <>
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="email">Email</Label>
                 <Input
-                  type="number"
-                  value={captchaAnswer}
-                  onChange={(e) => { setCaptchaAnswer(e.target.value); setCaptchaError(false) }}
-                  placeholder="0"
-                  className={`w-20 text-center font-bold text-base font-mono ${captchaError ? 'border-destructive focus-visible:ring-destructive' : ''}`}
-                  required={isSignUp}
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  autoComplete="email"
                 />
-                {/* Refresh */}
-                <button
-                  type="button"
-                  onClick={refreshChallenge}
-                  className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-                  title="New challenge"
-                >
-                  <RefreshCw className="w-3.5 h-3.5" />
-                </button>
               </div>
-              {captchaError && (
-                <p className="text-xs text-destructive">Wrong answer — a new challenge has been generated.</p>
+              {isSignUp && (
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="password">Create password</Label>
+                  <Input
+                    id="password"
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    minLength={8}
+                    autoComplete="new-password"
+                  />
+                </div>
               )}
+            </>
+          )}
+
+          {!otpSent && isSignUp && challenge && (
+            <div className="rounded-lg border border-border bg-muted/40 p-4 flex flex-col gap-3">
+              <div className="flex items-center gap-2"><Shield className="w-3.5 h-3.5 text-primary" /><span className="text-xs font-semibold uppercase tracking-wide">Security Check</span></div>
+              <p className="text-xs text-muted-foreground">Solve the equation to prove you&apos;re human:</p>
+              <div className="flex items-center gap-3"><div className="flex-1 flex items-center justify-center px-4 py-2.5 rounded-lg bg-background border border-border select-none"><span className="text-base font-bold font-mono tracking-widest">{challenge.question} = ?</span></div><Input type="number" value={captchaAnswer} onChange={(e) => { setCaptchaAnswer(e.target.value); setCaptchaError(false) }} placeholder="0" className={`w-20 text-center font-bold text-base font-mono ${captchaError ? 'border-destructive' : ''}`} required /><button type="button" onClick={refreshChallenge} className="p-2 rounded-lg text-muted-foreground hover:text-foreground" title="New challenge"><RefreshCw className="w-3.5 h-3.5" /></button></div>
+              {captchaError && <p className="text-xs text-destructive">Wrong answer — a new challenge has been generated.</p>}
             </div>
           )}
+
 
           {error && (
             <p className="text-sm text-destructive" role="alert">
@@ -374,9 +361,11 @@ function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
           <Button type="submit" disabled={loading} className="w-full">
             {loading
               ? 'Please wait...'
-              : isSignUp
-                ? 'Create account'
-                : 'Sign in'}
+              : otpSent
+                ? 'Verify code'
+                : isSignUp
+              ? 'Send verification code'
+              : 'Send sign-in code'}
           </Button>
         </form>
 

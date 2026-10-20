@@ -8,10 +8,9 @@ import { registerWithCaptcha, saveRegistrationProfile } from '@/app/actions/secu
 import { authClient } from '@/lib/auth-client'
 
 const benefits = [
-  { icon: Zap, text: 'Free forever plan — no credit card required' },
-  { icon: TrendingUp, text: 'Access automated trading strategies across global markets' },
-  { icon: ShieldCheck, text: 'Read-only API keys — your funds stay safe' },
-  { icon: Bell, text: 'Telegram, WhatsApp & email alerts included' },
+  { icon: Zap, title: 'Automated strategy tools', text: 'Trade smarter with data-driven strategies and advanced automation.' },
+  { icon: TrendingUp, title: 'Connect your exchange with read-only API access', text: 'Secure, seamless and hassle-free integration with your exchange.' },
+  { icon: Bell, title: 'Configurable market alerts', text: 'Stay ahead with real-time alerts and custom notifications.' },
 ]
 
 // --- Math captcha helpers ---
@@ -160,12 +159,16 @@ export function Registration() {
   }
 
   return (
-    <section id="pricing" className="py-28 relative overflow-hidden">
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#00D4FF]/20 to-transparent" />
-      <div className="absolute top-1/2 right-0 w-[500px] h-[500px] bg-[#00D4FF]/5 blur-[120px] pointer-events-none" />
+    <section id="pricing" className="relative min-h-screen overflow-hidden bg-[#020914] py-16 sm:py-20 lg:py-24">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_20%,rgba(0,137,255,0.18),transparent_34%),linear-gradient(115deg,rgba(2,9,20,0.98),rgba(2,13,28,0.88))]" />
+      <div className="absolute inset-0 opacity-30 [background-image:linear-gradient(rgba(24,133,235,0.11)_1px,transparent_1px),linear-gradient(90deg,rgba(24,133,235,0.11)_1px,transparent_1px)] [background-size:72px_72px] [mask-image:linear-gradient(to_bottom,black,transparent_90%)]" />
+      <div className="absolute -bottom-40 left-1/3 h-96 w-[70%] rounded-full bg-[#006dff]/20 blur-[120px]" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
-        <div className="grid lg:grid-cols-2 gap-16 items-center">
+      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-8">
+        <div className="mb-12 flex items-center gap-3 lg:mb-16">
+          <img src="/algobot-logo.png" alt="AlgoBot" className="h-10 w-auto object-contain sm:h-12" />
+        </div>
+        <div className="grid items-center gap-12 lg:grid-cols-[0.95fr_1.05fr] lg:gap-16">
           {/* Left: benefits */}
           <motion.div
             initial={{ opacity: 0, x: -30 }}
@@ -173,8 +176,29 @@ export function Registration() {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-[#00D4FF]/20 bg-[#00D4FF]/5 text-[#00D4FF] text-xs font-medium mb-6">
-              Start for Free Today
+            <div className="mb-7 flex items-center gap-3 text-[11px] font-medium uppercase tracking-[0.32em] text-[#85b8ef]">
+              <span className="h-1 w-10 rounded-full bg-[#00D4FF]" />
+              Algorithmic Trading Platform
+            </div>
+            <h2 className="max-w-xl text-5xl font-bold leading-[0.98] tracking-tight text-white sm:text-6xl">
+              Build Your <span className="text-[#00BFFF]">Trading Edge</span> with <span className="text-[#00BFFF]">AlgoBot</span>
+            </h2>
+            <p className="mt-7 max-w-lg text-lg leading-relaxed text-[#a3c2e8]">
+              One platform for algorithmic trading tools across crypto, forex, commodities and global markets.
+            </p>
+
+            <div className="mt-10 flex max-w-lg flex-col gap-7">
+              {benefits.map((b) => (
+                <div key={b.text} className="flex items-start gap-5">
+                  <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border border-[#008cff] bg-[#061b35]/80 shadow-[0_0_22px_rgba(0,140,255,0.18)]">
+                    <b.icon className="h-7 w-7 text-[#00C8FF]" />
+                  </div>
+                  <div className="pt-1">
+                    <h3 className="text-base font-semibold text-white">{b.title}</h3>
+                    <p className="mt-1 text-sm leading-relaxed text-[#8eafd9]">{b.text}</p>
+                  </div>
+                </div>
+              ))}
             </div>
             <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 text-balance">
               Join 3,200+ Traders Already Using AlgoBot
@@ -194,22 +218,6 @@ export function Registration() {
               ))}
             </div>
 
-            {/* Testimonial mini */}
-            <div className="p-5 rounded-2xl border border-white/[0.06] bg-[#0E1324]/60">
-              <p className="text-sm text-[#98A2B3] italic mb-3">
-                &ldquo;Signed up on a Monday. Found my first 1.2% net opportunity by Tuesday morning. Genuinely surprised.&rdquo;
-              </p>
-              <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-full bg-[#00D4FF]/15 border border-[#00D4FF]/25 flex items-center justify-center text-xs font-bold text-[#00D4FF]">
-                  RC
-                </div>
-                <div>
-                  <p className="text-xs font-semibold text-white">Ryan Chen</p>
-                  <p className="text-xs text-[#98A2B3]">Independent Crypto Trader</p>
-                </div>
-                <CheckCircle2 className="w-3.5 h-3.5 text-[#00D4FF] ml-auto" />
-              </div>
-            </div>
           </motion.div>
 
           {/* Right: form */}
@@ -219,7 +227,7 @@ export function Registration() {
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.1 }}
           >
-            <div className="rounded-2xl border border-white/[0.08] bg-[#0E1324]/90 backdrop-blur-xl p-8 shadow-[0_0_60px_rgba(0,212,255,0.08)]">
+            <div className="rounded-[24px] border border-[#078dff] bg-[#071426]/90 p-7 shadow-[0_0_70px_rgba(0,132,255,0.18)] backdrop-blur-xl sm:p-10">
               {submitted ? (
                 <div className="flex flex-col items-center justify-center py-12 text-center">
                   <div className="w-16 h-16 rounded-full bg-[#00FF99]/10 border border-[#00FF99]/30 flex items-center justify-center mb-6">
@@ -288,57 +296,57 @@ export function Registration() {
                 </>
               ) : (
                 <>
-                  <h3 className="text-xl font-bold text-white mb-2">Create Free Account</h3>
-                  <p className="text-sm text-[#98A2B3] mb-6">No credit card required. We&apos;ll email you a 6-digit code to verify your account.</p>
+                  <h3 className="text-3xl font-bold tracking-tight text-white mb-2">Create Your <span className="text-[#00C8FF]">AlgoBot</span> Account</h3>
+                  <p className="text-sm text-[#8eafd9] mb-8">Enter your details to get started.</p>
 
                   <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-xs text-[#98A2B3] mb-1.5">Full Name *</label>
+                        <label className="mb-2 block text-xs font-medium text-[#8eafd9]">Full Name *</label>
                         <input
                           type="text"
                           required
                           value={form.name}
                           onChange={(e) => setForm({ ...form, name: e.target.value })}
                           placeholder="John Smith"
-                          className="w-full px-4 py-2.5 text-sm rounded-xl bg-white/[0.04] border border-white/[0.08] text-white placeholder-[#98A2B3]/50 focus:outline-none focus:border-[#00D4FF]/40 transition-colors"
+                          className="w-full rounded-xl border border-[#264467] bg-[#0b1a31]/80 px-4 py-3.5 text-sm text-white placeholder-[#7f9abd]/60 transition-colors focus:border-[#00C8FF] focus:outline-none focus:ring-1 focus:ring-[#00C8FF]/40"
                         />
                       </div>
                       <div>
-                        <label className="block text-xs text-[#98A2B3] mb-1.5">Mobile Number *</label>
+                        <label className="mb-2 block text-xs font-medium text-[#8eafd9]">Mobile Number *</label>
                         <input
                           type="tel"
                           required
                           value={form.phone}
                           onChange={(e) => setForm({ ...form, phone: e.target.value })}
                           placeholder="+1 555 000 0000"
-                          className="w-full px-4 py-2.5 text-sm rounded-xl bg-white/[0.04] border border-white/[0.08] text-white placeholder-[#98A2B3]/50 focus:outline-none focus:border-[#00D4FF]/40 transition-colors"
+                          className="w-full rounded-xl border border-[#264467] bg-[#0b1a31]/80 px-4 py-3.5 text-sm text-white placeholder-[#7f9abd]/60 transition-colors focus:border-[#00C8FF] focus:outline-none focus:ring-1 focus:ring-[#00C8FF]/40"
                         />
                       </div>
                     </div>
 
                     <div>
-                      <label className="block text-xs text-[#98A2B3] mb-1.5">Email Address *</label>
+                      <label className="mb-2 block text-xs font-medium text-[#8eafd9]">Email Address *</label>
                       <input
                         type="email"
                         required
                         value={form.email}
                         onChange={(e) => setForm({ ...form, email: e.target.value })}
                         placeholder="john@example.com"
-                        className="w-full px-4 py-2.5 text-sm rounded-xl bg-white/[0.04] border border-white/[0.08] text-white placeholder-[#98A2B3]/50 focus:outline-none focus:border-[#00D4FF]/40 transition-colors"
+                        className="w-full rounded-xl border border-[#264467] bg-[#0b1a31]/80 px-4 py-3.5 text-sm text-white placeholder-[#7f9abd]/60 transition-colors focus:border-[#00C8FF] focus:outline-none focus:ring-1 focus:ring-[#00C8FF]/40"
                       />
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-xs text-[#98A2B3] mb-1.5">State *</label>
+                        <label className="mb-2 block text-xs font-medium text-[#8eafd9]">State *</label>
                         <input
                           type="text"
                           required
                           value={form.country}
                           onChange={(e) => setForm({ ...form, country: e.target.value })}
                           placeholder="Maharashtra"
-                          className="w-full px-4 py-2.5 text-sm rounded-xl bg-white/[0.04] border border-white/[0.08] text-white placeholder-[#98A2B3]/50 focus:outline-none focus:border-[#00D4FF]/40 transition-colors"
+                          className="w-full rounded-xl border border-[#264467] bg-[#0b1a31]/80 px-4 py-3.5 text-sm text-white placeholder-[#7f9abd]/60 transition-colors focus:border-[#00C8FF] focus:outline-none focus:ring-1 focus:ring-[#00C8FF]/40"
                         />
                       </div>
 
@@ -346,7 +354,7 @@ export function Registration() {
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-xs text-[#98A2B3] mb-1.5">Password *</label>
+                        <label className="mb-2 block text-xs font-medium text-[#8eafd9]">Password *</label>
                         <input
                           type="password"
                           required
@@ -354,11 +362,11 @@ export function Registration() {
                           value={form.password}
                           onChange={(e) => setForm({ ...form, password: e.target.value })}
                           placeholder="Min. 8 characters"
-                          className="w-full px-4 py-2.5 text-sm rounded-xl bg-white/[0.04] border border-white/[0.08] text-white placeholder-[#98A2B3]/50 focus:outline-none focus:border-[#00D4FF]/40 transition-colors"
+                          className="w-full rounded-xl border border-[#264467] bg-[#0b1a31]/80 px-4 py-3.5 text-sm text-white placeholder-[#7f9abd]/60 transition-colors focus:border-[#00C8FF] focus:outline-none focus:ring-1 focus:ring-[#00C8FF]/40"
                         />
                       </div>
                       <div>
-                        <label className="block text-xs text-[#98A2B3] mb-1.5">Confirm Password *</label>
+                        <label className="mb-2 block text-xs font-medium text-[#8eafd9]">Confirm Password *</label>
                         <input
                           type="password"
                           required
@@ -382,7 +390,7 @@ export function Registration() {
 
                     {/* Math Captcha */}
                     {challenge && (
-                      <div className="rounded-xl border border-[#00D4FF]/20 bg-[#00D4FF]/[0.03] p-4">
+                      <div className="rounded-2xl border border-[#008dff] bg-[#061b35]/70 p-5 shadow-[0_0_28px_rgba(0,132,255,0.12)]">
                         <div className="flex items-center gap-2 mb-3">
                           <Shield className="w-4 h-4 text-[#00D4FF] shrink-0" />
                           <span className="text-xs font-semibold text-[#00D4FF] uppercase tracking-wide">Security Check</span>
@@ -463,13 +471,14 @@ export function Registration() {
                       className="w-full py-3.5 rounded-xl text-sm font-semibold text-[#050816] bg-[#00D4FF] hover:bg-[#00D4FF]/90 disabled:opacity-60 disabled:cursor-not-allowed transition-all shadow-[0_0_30px_rgba(0,212,255,0.35)] hover:shadow-[0_0_50px_rgba(0,212,255,0.55)] flex items-center justify-center gap-2"
                     >
                       {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-                      {loading ? 'Creating account...' : 'Create Free Account'}
+                      {loading ? 'Creating account...' : 'Create Account  →'}
                     </button>
 
-                    <p className="text-center text-xs text-[#98A2B3]">
-                      Already have an account?{' '}
-                      <Link href="/sign-in" className="text-[#00D4FF] hover:underline">Sign In</Link>
-                    </p>
+                    <div className="flex items-center gap-4 pt-2">
+                      <span className="h-px flex-1 bg-[#24415f]" />
+                      <p className="text-center text-xs text-[#8eafd9]">Already have an account?{' '}<Link href="/sign-in" className="text-[#00C8FF] hover:underline">Sign in</Link></p>
+                      <span className="h-px flex-1 bg-[#24415f]" />
+                    </div>
                   </form>
                 </>
               )}

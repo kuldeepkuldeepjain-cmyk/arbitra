@@ -53,7 +53,6 @@ function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
   const [referralChecking, setReferralChecking] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
-  const [showPassword, setShowPassword] = useState(false)
 
   // Math captcha — generated client-side only to avoid SSR hydration mismatch
   const [challenge, setChallenge] = useState<CaptchaChallenge | null>(null)
@@ -353,7 +352,7 @@ function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
                   <Label htmlFor="password">{isSignUp ? 'Create password' : 'Password'}</Label>
                   <Input
                     id="password"
-                    type={showPassword ? 'text' : 'password'}
+                    type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required

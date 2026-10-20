@@ -29,6 +29,7 @@
     "protobufjs": "^8.7.1",
     "react": "^19",
     "react-dom": "^19",
+    "resend": "^6.34.1",
     "shadcn": "^4.8.0",
     "stripe": "^23.0.0",
     "swr": "^2.5.0",

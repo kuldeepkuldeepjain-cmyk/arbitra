@@ -2,16 +2,10 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { motion } from 'framer-motion'
-import { CheckCircle2, Zap, TrendingUp, ShieldCheck, Bell, Loader2, Shield, RefreshCw } from 'lucide-react'
+import { CheckCircle2, ShieldCheck, Loader2, Shield, RefreshCw } from 'lucide-react'
 import Link from 'next/link'
 import { registerWithCaptcha, saveRegistrationProfile } from '@/app/actions/secure-registration'
 import { authClient } from '@/lib/auth-client'
-
-const benefits = [
-  { icon: Zap, title: 'Automated strategy tools', text: 'Trade smarter with data-driven strategies and advanced automation.' },
-  { icon: TrendingUp, title: 'Connect your exchange with read-only API access', text: 'Secure, seamless and hassle-free integration with your exchange.' },
-  { icon: Bell, title: 'Configurable market alerts', text: 'Stay ahead with real-time alerts and custom notifications.' },
-]
 
 // --- Math captcha helpers ---
 type CaptchaChallenge = { question: string; answer: number }
@@ -165,49 +159,14 @@ export function Registration() {
       <div className="absolute -bottom-40 left-1/3 h-96 w-[70%] rounded-full bg-[#006dff]/20 blur-[120px]" />
 
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-8">
-        <div className="mb-12 flex items-center gap-3 lg:mb-16">
+        <div className="mx-auto mb-10 flex max-w-xl justify-center lg:mb-12">
           <img src="/algobot-logo.png" alt="AlgoBot" className="h-10 w-auto object-contain sm:h-12" />
         </div>
-        <div className="grid items-center gap-12 lg:grid-cols-[0.95fr_1.05fr] lg:gap-16">
-          {/* Left: benefits */}
+        <div className="mx-auto max-w-xl">
           <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            <div className="mb-7 flex items-center gap-3 text-[11px] font-medium uppercase tracking-[0.32em] text-[#85b8ef]">
-              <span className="h-1 w-10 rounded-full bg-[#00D4FF]" />
-              Algorithmic Trading Platform
-            </div>
-            <h2 className="max-w-xl text-5xl font-bold leading-[0.98] tracking-tight text-white sm:text-6xl">
-              Build Your <span className="text-[#00BFFF]">Trading Edge</span> with <span className="text-[#00BFFF]">AlgoBot</span>
-            </h2>
-            <p className="mt-7 max-w-lg text-lg leading-relaxed text-[#a3c2e8]">
-              One platform for algorithmic trading tools across crypto, forex, commodities and global markets.
-            </p>
-
-            <div className="mt-10 flex max-w-lg flex-col gap-7">
-              {benefits.map((b) => (
-                <div key={b.text} className="flex items-start gap-5">
-                  <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border border-[#008cff] bg-[#061b35]/80 shadow-[0_0_22px_rgba(0,140,255,0.18)]">
-                    <b.icon className="h-7 w-7 text-[#00C8FF]" />
-                  </div>
-                  <div className="pt-1">
-                    <h3 className="text-base font-semibold text-white">{b.title}</h3>
-                    <p className="mt-1 text-sm leading-relaxed text-[#8eafd9]">{b.text}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </motion.div>
-
-          {/* Right: form */}
-          <motion.div
-            initial={{ opacity: 0, x: 30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.1 }}
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
           >
             <div className="rounded-[24px] border border-[#078dff] bg-[#071426]/90 p-7 shadow-[0_0_70px_rgba(0,132,255,0.18)] backdrop-blur-xl sm:p-10">
               {submitted ? (

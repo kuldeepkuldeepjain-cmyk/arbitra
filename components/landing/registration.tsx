@@ -52,6 +52,8 @@ export function Registration() {
     agree: false,
   })
   const [submitted, setSubmitted] = useState(false)
+  const [otpStep, setOtpStep] = useState(false)
+  const [otp, setOtp] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -98,6 +100,22 @@ export function Registration() {
     setLoading(true)
 
     try {
+      if (otpStep) {
+        const { error: otpError } = await authClient.emailOtp.verifyEmail({
+          email: form.email.toLowerCase().trim(),
+          otp: otp.trim(),
+        })
+
+        if (otpError) {
+          setError('That code is invalid or expired. Please try again.')
+          return
+        }
+
+        setOtpStep(false)
+        setSubmitted(true)
+        return
+      }
+
       // Step 1: Pre-flight — captcha + rate limit + email uniqueness check
       const preflight = await registerWithCaptcha({
         email: form.email.toLowerCase(),
@@ -130,8 +148,9 @@ export function Registration() {
         country: form.country || undefined,
       })
 
-      // Step 4: Require email verification before opening the dashboard
-      setSubmitted(true)
+      // Step 4: Ask for the code Better Auth sent through Resend
+      setOtp('')
+      setOtpStep(true)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.')
       refreshChallenge()
@@ -208,7 +227,7 @@ export function Registration() {
                   </div>
                   <h3 className="text-xl font-bold text-white mb-2">Check your email</h3>
                   <p className="text-[#98A2B3] text-sm mb-2">
-                    We sent a verification link to <span className="text-white font-medium">{form.email}</span>.
+                    Your AlgoBot account is verified. You can now sign in with your email and password.
                   </p>
                   <p className="text-xs text-[#98A2B3]/60 mb-6">
                     Verify your email to securely continue to your AlgoBot dashboard.
@@ -220,10 +239,57 @@ export function Registration() {
                     Continue to Sign In
                   </Link>
                 </div>
+              ) : otpStep ? (
+                <>
+                  <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full border border-[#00D4FF]/30 bg-[#00D4FF]/10">
+                    <ShieldCheck className="h-7 w-7 text-[#00D4FF]" />
+                  </div>
+                  <h3 className="text-center text-xl font-bold text-white mb-2">Verify your email</h3>
+                  <p className="text-center text-sm text-[#98A2B3] mb-6">
+                    Enter the 6-digit code sent to <span className="font-medium text-white">{form.email}</span>. The code is valid for 15 minutes.
+                  </p>
+                  <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      autoComplete="one-time-code"
+                      pattern="[0-9]{6}"
+                      maxLength={6}
+                      required
+                      autoFocus
+                      value={otp}
+                      onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                      placeholder="000000"
+                      aria-label="6-digit email verification code"
+                      className="w-full rounded-xl border border-white/[0.08] bg-white/[0.04] px-4 py-4 text-center font-mono text-3xl font-bold tracking-[0.35em] text-white placeholder-[#98A2B3]/40 focus:border-[#00D4FF]/40 focus:outline-none"
+                    />
+                    {error && <p className="text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-2.5" role="alert">{error}</p>}
+                    <button
+                      type="submit"
+                      disabled={loading || otp.length !== 6}
+                      className="w-full py-3.5 rounded-xl text-sm font-semibold text-[#050816] bg-[#00D4FF] hover:bg-[#00D4FF]/90 disabled:opacity-60 disabled:cursor-not-allowed transition-all shadow-[0_0_30px_rgba(0,212,255,0.35)] flex items-center justify-center gap-2"
+                    >
+                      {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+                      {loading ? 'Verifying code...' : 'Verify and Create Account'}
+                    </button>
+                    <button
+                      type="button"
+                      disabled={loading}
+                      onClick={async () => {
+                        setError(null)
+                        const { error: resendError } = await authClient.emailOtp.sendVerificationOtp({ email: form.email.toLowerCase().trim(), type: 'email-verification' })
+                        if (resendError) setError('We could not resend the code. Please try again.')
+                      }}
+                      className="text-sm text-[#00D4FF] hover:underline disabled:opacity-60"
+                    >
+                      Resend code
+                    </button>
+                  </form>
+                </>
               ) : (
                 <>
                   <h3 className="text-xl font-bold text-white mb-2">Create Free Account</h3>
-                  <p className="text-sm text-[#98A2B3] mb-6">No credit card required. Verify your email to activate access.</p>
+                  <p className="text-sm text-[#98A2B3] mb-6">No credit card required. We&apos;ll email you a 6-digit code to verify your account.</p>
 
                   <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                     <div className="grid grid-cols-2 gap-4">

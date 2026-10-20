@@ -45,7 +45,7 @@ export async function computeWalletBalance(userId: string): Promise<number> {
 
   const results = await Promise.all([
     db.select({ total: sum(fundRequests.amount) }).from(fundRequests)
-      .where(sql`"userId" = ${userId} AND status = 'confirmed'`),
+      .where(and(eq(fundRequests.userId, userId), eq(fundRequests.status, 'confirmed'))),
     db.select({ total: sum(autoTradeLogs.dailyNet) }).from(autoTradeLogs)
       .where(eq(autoTradeLogs.userId, userId)),
     db.select({ total: sum(referralCommissions.amount) }).from(referralCommissions)
@@ -93,7 +93,7 @@ export async function getWalletSummary() {
   // All queries fire in parallel for speed
   const results = await Promise.all([
     db.select({ total: sum(fundRequests.amount) }).from(fundRequests)
-      .where(sql`"userId" = ${userId} AND status = 'confirmed'`),
+      .where(and(eq(fundRequests.userId, userId), eq(fundRequests.status, 'confirmed'))),
     db.select({ total: sum(fundRequests.amount) }).from(fundRequests)
       .where(sql`"userId" = ${userId} AND status = 'pending'`),
     db.select({ total: sum(autoTradeLogs.dailyNet) }).from(autoTradeLogs)
@@ -358,7 +358,7 @@ export async function getAllWithdrawals() {
   return rows
 }
 
-// ─── Admin: approve or reject withdrawal ─────────────────────────────────────
+// ─── Admin: approve or reject withdrawal ─���───────────────────────────────────
 
 export async function reviewWithdrawal(
   withdrawalId: number,

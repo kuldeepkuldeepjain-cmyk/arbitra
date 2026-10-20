@@ -4,7 +4,6 @@ import dynamic from 'next/dynamic'
 import { motion, useMotionValue, animate } from 'framer-motion'
 import { useEffect, useMemo, useState } from 'react'
 import { ArrowRight, Play, TrendingUp, Zap, Globe, Clock } from 'lucide-react'
-import { NexaAlgoLogo } from '@/components/logo'
 import Link from 'next/link'
 
 function AnimatedCounter({ from, to, suffix = '' }: { from: number; to: number; suffix?: string }) {
@@ -157,7 +156,7 @@ export function Hero() {
       <ParticleField />
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 w-full min-w-0">
-        <div className="text-center max-w-4xl mx-auto">
+        <div className="grid items-center gap-12 text-left lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
           {/* Badge */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -166,8 +165,10 @@ export function Hero() {
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[#00D4FF]/20 bg-[#00D4FF]/5 text-[#00D4FF] text-sm font-medium mb-8"
           >
             <span className="w-2 h-2 rounded-full bg-[#00FF99] animate-pulse" />
-            Autonomous market intelligence — live across 40,000+ instruments
+            AlgoBot intelligence layer — built for disciplined decisions
           </motion.div>
+
+          <div className="mb-8 flex items-center gap-4 lg:hidden"><img src="/algobot-logo.png" alt="AlgoBot AI trading platform" className="h-16 w-auto object-contain" /><span className="text-xs font-semibold uppercase tracking-[0.22em] text-[#98A2B3]">AI-assisted market intelligence</span></div>
 
           {/* Headline */}
           <motion.h1
@@ -193,7 +194,7 @@ export function Hero() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="text-lg md:text-xl text-[#98A2B3] leading-relaxed max-w-2xl mx-auto mb-10"
           >
-            NexaAlgo watches Bitcoin, gold, silver, and global currency pairs around the clock—then surfaces high-conviction setups with entry logic, risk context, and automated execution controls. Built for disciplined traders, not promises.
+            AlgoBot brings market scanning, signal context, and execution controls into one disciplined workspace. Follow the data, understand the risk, and decide with clarity—without promises of guaranteed returns.
           </motion.p>
 
           {/* CTAs */}
@@ -252,6 +253,16 @@ export function Hero() {
           </motion.div>
         </div>
 
+        <motion.div initial={{ opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.7, delay: 0.25 }} className="relative hidden min-h-[520px] items-center justify-center lg:flex">
+          <div className="absolute inset-10 rounded-[2rem] border border-[#00D4FF]/15 bg-[#0E1324]/65 shadow-[0_0_80px_rgba(0,212,255,0.1)] backdrop-blur-xl" />
+          <div className="relative z-10 flex flex-col items-center gap-8 text-center">
+            <img src="/algobot-logo.png" alt="AlgoBot AI trading emblem" className="w-[min(30vw,22rem)] object-contain drop-shadow-[0_0_35px_rgba(0,212,255,0.35)]" />
+            <div className="grid grid-cols-2 gap-3 text-left">
+              {[['12+', 'venues connected'], ['40K+', 'instruments watched'], ['24/7', 'market coverage'], ['Risk-first', 'workflow']].map(([value, label]) => <div key={label} className="rounded-xl border border-white/[0.08] bg-[#050816]/80 px-4 py-3"><p className="text-lg font-bold text-white">{value}</p><p className="text-[10px] uppercase tracking-wide text-[#98A2B3]">{label}</p></div>)}
+            </div>
+          </div>
+        </motion.div>
+
         {/* Floating exchange badges */}
         <motion.div
           initial={{ opacity: 0 }}
@@ -264,7 +275,7 @@ export function Hero() {
           ))}
           <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
             <div className="p-2 rounded-2xl bg-[#0E1324]/90 border border-[#00D4FF]/20 shadow-[0_0_40px_rgba(0,212,255,0.25)]">
-              <NexaAlgoLogo size="md" variant="icon" />
+              <img src="/algobot-logo.png" alt="AlgoBot" className="h-12 w-12 object-cover rounded-xl" />
             </div>
             {/* Connection ring */}
             <motion.div

@@ -23,7 +23,7 @@ const Footer       = dynamic(() => import('@/components/landing/footer').then(m 
 
 export default function Home() {
   return (
-    <main style={{ backgroundColor: '#050816', minHeight: '100vh' }}>
+    <main className="min-h-screen bg-background">
       <Navbar />
       <Hero />
       <LiveMarket />

@@ -4,13 +4,13 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import { Menu, X } from 'lucide-react'
-import { NexaAlgoLogo } from '@/components/logo'
 
 const navLinks = [
   { label: 'Features', href: '#features' },
   { label: 'Markets', href: '#markets' },
   { label: 'How It Works', href: '#how-it-works' },
   { label: 'AI', href: '#ai' },
+  { label: 'Trust', href: '#why-us' },
   { label: 'Pricing', href: '#pricing' },
 ]
 
@@ -38,7 +38,7 @@ export function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center group">
-          <NexaAlgoLogo size="sm" variant="full" />
+          <img src="/algobot-logo.png" alt="AlgoBot" className="h-10 w-auto object-contain" />
         </Link>
 
         {/* Desktop nav */}

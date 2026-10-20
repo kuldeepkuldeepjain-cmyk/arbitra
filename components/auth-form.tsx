@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card } from '@/components/ui/card'
-import { RefreshCw, Shield, ArrowLeft } from 'lucide-react'
+import { RefreshCw, Shield, ArrowLeft, Eye, EyeOff } from 'lucide-react'
 
 // Server actions are imported dynamically inside event handlers to avoid bundling them on the client
 
@@ -47,12 +47,13 @@ function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
   const [password, setPassword] = useState('')
   const [otp, setOtp] = useState('')
   const [otpSent, setOtpSent] = useState(false)
+  const [loginMethod, setLoginMethod] = useState<'password' | 'otp'>('password')
+  const [showPassword, setShowPassword] = useState(false)
   const [referralCode, setReferralCode] = useState('')
   const [referralValid, setReferralValid] = useState<boolean | null>(null)
   const [referralChecking, setReferralChecking] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
-  const [showPassword, setShowPassword] = useState(false)
 
   // Math captcha — generated client-side only to avoid SSR hydration mismatch
   const [challenge, setChallenge] = useState<CaptchaChallenge | null>(null)
@@ -145,7 +146,7 @@ function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
       // Step 2 — Let Better Auth create the account (it hashes the password correctly)
       const { data: signUpData, error: signUpError } = await authClient.signUp.email({
         email: email.toLowerCase(),
-        password: '',
+        password,
         name,
       })
       if (signUpError) {
@@ -182,12 +183,27 @@ function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
         } catch { /* non-fatal */ }
       }
     } else {
-      const { data: signInData, error } = await authClient.signIn.emailOtp({
+      if (loginMethod === 'otp') {
+        const { error: otpSendError } = await authClient.emailOtp.sendVerificationOtp({
+          email: email.toLowerCase(),
+          type: 'sign-in',
+        })
+        if (otpSendError) {
+          setError('Unable to send a verification code. Please try again.')
+          setLoading(false)
+          return
+        }
+        setOtpSent(true)
+        setLoading(false)
+        return
+      }
+
+      const { data: signInData, error } = await authClient.signIn.email({
         email: email.toLowerCase(),
-        otp: otp.trim(),
+        password,
       })
       if (error) {
-        setError('That verification code is invalid or expired.')
+        setError('Invalid email or password.')
         setLoading(false)
         return
       }
@@ -238,9 +254,16 @@ function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
               ? `We sent a 6-digit verification code to ${email}`
               : isSignUp
                 ? 'Sign up to get started'
-                : 'Sign in securely with a one-time email code'}
+                : loginMethod === 'otp' ? 'Sign in securely with a one-time email code' : 'Sign in with your email and password'}
           </p>
         </div>
+
+        {!isSignUp && !otpSent && (
+          <div className="mb-4 grid grid-cols-2 rounded-lg bg-muted p-1 text-sm">
+            <button type="button" onClick={() => { setLoginMethod('password'); setError(null) }} className={`rounded-md px-3 py-2 transition-colors ${loginMethod === 'password' ? 'bg-background font-medium shadow-sm' : 'text-muted-foreground'}`}>Email &amp; Password</button>
+            <button type="button" onClick={() => { setLoginMethod('otp'); setError(null) }} className={`rounded-md px-3 py-2 transition-colors ${loginMethod === 'otp' ? 'bg-background font-medium shadow-sm' : 'text-muted-foreground'}`}>Email Code</button>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           {otpSent ? (
@@ -325,18 +348,36 @@ function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
                   autoComplete="email"
                 />
               </div>
-              {isSignUp && (
+              {(isSignUp || loginMethod === 'password') && (
                 <div className="flex flex-col gap-2">
-                  <Label htmlFor="password">Create password</Label>
-                  <Input
-                    id="password"
-                    type={showPassword ? 'text' : 'password'}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    minLength={8}
-                    autoComplete="new-password"
-                  />
+                  <Label htmlFor="password">{isSignUp ? 'Create password' : 'Password'}</Label>
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      type={showPassword ? 'text' : 'password'}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      minLength={isSignUp ? 8 : undefined}
+                      autoComplete={isSignUp ? 'new-password' : 'current-password'}
+                      className="pr-10"
+                    />
+                    {!isSignUp && (
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword((visible) => !visible)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        aria-label={showPassword ? 'Hide password' : 'Show password'}
+                      >
+                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
+              {!isSignUp && loginMethod === 'password' && (
+                <div className="-mt-2 text-right">
+                  <Link href="/forgot-password" className="text-xs text-primary hover:underline">Forgot password?</Link>
                 </div>
               )}
             </>
@@ -365,7 +406,9 @@ function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
                 ? 'Verify code'
                 : isSignUp
               ? 'Send verification code'
-              : 'Send sign-in code'}
+              : loginMethod === 'otp'
+                ? 'Send sign-in code'
+                : 'Sign in'}
           </Button>
         </form>
 

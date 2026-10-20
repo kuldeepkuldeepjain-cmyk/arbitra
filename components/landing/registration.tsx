@@ -2,16 +2,10 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { motion } from 'framer-motion'
-import { CheckCircle2, Zap, TrendingUp, ShieldCheck, Bell, Loader2, Shield, RefreshCw } from 'lucide-react'
+import { CheckCircle2, ShieldCheck, Loader2, Shield, RefreshCw, Eye, EyeOff, Activity, TrendingUp } from 'lucide-react'
 import Link from 'next/link'
 import { registerWithCaptcha, saveRegistrationProfile } from '@/app/actions/secure-registration'
 import { authClient } from '@/lib/auth-client'
-
-const benefits = [
-  { icon: Zap, title: 'Automated strategy tools', text: 'Trade smarter with data-driven strategies and advanced automation.' },
-  { icon: TrendingUp, title: 'Connect your exchange with read-only API access', text: 'Secure, seamless and hassle-free integration with your exchange.' },
-  { icon: Bell, title: 'Configurable market alerts', text: 'Stay ahead with real-time alerts and custom notifications.' },
-]
 
 // --- Math captcha helpers ---
 type CaptchaChallenge = { question: string; answer: number }
@@ -40,14 +34,29 @@ function generateChallenge(): CaptchaChallenge {
   return { question, answer }
 }
 
+const countryOptions = [
+  { name: 'India', code: '+91' },
+  { name: 'United States', code: '+1' },
+  { name: 'United Kingdom', code: '+44' },
+  { name: 'Australia', code: '+61' },
+  { name: 'Canada', code: '+1' },
+  { name: 'Singapore', code: '+65' },
+  { name: 'United Arab Emirates', code: '+971' },
+  { name: 'Germany', code: '+49' },
+  { name: 'France', code: '+33' },
+  { name: 'Japan', code: '+81' },
+] as const
+
 export function Registration() {
   const [form, setForm] = useState({
-    name: '',
+    firstName: '',
+    lastName: '',
     email: '',
     phone: '',
-    country: '',
+    country: 'India',
     password: '',
     confirmPassword: '',
+    referralCode: '',
     agree: false,
   })
   const [submitted, setSubmitted] = useState(false)
@@ -55,6 +64,8 @@ export function Registration() {
   const [otp, setOtp] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
   // Captcha state — generated client-side only to avoid hydration mismatch
   const [challenge, setChallenge] = useState<CaptchaChallenge | null>(null)
@@ -129,7 +140,7 @@ export function Registration() {
 
       // Step 2: Create the account via Better Auth
       const { data, error: signUpError } = await authClient.signUp.email({
-        name: form.name.trim(),
+        name: `${form.firstName.trim()} ${form.lastName.trim()}`.trim(),
         email: form.email.toLowerCase().trim(),
         password: form.password,
       })
@@ -165,67 +176,38 @@ export function Registration() {
       <div className="absolute -bottom-40 left-1/3 h-96 w-[70%] rounded-full bg-[#006dff]/20 blur-[120px]" />
 
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-8">
-        <div className="mb-12 flex items-center gap-3 lg:mb-16">
+        <div className="mx-auto mb-10 flex max-w-xl justify-center lg:mb-12">
           <img src="/algobot-logo.png" alt="AlgoBot" className="h-10 w-auto object-contain sm:h-12" />
         </div>
-        <div className="grid items-center gap-12 lg:grid-cols-[0.95fr_1.05fr] lg:gap-16">
-          {/* Left: benefits */}
+        <div className="mx-auto grid max-w-6xl items-center gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:gap-16">
           <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
+            initial={{ opacity: 0, x: -18 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5 }}
+            className="hidden lg:block"
           >
-            <div className="mb-7 flex items-center gap-3 text-[11px] font-medium uppercase tracking-[0.32em] text-[#85b8ef]">
-              <span className="h-1 w-10 rounded-full bg-[#00D4FF]" />
-              Algorithmic Trading Platform
+            <div className="mb-6 flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.24em] text-[#00C8FF]">
+              <Activity className="h-4 w-4" />
+              Institutional-grade workspace
             </div>
-            <h2 className="max-w-xl text-5xl font-bold leading-[0.98] tracking-tight text-white sm:text-6xl">
-              Build Your <span className="text-[#00BFFF]">Trading Edge</span> with <span className="text-[#00BFFF]">AlgoBot</span>
-            </h2>
-            <p className="mt-7 max-w-lg text-lg leading-relaxed text-[#a3c2e8]">
-              One platform for algorithmic trading tools across crypto, forex, commodities and global markets.
-            </p>
-
-            <div className="mt-10 flex max-w-lg flex-col gap-7">
-              {benefits.map((b) => (
-                <div key={b.text} className="flex items-start gap-5">
-                  <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border border-[#008cff] bg-[#061b35]/80 shadow-[0_0_22px_rgba(0,140,255,0.18)]">
-                    <b.icon className="h-7 w-7 text-[#00C8FF]" />
-                  </div>
-                  <div className="pt-1">
-                    <h3 className="text-base font-semibold text-white">{b.title}</h3>
-                    <p className="mt-1 text-sm leading-relaxed text-[#8eafd9]">{b.text}</p>
-                  </div>
-                </div>
-              ))}
+            <h2 className="max-w-lg text-5xl font-bold leading-[1.02] tracking-tight text-white">Automate your trading. <span className="text-[#00C8FF]">Stay in control.</span></h2>
+            <p className="mt-5 max-w-md text-base leading-relaxed text-[#9bb7d9]">Create your account to explore algorithmic trading tools, monitor strategies, and manage your trading workspace.</p>
+            <div className="mt-10 rounded-2xl border border-[#1e426b] bg-[#071426]/80 p-5 shadow-[0_0_40px_rgba(0,110,255,0.12)]">
+              <div className="mb-5 flex items-center justify-between">
+                <div><p className="text-xs text-[#7894b8]">Strategy monitor</p><p className="mt-1 text-sm font-semibold text-white">Momentum Alpha</p></div>
+                <span className="flex items-center gap-1.5 text-xs text-[#4ade80]"><span className="h-2 w-2 rounded-full bg-[#4ade80]" /> Active</span>
+              </div>
+              <div className="flex h-32 items-end gap-2 border-b border-[#1e426b] px-1">
+                {[28, 42, 34, 58, 47, 72, 64, 88, 76, 102, 94, 120].map((height, index) => <span key={index} className="flex-1 rounded-t bg-gradient-to-t from-[#0865da] to-[#00C8FF] opacity-80" style={{ height }} />)}
+              </div>
+              <div className="mt-4 flex items-center justify-between text-xs"><span className="flex items-center gap-2 text-[#7894b8]"><TrendingUp className="h-4 w-4 text-[#00C8FF]" /> Live demo data</span><span className="text-[#4ade80]">+12.48%</span></div>
             </div>
-            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 text-balance">
-              Join 3,200+ Traders Already Using AlgoBot
-            </h2>
-            <p className="text-[#98A2B3] text-lg leading-relaxed mb-10">
-              Create your AlgoBot account in under 60 seconds and manage automated strategies across crypto, forex, commodities, and more.
-            </p>
-
-            <div className="flex flex-col gap-4 mb-10">
-              {benefits.map((b) => (
-                <div key={b.text} className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-xl bg-[#00D4FF]/10 border border-[#00D4FF]/20 flex items-center justify-center flex-shrink-0">
-                    <b.icon className="w-4 h-4 text-[#00D4FF]" />
-                  </div>
-                  <span className="text-sm text-[#98A2B3]">{b.text}</span>
-                </div>
-              ))}
-            </div>
-
+            <div className="mt-5 flex items-center gap-3 text-xs text-[#7894b8]"><ShieldCheck className="h-4 w-4 text-[#00C8FF]" /> Your account details are encrypted and protected.</div>
           </motion.div>
-
-          {/* Right: form */}
           <motion.div
-            initial={{ opacity: 0, x: 30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.1 }}
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
           >
             <div className="rounded-[24px] border border-[#078dff] bg-[#071426]/90 p-7 shadow-[0_0_70px_rgba(0,132,255,0.18)] backdrop-blur-xl sm:p-10">
               {submitted ? (
@@ -296,40 +278,73 @@ export function Registration() {
                 </>
               ) : (
                 <>
-                  <h3 className="text-3xl font-bold tracking-tight text-white mb-2">Create Your <span className="text-[#00C8FF]">AlgoBot</span> Account</h3>
-                  <p className="text-sm text-[#8eafd9] mb-8">Enter your details to get started.</p>
+                  <div className="mb-6 flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#00bfff]/30 bg-[#00bfff]/10">
+                      <ShieldCheck className="h-5 w-5 text-[#00C8FF]" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#00C8FF]">Secure registration</p>
+                      <p className="mt-1 text-xs text-[#8eafd9]">Create your AlgoBot Trader account</p>
+                    </div>
+                  </div>
+                  <h3 className="text-3xl font-bold tracking-tight text-white mb-2">Create your account</h3>
+                  <p className="text-sm text-[#8eafd9] mb-8">Set up your secure trading profile in a few simple steps.</p>
 
                   <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                       <div>
-                        <label className="mb-2 block text-xs font-medium text-[#8eafd9]">Full Name *</label>
+                        <label htmlFor="first-name" className="mb-2 block text-xs font-medium text-[#8eafd9]">First name *</label>
                         <input
+                          id="first-name"
                           type="text"
                           required
-                          value={form.name}
-                          onChange={(e) => setForm({ ...form, name: e.target.value })}
-                          placeholder="John Smith"
+                          autoComplete="given-name"
+                          value={form.firstName}
+                          onChange={(e) => setForm({ ...form, firstName: e.target.value })}
+                          placeholder="John"
                           className="w-full rounded-xl border border-[#264467] bg-[#0b1a31]/80 px-4 py-3.5 text-sm text-white placeholder-[#7f9abd]/60 transition-colors focus:border-[#00C8FF] focus:outline-none focus:ring-1 focus:ring-[#00C8FF]/40"
                         />
                       </div>
                       <div>
-                        <label className="mb-2 block text-xs font-medium text-[#8eafd9]">Mobile Number *</label>
+                        <label htmlFor="last-name" className="mb-2 block text-xs font-medium text-[#8eafd9]">Last name *</label>
                         <input
-                          type="tel"
+                          id="last-name"
+                          type="text"
                           required
-                          value={form.phone}
-                          onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                          placeholder="+1 555 000 0000"
+                          autoComplete="family-name"
+                          value={form.lastName}
+                          onChange={(e) => setForm({ ...form, lastName: e.target.value })}
+                          placeholder="Smith"
                           className="w-full rounded-xl border border-[#264467] bg-[#0b1a31]/80 px-4 py-3.5 text-sm text-white placeholder-[#7f9abd]/60 transition-colors focus:border-[#00C8FF] focus:outline-none focus:ring-1 focus:ring-[#00C8FF]/40"
                         />
                       </div>
                     </div>
 
                     <div>
-                      <label className="mb-2 block text-xs font-medium text-[#8eafd9]">Email Address *</label>
+                          <label htmlFor="mobile-number" className="mb-2 block text-xs font-medium text-[#8eafd9]">Mobile Number *</label>
+                          <div className="flex rounded-xl border border-[#264467] bg-[#0b1a31]/80 transition-colors focus-within:border-[#00C8FF] focus-within:ring-1 focus-within:ring-[#00C8FF]/40">
+                            <span className="flex items-center border-r border-[#264467] px-3 text-sm font-medium text-[#00C8FF]" aria-label={`Country calling code for ${form.country}`}>
+                              {countryOptions.find((country) => country.name === form.country)?.code ?? '+91'}
+                            </span>
+                            <input
+                              id="mobile-number"
+                              type="tel"
+                              required
+                              value={form.phone}
+                              onChange={(e) => setForm({ ...form, phone: e.target.value.replace(/[^0-9 -]/g, '') })}
+                              placeholder="98765 43210"
+                              className="min-w-0 flex-1 bg-transparent px-3 py-3.5 text-sm text-white placeholder-[#7f9abd]/60 focus:outline-none"
+                            />
+                          </div>
+                      </div>
+
+                    <div>
+                      <label htmlFor="email" className="mb-2 block text-xs font-medium text-[#8eafd9]">Email address *</label>
                       <input
+                        id="email"
                         type="email"
                         required
+                        autoComplete="email"
                         value={form.email}
                         onChange={(e) => setForm({ ...form, email: e.target.value })}
                         placeholder="john@example.com"
@@ -337,51 +352,84 @@ export function Registration() {
                       />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div>
                       <div>
-                        <label className="mb-2 block text-xs font-medium text-[#8eafd9]">State *</label>
-                        <input
-                          type="text"
-                          required
-                          value={form.country}
-                          onChange={(e) => setForm({ ...form, country: e.target.value })}
-                          placeholder="Maharashtra"
-                          className="w-full rounded-xl border border-[#264467] bg-[#0b1a31]/80 px-4 py-3.5 text-sm text-white placeholder-[#7f9abd]/60 transition-colors focus:border-[#00C8FF] focus:outline-none focus:ring-1 focus:ring-[#00C8FF]/40"
-                        />
+                          <label htmlFor="country" className="mb-2 block text-xs font-medium text-[#8eafd9]">Country *</label>
+                          <select
+                            id="country"
+                            required
+                            value={form.country}
+                            onChange={(e) => setForm({ ...form, country: e.target.value })}
+                            className="w-full appearance-none rounded-xl border border-[#264467] bg-[#0b1a31]/80 px-4 py-3.5 text-sm text-white transition-colors focus:border-[#00C8FF] focus:outline-none focus:ring-1 focus:ring-[#00C8FF]/40"
+                          >
+                            {countryOptions.map((country) => (
+                              <option key={country.name} value={country.name} className="bg-[#0b1a31] text-white">
+                                {country.name} ({country.code})
+                              </option>
+                            ))}
+                          </select>
                       </div>
 
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label htmlFor="referral-code" className="mb-2 block text-xs font-medium text-[#8eafd9]">Referral code <span className="font-normal text-[#6f89aa]">(optional)</span></label>
+                      <input
+                        id="referral-code"
+                        type="text"
+                        autoComplete="off"
+                        value={form.referralCode}
+                        onChange={(e) => setForm({ ...form, referralCode: e.target.value.trim().toUpperCase() })}
+                        placeholder="Enter referral code if you have one"
+                        className="w-full rounded-xl border border-[#264467] bg-[#0b1a31]/80 px-4 py-3.5 text-sm text-white placeholder-[#7f9abd]/60 transition-colors focus:border-[#00C8FF] focus:outline-none focus:ring-1 focus:ring-[#00C8FF]/40"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                       <div>
-                        <label className="mb-2 block text-xs font-medium text-[#8eafd9]">Password *</label>
-                        <input
-                          type="password"
-                          required
-                          minLength={8}
-                          value={form.password}
-                          onChange={(e) => setForm({ ...form, password: e.target.value })}
-                          placeholder="Min. 8 characters"
-                          className="w-full rounded-xl border border-[#264467] bg-[#0b1a31]/80 px-4 py-3.5 text-sm text-white placeholder-[#7f9abd]/60 transition-colors focus:border-[#00C8FF] focus:outline-none focus:ring-1 focus:ring-[#00C8FF]/40"
-                        />
+                        <label htmlFor="signup-password" className="mb-2 block text-xs font-medium text-[#8eafd9]">Password *</label>
+                        <div className="relative">
+                          <input
+                            id="signup-password"
+                            type={showPassword ? 'text' : 'password'}
+                            required
+                            minLength={8}
+                            value={form.password}
+                            onChange={(e) => setForm({ ...form, password: e.target.value })}
+                            placeholder="Min. 8 characters"
+                            className="w-full rounded-xl border border-[#264467] bg-[#0b1a31]/80 px-4 py-3.5 pr-11 text-sm text-white placeholder-[#7f9abd]/60 transition-colors focus:border-[#00C8FF] focus:outline-none focus:ring-1 focus:ring-[#00C8FF]/40"
+                          />
+                          <button type="button" onClick={() => setShowPassword((visible) => !visible)} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8eafd9] hover:text-[#00C8FF]" aria-label={showPassword ? 'Hide password' : 'Show password'}>
+                            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          </button>
+                        </div>
+                        <p className={`mt-1.5 text-[11px] ${form.password.length >= 8 ? 'text-[#4ade80]' : 'text-[#7894b8]'}`}>
+                          {form.password.length >= 8 ? 'Password strength: ready' : 'Use at least 8 characters'}
+                        </p>
                       </div>
                       <div>
-                        <label className="mb-2 block text-xs font-medium text-[#8eafd9]">Confirm Password *</label>
-                        <input
-                          type="password"
-                          required
-                          minLength={8}
-                          value={form.confirmPassword}
-                          onChange={(e) => setForm({ ...form, confirmPassword: e.target.value })}
-                          placeholder="Repeat password"
-                          className={`w-full px-4 py-2.5 text-sm rounded-xl bg-white/[0.04] border text-white placeholder-[#98A2B3]/50 focus:outline-none transition-colors ${
+                        <label htmlFor="confirm-password" className="mb-2 block text-xs font-medium text-[#8eafd9]">Confirm password *</label>
+                        <div className="relative">
+                          <input
+                            id="confirm-password"
+                            type={showConfirmPassword ? 'text' : 'password'}
+                            required
+                            minLength={8}
+                            value={form.confirmPassword}
+                            onChange={(e) => setForm({ ...form, confirmPassword: e.target.value })}
+                            placeholder="Repeat password"
+                            className={`w-full rounded-xl bg-white/[0.04] border px-4 py-3.5 pr-11 text-sm text-white placeholder-[#98A2B3]/50 focus:outline-none transition-colors ${
                             form.confirmPassword && form.confirmPassword !== form.password
                               ? 'border-red-500/50 focus:border-red-500/60'
                               : form.confirmPassword && form.confirmPassword === form.password
                               ? 'border-green-500/40 focus:border-green-500/50'
                               : 'border-white/[0.08] focus:border-[#00D4FF]/40'
                           }`}
-                        />
+                          />
+                          <button type="button" onClick={() => setShowConfirmPassword((visible) => !visible)} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8eafd9] hover:text-[#00C8FF]" aria-label={showConfirmPassword ? 'Hide password confirmation' : 'Show password confirmation'}>
+                            {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          </button>
+                        </div>
                         {form.confirmPassword && form.confirmPassword !== form.password && (
                           <p className="text-xs text-red-400 mt-1">Passwords do not match</p>
                         )}

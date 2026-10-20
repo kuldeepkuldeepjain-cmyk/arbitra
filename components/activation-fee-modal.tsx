@@ -288,7 +288,7 @@ export function ActivationFeeModal({ serverIsActivated, createdAt }: { serverIsA
                                 {method.instructions && <p className="text-slate-500 text-xs">{method.instructions}</p>}
                               </div>
                               {method.upiId && <CopyBtn text={method.upiId} />}
-                              {method.qrImageUrl && <img src={method.qrImageUrl} alt={`${method.label} QR code`} className="w-14 h-14 object-contain rounded bg-white p-1" />}
+                              {method.qrImageUrl && <img src={method.qrImageUrl} alt={`${method.label} INR payment QR code`} className="w-20 h-20 object-contain rounded bg-white p-1" />}
                             </div>
                           </div>
                         )

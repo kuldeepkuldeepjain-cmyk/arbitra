@@ -4,6 +4,7 @@ import { useEffect, useState, useMemo, lazy, Suspense, useCallback } from 'react
 import { useRouter } from 'next/navigation'
 import { authClient } from '@/lib/auth-client'
 import { getMarketOpportunities } from '@/app/actions/arbitrage'
+import { getActivationStatus } from '@/app/actions/referral'
 import { getDepositAddresses, submitFundRequest, getMyFundRequests } from '@/app/actions/deposits'
 import { getWalletSummary, getWalletBalanceFast } from '@/app/actions/wallet'
 
@@ -87,6 +88,11 @@ export function TraderClient({ user, isActivated, createdAt }: { user: { id: str
   // Wallet balance for header
   const [walletBalance, setWalletBalance] = useState<number | null>(null)
   const [walletBalanceVisible, setWalletBalanceVisible] = useState(true)
+  const [activationStatus, setActivationStatus] = useState<Awaited<ReturnType<typeof getActivationStatus>> | null>(null)
+
+  useEffect(() => {
+    getActivationStatus().then(setActivationStatus).catch(() => setActivationStatus(null))
+  }, [])
 
   // Funds state
   const [depositAddresses, setDepositAddresses] = useState<DepositAddress[]>([])
@@ -300,16 +306,21 @@ export function TraderClient({ user, isActivated, createdAt }: { user: { id: str
               </span>
             </button>
 
-            {/* Activation plan shortcut */}
+            {/* Activation plan shortcut — directly beside Balance */}
             <button
               type="button"
-              onClick={() => setActiveTab('trading-bot')}
-              className="flex items-center gap-1.5 rounded-lg border border-amber-500/30 bg-amber-500/10 px-2 py-1.5 text-left transition-colors hover:border-amber-400/60 hover:bg-amber-500/20"
-              aria-label="View bot activation plans"
+              onClick={() => setActiveTab('activation')}
+              className="flex items-center gap-1.5 rounded-lg border border-amber-500/35 bg-amber-500/10 px-2 py-1.5 text-left transition-colors hover:border-amber-400/70 hover:bg-amber-500/20"
+              aria-label="Open bot activation plans"
             >
               <Bot className="h-3.5 w-3.5 shrink-0 text-amber-400" />
-              <span className="hidden lg:block text-[9px] font-bold uppercase leading-none tracking-wide text-amber-300">Activation Plans</span>
+              <span className="hidden sm:block text-[9px] font-bold uppercase leading-none tracking-wide text-amber-300">Activate</span>
               <span className="text-[10px] font-bold leading-none text-white">INR</span>
+              {activationStatus?.latestFee && (
+                <span className={`hidden md:inline-flex rounded-full px-1.5 py-0.5 text-[8px] font-black uppercase leading-none tracking-wide ${activationStatus.latestFee.status === 'confirmed' ? 'bg-emerald-400/20 text-emerald-300' : activationStatus.latestFee.status === 'rejected' ? 'bg-red-400/20 text-red-300' : 'bg-amber-400/20 text-amber-300'}`}>
+                  {activationStatus.latestFee.status === 'confirmed' ? 'Active' : activationStatus.latestFee.status === 'rejected' ? 'Rejected' : 'Pending'}
+                </span>
+              )}
             </button>
 
             {/* User badge */}
@@ -339,6 +350,24 @@ export function TraderClient({ user, isActivated, createdAt }: { user: { id: str
         </div>
 
       </header>
+
+      {/* Selected and approved activation status */}
+      {activationStatus?.latestFee && (() => {
+        const feeStatus = activationStatus.latestFee.status
+        const planLabel = Number(activationStatus.latestFee.amount) >= 4999 ? '12 Month' : Number(activationStatus.latestFee.amount) >= 2999 ? '6 Month' : Number(activationStatus.latestFee.amount) >= 1999 ? '3 Month' : '1 Month'
+        const approved = feeStatus === 'confirmed'
+        return (
+          <button type="button" onClick={() => setActiveTab('activation')} className={`w-full border-b px-4 py-3 text-left transition hover:brightness-110 ${approved ? 'border-emerald-400/30 bg-gradient-to-r from-emerald-500/15 via-teal-500/10 to-transparent' : feeStatus === 'rejected' ? 'border-red-400/30 bg-red-500/10' : 'border-amber-400/30 bg-gradient-to-r from-amber-500/15 via-orange-500/10 to-transparent'}`}>
+            <div className="mx-auto flex max-w-screen-xl items-center gap-3">
+              <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${approved ? 'bg-emerald-400/20' : feeStatus === 'rejected' ? 'bg-red-400/20' : 'bg-amber-400/20'}`}>
+                {approved ? <CheckCircle2 className="h-5 w-5 text-emerald-300" /> : feeStatus === 'rejected' ? <XCircle className="h-5 w-5 text-red-300" /> : <Clock className="h-5 w-5 text-amber-300" />}
+              </div>
+              <div className="min-w-0 flex-1"><p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400">Bot activation status</p><p className={`mt-0.5 text-sm font-black ${approved ? 'text-emerald-200' : feeStatus === 'rejected' ? 'text-red-200' : 'text-amber-200'}`}>{approved ? `${planLabel} plan approved by Admin` : feeStatus === 'rejected' ? `${planLabel} plan needs resubmission` : `${planLabel} plan selected · awaiting Admin approval`}</p></div>
+              <span className={`hidden rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-wide sm:inline-flex ${approved ? 'bg-emerald-400/20 text-emerald-200' : feeStatus === 'rejected' ? 'bg-red-400/20 text-red-200' : 'bg-amber-400/20 text-amber-200'}`}>{approved ? 'Active' : feeStatus}</span>
+            </div>
+          </button>
+        )
+      })()}
 
       {/* ── Tab Navigation ─────────────────────────���───────������──── */}
       <div className="border-b border-slate-800/60 bg-[#0a0f1e]/80 backdrop-blur-sm sticky top-14 z-30">

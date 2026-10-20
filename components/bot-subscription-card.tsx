@@ -7,6 +7,12 @@ import { createBotSubscriptionCheckout } from '@/app/actions/bot-subscription'
 export function BotSubscriptionCard({ isActivated }: { isActivated: boolean }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const plans = [
+    { duration: '1 Month', price: '₹999', value: 'Best for getting started' },
+    { duration: '3 Months', price: '₹1,999', value: 'Save on quarterly access' },
+    { duration: '6 Months', price: '₹2,999', value: 'Popular trader plan' },
+    { duration: '12 Months', price: '₹4,999', value: 'Best annual value' },
+  ]
 
   if (isActivated) return null
 
@@ -31,7 +37,16 @@ export function BotSubscriptionCard({ isActivated }: { isActivated: boolean }) {
             <ShieldCheck className="h-3.5 w-3.5" /> Bot activation
           </div>
           <h2 id="bot-subscription-title" className="text-balance text-xl font-black text-white sm:text-2xl">Activate your Algo Bot</h2>
-          <p className="mt-1.5 text-sm leading-6 text-slate-300">Unlock automated strategies, bot controls, and live trading tools for just <strong className="text-amber-300">₹999 per month</strong>.</p>
+          <p className="mt-1.5 text-sm leading-6 text-slate-300">Unlock automated strategies, bot controls, and live trading tools with flexible INR activation plans.</p>
+          <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
+            {plans.map((plan, index) => (
+              <div key={plan.duration} className={`rounded-xl border p-3 ${index === 0 ? 'border-amber-300/60 bg-amber-300/10' : 'border-slate-700/80 bg-slate-900/60'}`}>
+                <p className="text-[10px] font-bold uppercase tracking-wide text-slate-400">{plan.duration}</p>
+                <p className="mt-1 text-lg font-black text-white">{plan.price}</p>
+                <p className="mt-1 text-[10px] leading-4 text-slate-500">{plan.value}</p>
+              </div>
+            ))}
+          </div>
           <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-xs text-slate-400">
             {['All bot strategies', 'Cancel anytime', 'Secure Stripe checkout'].map(item => <span key={item} className="inline-flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-emerald-400" />{item}</span>)}
           </div>

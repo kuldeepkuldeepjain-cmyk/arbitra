@@ -34,12 +34,25 @@ function generateChallenge(): CaptchaChallenge {
   return { question, answer }
 }
 
+const countryOptions = [
+  { name: 'India', code: '+91' },
+  { name: 'United States', code: '+1' },
+  { name: 'United Kingdom', code: '+44' },
+  { name: 'Australia', code: '+61' },
+  { name: 'Canada', code: '+1' },
+  { name: 'Singapore', code: '+65' },
+  { name: 'United Arab Emirates', code: '+971' },
+  { name: 'Germany', code: '+49' },
+  { name: 'France', code: '+33' },
+  { name: 'Japan', code: '+81' },
+] as const
+
 export function Registration() {
   const [form, setForm] = useState({
     name: '',
     email: '',
     phone: '',
-    country: '',
+    country: 'India',
     password: '',
     confirmPassword: '',
     agree: false,
@@ -254,15 +267,21 @@ export function Registration() {
                         />
                       </div>
                       <div>
-                        <label className="mb-2 block text-xs font-medium text-[#8eafd9]">Mobile Number *</label>
-                        <input
-                          type="tel"
-                          required
-                          value={form.phone}
-                          onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                          placeholder="+1 555 000 0000"
-                          className="w-full rounded-xl border border-[#264467] bg-[#0b1a31]/80 px-4 py-3.5 text-sm text-white placeholder-[#7f9abd]/60 transition-colors focus:border-[#00C8FF] focus:outline-none focus:ring-1 focus:ring-[#00C8FF]/40"
-                        />
+                          <label htmlFor="mobile-number" className="mb-2 block text-xs font-medium text-[#8eafd9]">Mobile Number *</label>
+                          <div className="flex rounded-xl border border-[#264467] bg-[#0b1a31]/80 transition-colors focus-within:border-[#00C8FF] focus-within:ring-1 focus-within:ring-[#00C8FF]/40">
+                            <span className="flex items-center border-r border-[#264467] px-3 text-sm font-medium text-[#00C8FF]" aria-label={`Country calling code for ${form.country}`}>
+                              {countryOptions.find((country) => country.name === form.country)?.code ?? '+91'}
+                            </span>
+                            <input
+                              id="mobile-number"
+                              type="tel"
+                              required
+                              value={form.phone}
+                              onChange={(e) => setForm({ ...form, phone: e.target.value.replace(/[^0-9 -]/g, '') })}
+                              placeholder="98765 43210"
+                              className="min-w-0 flex-1 bg-transparent px-3 py-3.5 text-sm text-white placeholder-[#7f9abd]/60 focus:outline-none"
+                            />
+                          </div>
                       </div>
                     </div>
 
@@ -280,15 +299,20 @@ export function Registration() {
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="mb-2 block text-xs font-medium text-[#8eafd9]">State *</label>
-                        <input
-                          type="text"
-                          required
-                          value={form.country}
-                          onChange={(e) => setForm({ ...form, country: e.target.value })}
-                          placeholder="Maharashtra"
-                          className="w-full rounded-xl border border-[#264467] bg-[#0b1a31]/80 px-4 py-3.5 text-sm text-white placeholder-[#7f9abd]/60 transition-colors focus:border-[#00C8FF] focus:outline-none focus:ring-1 focus:ring-[#00C8FF]/40"
-                        />
+                          <label htmlFor="country" className="mb-2 block text-xs font-medium text-[#8eafd9]">Country *</label>
+                          <select
+                            id="country"
+                            required
+                            value={form.country}
+                            onChange={(e) => setForm({ ...form, country: e.target.value })}
+                            className="w-full appearance-none rounded-xl border border-[#264467] bg-[#0b1a31]/80 px-4 py-3.5 text-sm text-white transition-colors focus:border-[#00C8FF] focus:outline-none focus:ring-1 focus:ring-[#00C8FF]/40"
+                          >
+                            {countryOptions.map((country) => (
+                              <option key={country.name} value={country.name} className="bg-[#0b1a31] text-white">
+                                {country.name} ({country.code})
+                              </option>
+                            ))}
+                          </select>
                       </div>
 
                     </div>

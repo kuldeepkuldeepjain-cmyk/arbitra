@@ -6,8 +6,8 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
 
 export const metadata: Metadata = {
-  title: 'ArbitrageIQ — Discover Arbitrage Opportunities Before Everyone Else',
-  description: 'Monitor prices across global exchanges, compare spreads, estimate transaction costs, and identify potential arbitrage opportunities using AI-powered analytics.',
+  title: 'Arbitra — AI-powered algorithmic trading intelligence',
+  description: 'Scan crypto, commodities, and forex markets with AI. Spot disciplined opportunities across Bitcoin, gold, silver, and more with Arbitra.',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,

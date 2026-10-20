@@ -555,7 +555,7 @@ export default function AdminClient() {
             { label: 'Total Users', value: users.length, icon: Users, color: 'text-blue-400' },
             { label: 'Traders', value: traderCount, icon: BarChart3, color: 'text-amber-400' },
             { label: 'Pending Deposits', value: pendingCount, icon: Clock, color: 'text-yellow-400' },
-            { label: 'Confirmed Funds', value: `$${confirmedFunds.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`, icon: Zap, color: 'text-green-400' },
+            { label: 'Confirmed Funds', value: `₹${confirmedFunds.toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`, icon: Zap, color: 'text-green-400' },
           ].map(({ label, value, icon: Icon, color }) => (
             <div key={label} className="flex items-center gap-3">
               <div className="p-2 rounded-lg bg-slate-800">
@@ -570,42 +570,35 @@ export default function AdminClient() {
         </div>
       </div>
 
-      {/* Tab bar */}
-      <div className="border-b border-slate-800 bg-slate-900/60">
-        <div className="max-w-screen-xl mx-auto px-4 md:px-6 flex gap-1">
-          {([
-            { key: 'users' as Tab,               label: 'Users',             icon: Users,      badge: users.length },
-            { key: 'arbitrage' as Tab,            label: 'Arbitrage',           icon: Activity,      badge: 0 },
-            { key: 'deposit-addresses' as Tab,    label: 'Deposit Addresses', icon: Wallet,     badge: activeAddressNetworks.length },
-            { key: 'fund-requests' as Tab,        label: 'Fund Requests',     icon: Clock,      badge: pendingCount },
-            { key: 'auto-trade' as Tab,           label: 'Auto Trade',        icon: TrendingUp, badge: autoTradePlans.filter(p => p.status === 'active').length },
-            { key: 'activation-fees' as Tab,      label: 'Activations',       icon: Gift,        badge: activationFeeReqs.filter(f => f.status === 'pending').length },
-            { key: 'withdrawals' as Tab,          label: 'Withdrawals',        icon: ArrowUpCircle, badge: withdrawalReqs.filter(w => w.status === 'pending').length },
-            { key: 'wallets' as Tab,              label: 'Wallets',             icon: Wallet,        badge: traderBalances.length },
-            { key: 'ai-support' as Tab,           label: 'AI Assistant',        icon: Sparkles,      badge: 0 },
-          ]).map(tab => (
-            <button
-              key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
-              className={`flex items-center gap-2 px-4 py-3.5 text-sm font-medium border-b-2 -mb-px transition-colors ${
-                activeTab === tab.key
-                  ? 'border-red-400 text-red-400'
-                  : 'border-transparent text-slate-500 hover:text-slate-300'
-              }`}
-            >
-              <tab.icon className="w-4 h-4" />
-              {tab.label}
-              {tab.badge > 0 && (
-                <span className={`px-1.5 py-0.5 rounded-full text-xs font-bold ${
-                  tab.key === 'fund-requests' && pendingCount > 0
-                    ? 'bg-yellow-500 text-black'
-                    : 'bg-slate-700 text-slate-300'
-                }`}>
-                  {tab.badge}
-                </span>
-              )}
-            </button>
-          ))}
+      {/* Operations navigation: all admin areas stay visible and scannable */}
+      <div className="border-b border-slate-800 bg-slate-900/80">
+        <div className="max-w-screen-xl mx-auto px-4 md:px-6 py-3">
+          <div className="mb-2 flex items-center justify-between">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500">Operations console</p>
+              <p className="mt-0.5 text-xs text-slate-400">Manage traders, INR payments, activations, balances, and approvals</p>
+            </div>
+            <span className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-green-500/20 bg-green-500/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-green-400"><span className="h-1.5 w-1.5 rounded-full bg-green-400" />Live</span>
+          </div>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-9">
+            {([
+              { key: 'users' as Tab, label: 'Users', icon: Users, badge: users.length, tone: 'blue' },
+              { key: 'arbitrage' as Tab, label: 'Arbitrage', icon: Activity, badge: 0, tone: 'violet' },
+              { key: 'deposit-addresses' as Tab, label: 'Deposit Addresses', icon: Wallet, badge: activeAddressNetworks.length, tone: 'cyan' },
+              { key: 'fund-requests' as Tab, label: 'Fund Requests', icon: Clock, badge: pendingCount, tone: 'yellow' },
+              { key: 'auto-trade' as Tab, label: 'Auto Trade', icon: TrendingUp, badge: autoTradePlans.filter(p => p.status === 'active').length, tone: 'green' },
+              { key: 'activation-fees' as Tab, label: 'Activations', icon: Gift, badge: activationFeeReqs.filter(f => f.status === 'pending').length, tone: 'amber' },
+              { key: 'withdrawals' as Tab, label: 'Withdrawals', icon: ArrowUpCircle, badge: withdrawalReqs.filter(w => w.status === 'pending').length, tone: 'red' },
+              { key: 'wallets' as Tab, label: 'Wallets', icon: Wallet, badge: traderBalances.length, tone: 'emerald' },
+              { key: 'ai-support' as Tab, label: 'AI Assistant', icon: Sparkles, badge: 0, tone: 'pink' },
+            ]).map(tab => (
+              <button key={tab.key} onClick={() => setActiveTab(tab.key)} className={`group flex min-h-16 items-center gap-2 rounded-xl border px-2.5 py-2 text-left transition-all ${activeTab === tab.key ? 'border-red-400/50 bg-red-500/10 text-white shadow-lg shadow-red-950/30' : 'border-slate-800 bg-slate-950/40 text-slate-400 hover:border-slate-600 hover:bg-slate-800/70 hover:text-white'}`}>
+                <tab.icon className={`h-4 w-4 shrink-0 ${activeTab === tab.key ? 'text-red-400' : 'text-slate-500 group-hover:text-slate-300'}`} />
+                <span className="min-w-0 flex-1 text-[11px] font-semibold leading-tight">{tab.label}</span>
+                {tab.badge > 0 && <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold ${tab.key === 'fund-requests' || tab.key === 'activation-fees' || tab.key === 'withdrawals' ? 'bg-amber-400 text-slate-950' : 'bg-slate-700 text-slate-300'}`}>{tab.badge}</span>}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -1129,7 +1122,7 @@ export default function AdminClient() {
         {activeTab === 'activation-fees' && (
           <div className="space-y-6">
             <Card className="bg-slate-900 border-slate-800">
-              <div className="px-6 py-4 border-b border-slate-800"><h2 className="text-white font-bold text-lg">Bot Activation Plans</h2><p className="text-slate-500 text-xs mt-1">These plans and prices appear in the Trader Dashboard.</p></div>
+              <div className="px-6 py-4 border-b border-slate-800"><div className="flex items-start gap-3"><div className="rounded-lg bg-amber-500/10 p-2"><Gift className="h-5 w-5 text-amber-400" /></div><div><h2 className="text-white font-bold text-lg">Bot Activation Plans & INR Payments</h2><p className="text-slate-500 text-xs mt-1">Set visible plans, INR pricing, UPI/QR payment options, and approve activation requests below.</p></div></div></div>
               <form onSubmit={saveActivationPlan} className="p-6 grid gap-3 md:grid-cols-4"><input value={planForm.name} onChange={e => setPlanForm(v => ({ ...v, name: e.target.value }))} placeholder="Plan name" className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white" required /><input type="number" min="1" value={planForm.durationMonths} onChange={e => setPlanForm(v => ({ ...v, durationMonths: e.target.value }))} placeholder="Months" className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white" required /><input type="number" min="1" value={planForm.priceInr} onChange={e => setPlanForm(v => ({ ...v, priceInr: e.target.value }))} placeholder="Price INR" className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white" required /><input value={planForm.description} onChange={e => setPlanForm(v => ({ ...v, description: e.target.value }))} placeholder="Description" className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white" /><Button type="submit" disabled={savingActivationPlan} className="md:col-span-4 bg-amber-600 hover:bg-amber-500 text-white">{savingActivationPlan ? 'Saving...' : 'Save Activation Plan'}</Button></form>
               <div className="px-6 pb-6 space-y-2">{activationPlans.map(plan => <div key={plan.id} className="flex items-center justify-between rounded-lg border border-slate-800 bg-slate-950/40 p-3"><div><p className="text-white text-sm font-medium">{plan.name} · ₹{Number(plan.priceInr).toLocaleString('en-IN')}</p><p className="text-slate-500 text-xs">{plan.description || 'Algo Bot access'} · {plan.isActive ? 'Active' : 'Hidden'}</p></div><Button type="button" variant="outline" size="sm" onClick={async () => { await toggleBotActivationPlan(plan.id, !plan.isActive); await loadActivationPlans() }}>{plan.isActive ? 'Hide' : 'Show'}</Button></div>)}</div>
             </Card>

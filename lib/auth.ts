@@ -77,7 +77,7 @@ export const auth = betterAuth({
       role: {
         type: 'string',
         required: false,
-        defaultValue: 'viewer',
+        defaultValue: 'trader',
         input: true, // allows the client to send role during signUp
       },
     },

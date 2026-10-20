@@ -296,7 +296,7 @@ export function Registration() {
                 </>
               ) : (
                 <>
-                  <h3 className="text-3xl font-bold tracking-tight text-white mb-2">Create Your <span className="text-[#00C8FF]">AlgoBot</span> Account</h3>
+                  <h3 className="text-3xl font-bold tracking-tight text-white mb-2">Create Your <span className="text-[#00C8FF]">AlgoBot Trader</span> Account</h3>
                   <p className="text-sm text-[#8eafd9] mb-8">Enter your details to get started.</p>
 
                   <form onSubmit={handleSubmit} className="flex flex-col gap-4">

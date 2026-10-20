@@ -141,7 +141,7 @@ export function Pricing() {
             </div>
 
             <div className="mb-6">
-              <p className="text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: '#00D4FF' }}>Arbitrage Bot</p>
+              <p className="text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: '#00D4FF' }}>NexaAlgo Bot</p>
               <div className="flex items-end gap-3 mb-1">
                 <span className="text-5xl font-bold text-white">$100</span>
                 <div className="pb-2 flex flex-col">

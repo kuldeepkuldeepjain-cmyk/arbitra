@@ -143,7 +143,7 @@ export const auditLogs = pgTable('audit_logs', {
   userId: text('userId').notNull().references(() => user.id, { onDelete: 'cascade' }),
   action: text('action').notNull(),
   resource: text('resource').notNull(),
-  resourceId: serial('resourceId'),
+  resourceId: integer('resourceId'),
   details: text('details'), // JSON stringified
   ipAddress: text('ipAddress'),
   userAgent: text('userAgent'),
@@ -273,6 +273,17 @@ export const walletTransactions = pgTable('wallet_transactions', {
   createdAt: timestamp('createdAt').notNull().defaultNow(),
 })
 
+export const walletBalances = pgTable('wallet_balances', {
+  userId: text('userId').primaryKey().references(() => user.id, { onDelete: 'cascade' }),
+  available: decimal('available', { precision: 18, scale: 2 }).notNull().default('0'),
+  totalDeposited: decimal('totalDeposited', { precision: 18, scale: 2 }).notNull().default('0'),
+  totalProfit: decimal('totalProfit', { precision: 18, scale: 2 }).notNull().default('0'),
+  totalReferral: decimal('totalReferral', { precision: 18, scale: 2 }).notNull().default('0'),
+  totalWithdrawn: decimal('totalWithdrawn', { precision: 18, scale: 2 }).notNull().default('0'),
+  pendingWithdrawal: decimal('pendingWithdrawal', { precision: 18, scale: 2 }).notNull().default('0'),
+  updatedAt: timestamp('updatedAt').notNull().defaultNow(),
+})
+
 export const withdrawals = pgTable('withdrawals', {
   id: serial('id').primaryKey(),
   userId: text('userId').notNull().references(() => user.id, { onDelete: 'cascade' }),
@@ -289,6 +300,31 @@ export const withdrawals = pgTable('withdrawals', {
 })
 
 // --- Trading Bots ---
+
+export const botActivationPlans = pgTable('bot_activation_plans', {
+  id: serial('id').primaryKey(),
+  name: text('name').notNull(),
+  durationMonths: integer('durationMonths').notNull(),
+  priceInr: decimal('priceInr', { precision: 10, scale: 2 }).notNull(),
+  description: text('description'),
+  isActive: boolean('isActive').notNull().default(true),
+  createdBy: text('createdBy').references(() => user.id, { onDelete: 'set null' }),
+  createdAt: timestamp('createdAt').notNull().defaultNow(),
+  updatedAt: timestamp('updatedAt').notNull().defaultNow(),
+})
+
+export const activationPaymentMethods = pgTable('activation_payment_methods', {
+  id: serial('id').primaryKey(),
+  method: text('method').notNull().unique(),
+  label: text('label').notNull(),
+  upiId: text('upi_id'),
+  qrImageUrl: text('qr_image_url'),
+  instructions: text('instructions'),
+  isActive: boolean('is_active').notNull().default(true),
+  createdBy: text('created_by').references(() => user.id, { onDelete: 'set null' }),
+  createdAt: timestamp('createdAt').notNull().defaultNow(),
+  updatedAt: timestamp('updatedAt').notNull().defaultNow(),
+})
 
 // --- Registration Audit ---
 
@@ -375,7 +411,7 @@ export const exchangeApiKeys = pgTable('exchange_api_keys', {
   id: serial('id').primaryKey(),
   exchange: text('exchange').notNull().unique(), // 'binance' | 'kraken' | 'okx' etc.
   label: text('label').notNull(),               // display name
-  apiKey: text('api_key'),                       // optional — some public APIs don't need keys
+  apiKey: text('api_key'),                       // optional ��� some public APIs don't need keys
   apiSecret: text('api_secret'),
   passphrase: text('passphrase'),                // KuCoin, Bitget etc.
   isEnabled: boolean('is_enabled').notNull().default(true),

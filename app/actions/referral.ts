@@ -284,7 +284,7 @@ export async function getActivationStatus() {
 }
 
 // Submit a $100 activation fee payment (trader submits tx hash for admin review)
-export async function submitActivationFee(txHash: string) {
+export async function submitActivationFee(txHash: string, amount = ACTIVATION_FEE) {
   const session = await auth.api.getSession({ headers: await headers() })
   if (!session?.user) throw new Error('Unauthorized')
 
@@ -302,7 +302,7 @@ export async function submitActivationFee(txHash: string) {
 
   await db.insert(activationFees).values({
     userId: session.user.id,
-    amount: ACTIVATION_FEE.toString(),
+    amount: String(amount),
     txHash: txHash.trim(),
     status: 'pending',
   })

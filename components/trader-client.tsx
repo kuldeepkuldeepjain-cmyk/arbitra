@@ -17,6 +17,7 @@ import {
   Eye, EyeOff, Bot, Sparkles, Loader,
 } from 'lucide-react'
 import { ActivationFeeModal } from '@/components/activation-fee-modal'
+import { TraderActivationPage } from '@/components/trader-activation-page'
 import { TraderAiArbitrageModal } from '@/components/trader-ai-modal'
 import { MarketTicker } from '@/components/market-ticker'
 import { formatPrice, formatVolume, timeAgo, CopyButton } from '@/lib/trader-utils'
@@ -42,7 +43,7 @@ type DepositAddress = Awaited<ReturnType<typeof getDepositAddresses>>[number]
 type FundRequest = Awaited<ReturnType<typeof getMyFundRequests>>[number]
 
 type Network = 'TRC20' | 'BEP20' | 'ERC20'
-type Tab = 'wallet' | 'opportunities' | 'funds' | 'exchanges' | 'trade' | 'auto-trade' | 'passive-income' | 'trading-bot' | 'arb-bot'
+type Tab = 'wallet' | 'activation' | 'opportunities' | 'funds' | 'exchanges' | 'trade' | 'auto-trade' | 'passive-income' | 'trading-bot' | 'arb-bot'
 type SortKey = 'netProfit' | 'spread' | 'volume24h' | 'symbol'
 type SortDir = 'asc' | 'desc'
 
@@ -60,7 +61,7 @@ const STATUS_META = {
 
 export function TraderClient({ user, isActivated, createdAt }: { user: { id: string; name?: string | null; email?: string }; isActivated: boolean; createdAt: string }) {
   const router = useRouter()
-  const [activeTab, setActiveTab] = useState<Tab>('opportunities')
+  const [activeTab, setActiveTab] = useState<Tab>('trading-bot')
 
   // Opportunities state — no auto-scan, user triggers manually
   const [opportunities, setOpportunities] = useState<Opportunity[]>([])
@@ -299,6 +300,18 @@ export function TraderClient({ user, isActivated, createdAt }: { user: { id: str
               </span>
             </button>
 
+            {/* Activation plan shortcut */}
+            <button
+              type="button"
+              onClick={() => setActiveTab('trading-bot')}
+              className="flex items-center gap-1.5 rounded-lg border border-amber-500/30 bg-amber-500/10 px-2 py-1.5 text-left transition-colors hover:border-amber-400/60 hover:bg-amber-500/20"
+              aria-label="View bot activation plans"
+            >
+              <Bot className="h-3.5 w-3.5 shrink-0 text-amber-400" />
+              <span className="hidden lg:block text-[9px] font-bold uppercase leading-none tracking-wide text-amber-300">Activation Plans</span>
+              <span className="text-[10px] font-bold leading-none text-white">INR</span>
+            </button>
+
             {/* User badge */}
             <div className="hidden sm:flex items-center gap-2 px-2.5 py-1.5 bg-slate-800/80 rounded-lg border border-slate-700">
               <div className="w-5 h-5 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-[10px] font-bold text-black shrink-0">
@@ -324,14 +337,16 @@ export function TraderClient({ user, isActivated, createdAt }: { user: { id: str
         <div className="lg:hidden border-t border-slate-800/60 bg-slate-900/40 overflow-x-auto scrollbar-none">
           <MarketTicker variant="mobile" />
         </div>
+
       </header>
 
-      {/* ── Tab Navigation ─────────────────────────���───────────── */}
+      {/* ── Tab Navigation ─────────────────────────���───────������──── */}
       <div className="border-b border-slate-800/60 bg-[#0a0f1e]/80 backdrop-blur-sm sticky top-14 z-30">
         <div className="max-w-screen-xl mx-auto overflow-x-auto scrollbar-none">
           <div className="flex min-w-max px-3 sm:px-4 md:px-6">
             {([
-              { key: 'wallet'         as Tab, label: 'Wallet',     icon: Wallet,          count: null },
+{ key: 'wallet'          as Tab, label: 'Wallet',      icon: Wallet,       count: null },
+    { key: 'activation'     as Tab, label: 'Activate',    icon: Shield,       count: null },
               { key: 'auto-trade'     as Tab, label: 'Auto Trade', icon: Zap,             count: null },
               { key: 'trading-bot'    as Tab, label: 'Bots',       icon: Bot,             count: null },
               { key: 'arb-bot'        as Tab, label: 'Arb Bot',    icon: ArrowRightLeft,  count: null },
@@ -371,11 +386,10 @@ export function TraderClient({ user, isActivated, createdAt }: { user: { id: str
 
       <main className="flex-1 max-w-screen-xl mx-auto px-3 sm:px-4 md:px-6 py-4 sm:py-6 w-full">
         {/* ── TAB: WALLET ───── */}
-        {activeTab === 'wallet' && (
-          <Suspense fallback={<TabLoader />}>
-            <TraderWallet />
-          </Suspense>
-        )}
+{activeTab === 'wallet' && (
+            <Suspense fallback={<TabLoader />}><TraderWallet /></Suspense>
+          )}
+          {activeTab === 'activation' && <TraderActivationPage />}
 
         {/* ── TAB: AUTO TRADE ── */}
         {activeTab === 'auto-trade' && (
@@ -387,7 +401,7 @@ export function TraderClient({ user, isActivated, createdAt }: { user: { id: str
         {/* ── TAB: TRADING BOTS ── */}
         {activeTab === 'trading-bot' && (
           <Suspense fallback={<TabLoader />}>
-            <TradingBot />
+            <TradingBot isActivated={isActivated} />
           </Suspense>
         )}
 

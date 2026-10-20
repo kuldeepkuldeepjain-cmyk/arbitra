@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { getActivationStatus, submitActivationFee } from '@/app/actions/referral'
+import { getActiveBotActivationPlans, getActivationPaymentMethods } from '@/app/actions/activation-payment-methods'
 import {
   Shield, Clock, CheckCircle2, XCircle,
   ChevronRight, AlertTriangle, Wallet, X, RefreshCw, LogOut,
@@ -20,6 +21,7 @@ type DepositAddress = {
 }
 
 type ActivationStatus = Awaited<ReturnType<typeof getActivationStatus>>
+type PaymentMethod = Awaited<ReturnType<typeof getActivationPaymentMethods>>[number]
 
 const NETWORK_META: Record<string, { color: string; bg: string; border: string; badge: string }> = {
   TRC20: { color: 'text-red-400',    bg: 'bg-red-500/10',    border: 'border-red-500/30',    badge: 'TRON' },
@@ -35,6 +37,9 @@ const GRACE_PERIOD_MS = GRACE_PERIOD_DAYS * 24 * 60 * 60 * 1000
 export function ActivationFeeModal({ serverIsActivated, createdAt }: { serverIsActivated: boolean; createdAt: string }) {
   const router = useRouter()
   const [status, setStatus] = useState<ActivationStatus | null>(null)
+  const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([])
+  const [plans, setPlans] = useState<Array<{ id: number; name: string; durationMonths: number; priceInr: string; description: string | null }>>([])
+  const [selectedPlanId, setSelectedPlanId] = useState<number | null>(null)
   const [loading, setLoading] = useState(true)
   const [dismissed, setDismissed] = useState(false)
   const [signingOut, setSigningOut] = useState(false)
@@ -51,6 +56,7 @@ export function ActivationFeeModal({ serverIsActivated, createdAt }: { serverIsA
 
   // Form state
   const [selectedNetwork, setSelectedNetwork] = useState<string | null>(null)
+  const [selectedMethod, setSelectedMethod] = useState<string | null>(null)
   const [txHash, setTxHash] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
@@ -58,11 +64,12 @@ export function ActivationFeeModal({ serverIsActivated, createdAt }: { serverIsA
 
   const handleSubmit = async () => {
     if (!txHash.trim()) return
-    if (!selectedNetwork) { setSubmitError('Please select a network first.'); return }
+    if (!selectedMethod) { setSubmitError('Please select a payment method first.'); return }
     setSubmitting(true)
     setSubmitError(null)
     try {
-      await submitActivationFee(txHash.trim())
+      const selectedPlan = plans.find(plan => plan.id === selectedPlanId)
+      await submitActivationFee(txHash.trim(), selectedPlan ? Number(selectedPlan.priceInr) : 999)
       setSubmitted(true)
     } catch (err) {
       setSubmitError(err instanceof Error ? err.message : 'Submission failed. Please try again.')
@@ -81,8 +88,11 @@ export function ActivationFeeModal({ serverIsActivated, createdAt }: { serverIsA
   const load = async () => {
     setLoading(true)
     try {
-      const data = await getActivationStatus()
+      const [data, methods, loadedPlans] = await Promise.all([getActivationStatus(), getActivationPaymentMethods(), getActiveBotActivationPlans()])
       setStatus(data)
+      setPaymentMethods(methods)
+      setPlans(loadedPlans)
+      setSelectedPlanId(loadedPlans[0]?.id ?? 1)
     } catch {
       // silent
     } finally {
@@ -109,7 +119,8 @@ export function ActivationFeeModal({ serverIsActivated, createdAt }: { serverIsA
   const hasPending  = status?.latestFee?.status === 'pending'
   const hasRejected = status?.latestFee?.status === 'rejected'
   const addresses   = status?.depositAddresses ?? []
-  const noAddresses = addresses.length === 0
+  const noAddresses = paymentMethods.length === 0
+  const selectedAmount = Number(plans.find(plan => plan.id === selectedPlanId)?.priceInr ?? (selectedPlanId === 2 ? 1999 : selectedPlanId === 3 ? 2999 : selectedPlanId === 4 ? 4999 : 999))
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
@@ -149,7 +160,7 @@ export function ActivationFeeModal({ serverIsActivated, createdAt }: { serverIsA
             <div>
               <h2 className="text-white font-bold text-lg leading-tight">Account Activation Required</h2>
               <p className="text-slate-400 text-xs mt-0.5">
-                Your {GRACE_PERIOD_DAYS}-day free trial has ended — one-time fee to keep using the Trader Dashboard
+                Your {GRACE_PERIOD_DAYS}-day free trial has ended — activate your Algo Bot plan with INR payment
               </p>
             </div>
           </div>
@@ -159,7 +170,7 @@ export function ActivationFeeModal({ serverIsActivated, createdAt }: { serverIsA
         <div className="mx-6 mb-5 flex items-center gap-4 bg-amber-500/5 border border-amber-500/20 rounded-xl px-5 py-4">
           <div>
             <p className="text-slate-400 text-xs font-medium uppercase tracking-wide">Activation Fee</p>
-            <p className="text-amber-400 font-black text-3xl font-mono leading-tight">$100 <span className="text-base font-semibold text-slate-400">USDT</span></p>
+            <p className="text-amber-400 font-black text-3xl font-mono leading-tight">₹{selectedAmount.toLocaleString('en-IN')} <span className="text-base font-semibold text-slate-400">selected plan</span></p>
           </div>
           <div className="ml-auto text-right">
             <p className="text-slate-500 text-xs">Multi-Level Referral Plan</p>
@@ -233,41 +244,51 @@ export function ActivationFeeModal({ serverIsActivated, createdAt }: { serverIsA
                   <div>
                     <p className="text-slate-300 text-sm font-semibold mb-2.5 flex items-center gap-1.5">
                       <span className="w-5 h-5 rounded-full bg-amber-500/20 text-amber-400 text-xs flex items-center justify-center font-bold">1</span>
-                      Select Network &amp; Copy Address
+                      Choose a plan and payment method
                     </p>
+                    <div className="grid grid-cols-2 gap-2 mb-3">
+                      {(plans.length ? plans : [
+                        { id: 1, name: '1 Month', durationMonths: 1, priceInr: '999', description: 'Starter access' },
+                        { id: 2, name: '3 Months', durationMonths: 3, priceInr: '1999', description: 'Quarterly access' },
+                        { id: 3, name: '6 Months', durationMonths: 6, priceInr: '2999', description: 'Popular plan' },
+                        { id: 4, name: '12 Months', durationMonths: 12, priceInr: '4999', description: 'Annual value' },
+                      ]).map(plan => (
+                        <button key={plan.id} type="button" onClick={() => setSelectedPlanId(plan.id)} className={`rounded-xl border p-3 text-left transition ${selectedPlanId === plan.id ? 'border-amber-400 bg-amber-500/10 ring-1 ring-amber-400/40' : 'border-slate-700 bg-slate-800/50 hover:border-slate-600'}`}>
+                          <span className="block text-xs font-semibold text-slate-300">{plan.name}</span>
+                          <span className="mt-1 block text-lg font-black text-amber-300">₹{Number(plan.priceInr).toLocaleString('en-IN')}</span>
+                          <span className="block text-[10px] text-slate-500">{plan.description}</span>
+                        </button>
+                      ))}
+                    </div>
                     <div className="space-y-2">
-                      {addresses.map((addr) => {
-                        const meta = NETWORK_META[addr.network] ?? { color: 'text-slate-400', bg: 'bg-slate-800', border: 'border-slate-700', badge: addr.network }
-                        const isSelected = selectedNetwork === addr.network
+                      {paymentMethods.map((method) => {
+                        const isSelected = selectedMethod === method.method
                         return (
-                          // Not a native <button> — it wraps CopyBtn (also a <button>), and
-                          // nested buttons are invalid HTML and trigger a hydration error.
                           <div
-                            key={addr.id}
+                            key={method.id}
                             role="button"
                             tabIndex={0}
-                            onClick={() => setSelectedNetwork(addr.network)}
+                            onClick={() => setSelectedMethod(method.method)}
                             onKeyDown={e => {
                               if (e.key === 'Enter' || e.key === ' ') {
                                 e.preventDefault()
-                                setSelectedNetwork(addr.network)
+                                setSelectedMethod(method.method)
                               }
                             }}
                             className={`w-full text-left rounded-xl border px-4 py-3 transition-all cursor-pointer ${
-                              isSelected
-                                ? `${meta.bg} ${meta.border} ring-1 ring-offset-0 ${meta.border.replace('border-', 'ring-')}`
-                                : 'bg-slate-800/50 border-slate-700 hover:border-slate-600'
+                              isSelected ? 'bg-amber-500/10 border-amber-500/50 ring-1 ring-amber-500/30' : 'bg-slate-800/50 border-slate-700 hover:border-slate-600'
                             }`}
                           >
                             <div className="flex items-center gap-3">
-                              <div className={`px-2 py-0.5 rounded-md text-xs font-bold border ${meta.bg} ${meta.color} ${meta.border}`}>
-                                {addr.network}
+                              <div className="px-2 py-0.5 rounded-md text-xs font-bold border bg-amber-500/10 text-amber-300 border-amber-500/30">
+                                {method.label}
                               </div>
                               <div className="flex-1 min-w-0">
-                                <p className="text-slate-300 text-xs">{meta.badge}</p>
-                                <p className="text-slate-500 text-xs font-mono truncate">{addr.address}</p>
+                                {method.upiId && <p className="text-slate-300 text-xs font-mono truncate">UPI: {method.upiId}</p>}
+                                {method.instructions && <p className="text-slate-500 text-xs">{method.instructions}</p>}
                               </div>
-                              <CopyBtn text={addr.address} />
+                              {method.upiId && <CopyBtn text={method.upiId} />}
+                              {method.qrImageUrl && <img src={method.qrImageUrl} alt={`${method.label} QR code`} className="w-14 h-14 object-contain rounded bg-white p-1" />}
                             </div>
                           </div>
                         )
@@ -279,7 +300,7 @@ export function ActivationFeeModal({ serverIsActivated, createdAt }: { serverIsA
                   <div>
                     <p className="text-slate-300 text-sm font-semibold mb-2.5 flex items-center gap-1.5">
                       <span className="w-5 h-5 rounded-full bg-amber-500/20 text-amber-400 text-xs flex items-center justify-center font-bold">2</span>
-                      Send Exactly $100 USDT &amp; Paste TX Hash
+                      Paste UTR / transaction reference after paying in INR
                     </p>
                     <div className="relative">
                       <Wallet className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
@@ -287,7 +308,7 @@ export function ActivationFeeModal({ serverIsActivated, createdAt }: { serverIsA
                         type="text"
                         value={txHash}
                         onChange={e => { setTxHash(e.target.value); setSubmitError(null) }}
-                        placeholder="e.g. 0xabc123... or TRX hash"
+                        placeholder="e.g. UPI123456789 or bank reference"
                         className="w-full bg-slate-800 border border-slate-700 focus:border-amber-500/50 rounded-xl pl-10 pr-4 py-3 text-white placeholder-slate-600 text-sm font-mono focus:outline-none transition-colors"
                       />
                     </div>
@@ -330,7 +351,7 @@ export function ActivationFeeModal({ serverIsActivated, createdAt }: { serverIsA
           {/* Info note */}
           {!hasPending && !submitted && (
             <p className="text-slate-600 text-xs text-center leading-relaxed">
-              Your account will be activated within 24 hours after admin confirmation.
+              Your Algo Bot access will be activated within 24 hours after admin confirmation.
               Contact support if you have any issues.
             </p>
           )}

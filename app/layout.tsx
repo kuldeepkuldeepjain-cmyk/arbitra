@@ -6,13 +6,13 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
 
 export const metadata: Metadata = {
-  title: 'ArbitrageIQ — Discover Arbitrage Opportunities Before Everyone Else',
-  description: 'Monitor prices across global exchanges, compare spreads, estimate transaction costs, and identify potential arbitrage opportunities using AI-powered analytics.',
+  title: 'NexaAlgo — AI-powered algorithmic trading intelligence',
+  description: 'Scan crypto, commodities, and forex markets with AI. Spot disciplined opportunities across Bitcoin, gold, silver, and more with NexaAlgo.',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
-    title: 'ArbitrageIQ',
+    title: 'NexaAlgo',
   },
   icons: {
     icon: [
@@ -81,7 +81,7 @@ export default function RootLayout({
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <meta name="apple-mobile-web-app-title" content="ArbitrageIQ" />
+        <meta name="apple-mobile-web-app-title" content="NexaAlgo" />
       </head>
       <body className="antialiased font-sans" style={{ backgroundColor: '#050816', color: '#FFFFFF' }}>
         {children}

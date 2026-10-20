@@ -20,19 +20,21 @@ import AdminAiPanel from '@/components/admin-ai-panel'
 // Single stable barrel — one import entry prevents multiple async-loader chunks
 // that go stale across Turbopack rebuilds
 import {
-  getAllUsers, changeUserRole, deleteUser, createAdminUser,
+  getAllUsers, changeUserRole, deleteUser, createAdminUser, setUserBotActivation,
   createProTraderUser, resetUserPassword,
   getAllDepositAddresses, getAllFundRequests, upsertDepositAddress, reviewFundRequest,
   getAllAutoTradePlans, createAutoTradePlan, updateAutoTradePlanStatus,
   getActivationFeeRequests, approveActivationFee, rejectActivationFee,
   getAllTraderBalances, getAllWithdrawals, reviewWithdrawal,
+  getAllActivationPaymentMethods, upsertActivationPaymentMethod, toggleActivationPaymentMethod,
 } from '@/app/actions/admin-actions'
+import { getAllBotActivationPlans, upsertBotActivationPlan, toggleBotActivationPlan } from '@/app/actions/activation-payment-methods'
 
 type Tab = 'users' | 'deposit-addresses' | 'fund-requests' | 'auto-trade' | 'activation-fees' | 'withdrawals' | 'wallets' | 'arbitrage' | 'ai-support'
 type Network = 'TRC20' | 'BEP20' | 'ERC20'
 
 interface User {
-  id: string; name: string | null; email: string; role: string; createdAt: Date
+  id: string; name: string | null; email: string; role: string; isActivated: boolean; createdAt: Date
   lastLoginAt: Date | string | null; lastLoginIp: string | null
 }
 interface DepositAddress { id: number; network: string; address: string; label: string | null; isActive: boolean; createdAt: Date }
@@ -51,6 +53,10 @@ interface ActivationFeeReq {
   id: number; userId: string; amount: string; txHash: string | null
   status: string; note: string | null; createdAt: Date; reviewedAt: Date | null
   trader: { name: string | null; email: string; referredBy: string | null } | null
+}
+interface ActivationPaymentMethod {
+  id: number; method: string; label: string; upiId: string | null; qrImageUrl: string | null
+  instructions: string | null; isActive: boolean; createdAt: Date; updatedAt: Date
 }
 interface WithdrawalReq {
   id: number; userId: string; amount: string; network: string; walletAddress: string
@@ -157,6 +163,12 @@ export default function AdminClient() {
   const [reviewingFeeId, setReviewingFeeId] = useState<number | null>(null)
   const [rejectNote, setRejectNote] = useState('')
   const [showRejectModal, setShowRejectModal] = useState<number | null>(null)
+  const [paymentMethods, setPaymentMethods] = useState<ActivationPaymentMethod[]>([])
+  const [paymentForm, setPaymentForm] = useState({ method: 'upi', label: 'UPI', upiId: '', qrImageUrl: '', instructions: '' })
+  const [savingPaymentMethod, setSavingPaymentMethod] = useState(false)
+  const [activationPlans, setActivationPlans] = useState<Array<{ id: number; name: string; durationMonths: number; priceInr: string; description: string | null; isActive: boolean }>>([])
+  const [planForm, setPlanForm] = useState({ name: '1 Month', durationMonths: '1', priceInr: '999', description: 'Algo Bot access' })
+  const [savingActivationPlan, setSavingActivationPlan] = useState(false)
 
   // Trader Balances
   const [traderBalances, setTraderBalances] = useState<TraderBalance[]>([])
@@ -172,6 +184,7 @@ export default function AdminClient() {
 
   useEffect(() => { loadUsers() }, [])
   useEffect(() => {
+    if (activeTab === 'activation-fees') { loadPaymentMethods(); loadActivationPlans() }
     if (activeTab === 'deposit-addresses') loadAddresses()
     if (activeTab === 'fund-requests') loadFundRequests()
     if (activeTab === 'auto-trade') loadAutoTradePlans()
@@ -208,12 +221,54 @@ export default function AdminClient() {
     finally { setLoadingAddresses(false) }
   }
 
+  const loadPaymentMethods = async () => {
+    try { setPaymentMethods((await getAllActivationPaymentMethods()) as ActivationPaymentMethod[]) }
+    catch (e) { showToast(e instanceof Error ? e.message : 'Failed to load payment methods', 'error') }
+  }
+
+  const loadActivationPlans = async () => {
+    try { setActivationPlans((await getAllBotActivationPlans()) as typeof activationPlans) }
+    catch (e) { showToast(e instanceof Error ? e.message : 'Failed to load activation plans', 'error') }
+  }
+
+  const saveActivationPlan = async (e: React.FormEvent) => {
+    e.preventDefault()
+    try {
+      setSavingActivationPlan(true)
+      await upsertBotActivationPlan({ ...planForm, durationMonths: Number(planForm.durationMonths) })
+      await loadActivationPlans()
+      showToast('Activation plan saved')
+    } catch (e) { showToast(e instanceof Error ? e.message : 'Failed to save plan', 'error') }
+    finally { setSavingActivationPlan(false) }
+  }
+
+  const savePaymentMethod = async (e: React.FormEvent) => {
+    e.preventDefault()
+    try {
+      setSavingPaymentMethod(true)
+      await upsertActivationPaymentMethod(paymentForm)
+      await loadPaymentMethods()
+      showToast('Activation payment details saved')
+    } catch (e) { showToast(e instanceof Error ? e.message : 'Failed to save payment details', 'error') }
+    finally { setSavingPaymentMethod(false) }
+  }
+
   const loadFundRequests = async () => {
     try {
       setLoadingRequests(true)
       setFundRequests((await getAllFundRequests()) as FundRequest[])
     } catch (e) { showToast(e instanceof Error ? e.message : 'Failed to load requests', 'error') }
     finally { setLoadingRequests(false) }
+  }
+
+  const handleBotActivation = async (target: User) => {
+    try {
+      await setUserBotActivation(target.id, !target.isActivated)
+      await loadUsers()
+      showToast(`${target.name || target.email} bot access ${target.isActivated ? 'removed' : 'activated'}`)
+    } catch (e) {
+      showToast(e instanceof Error ? e.message : 'Failed to update bot access', 'error')
+    }
   }
 
   const handleRoleChange = async (userId: string, newRole: UserRole) => {
@@ -500,7 +555,7 @@ export default function AdminClient() {
             { label: 'Total Users', value: users.length, icon: Users, color: 'text-blue-400' },
             { label: 'Traders', value: traderCount, icon: BarChart3, color: 'text-amber-400' },
             { label: 'Pending Deposits', value: pendingCount, icon: Clock, color: 'text-yellow-400' },
-            { label: 'Confirmed Funds', value: `$${confirmedFunds.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`, icon: Zap, color: 'text-green-400' },
+            { label: 'Confirmed Funds', value: `₹${confirmedFunds.toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`, icon: Zap, color: 'text-green-400' },
           ].map(({ label, value, icon: Icon, color }) => (
             <div key={label} className="flex items-center gap-3">
               <div className="p-2 rounded-lg bg-slate-800">
@@ -515,42 +570,35 @@ export default function AdminClient() {
         </div>
       </div>
 
-      {/* Tab bar */}
-      <div className="border-b border-slate-800 bg-slate-900/60">
-        <div className="max-w-screen-xl mx-auto px-4 md:px-6 flex gap-1">
-          {([
-            { key: 'users' as Tab,               label: 'Users',             icon: Users,      badge: users.length },
-            { key: 'arbitrage' as Tab,            label: 'Arbitrage',           icon: Activity,      badge: 0 },
-            { key: 'deposit-addresses' as Tab,    label: 'Deposit Addresses', icon: Wallet,     badge: activeAddressNetworks.length },
-            { key: 'fund-requests' as Tab,        label: 'Fund Requests',     icon: Clock,      badge: pendingCount },
-            { key: 'auto-trade' as Tab,           label: 'Auto Trade',        icon: TrendingUp, badge: autoTradePlans.filter(p => p.status === 'active').length },
-            { key: 'activation-fees' as Tab,      label: 'Activations',       icon: Gift,        badge: activationFeeReqs.filter(f => f.status === 'pending').length },
-            { key: 'withdrawals' as Tab,          label: 'Withdrawals',        icon: ArrowUpCircle, badge: withdrawalReqs.filter(w => w.status === 'pending').length },
-            { key: 'wallets' as Tab,              label: 'Wallets',             icon: Wallet,        badge: traderBalances.length },
-            { key: 'ai-support' as Tab,           label: 'AI Assistant',        icon: Sparkles,      badge: 0 },
-          ]).map(tab => (
-            <button
-              key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
-              className={`flex items-center gap-2 px-4 py-3.5 text-sm font-medium border-b-2 -mb-px transition-colors ${
-                activeTab === tab.key
-                  ? 'border-red-400 text-red-400'
-                  : 'border-transparent text-slate-500 hover:text-slate-300'
-              }`}
-            >
-              <tab.icon className="w-4 h-4" />
-              {tab.label}
-              {tab.badge > 0 && (
-                <span className={`px-1.5 py-0.5 rounded-full text-xs font-bold ${
-                  tab.key === 'fund-requests' && pendingCount > 0
-                    ? 'bg-yellow-500 text-black'
-                    : 'bg-slate-700 text-slate-300'
-                }`}>
-                  {tab.badge}
-                </span>
-              )}
-            </button>
-          ))}
+      {/* Operations navigation: all admin areas stay visible and scannable */}
+      <div className="border-b border-slate-800 bg-slate-900/80">
+        <div className="max-w-screen-xl mx-auto px-4 md:px-6 py-3">
+          <div className="mb-2 flex items-center justify-between">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500">Operations console</p>
+              <p className="mt-0.5 text-xs text-slate-400">Manage traders, INR payments, activations, balances, and approvals</p>
+            </div>
+            <span className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-green-500/20 bg-green-500/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-green-400"><span className="h-1.5 w-1.5 rounded-full bg-green-400" />Live</span>
+          </div>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-9">
+            {([
+              { key: 'users' as Tab, label: 'Users', icon: Users, badge: users.length, tone: 'blue' },
+              { key: 'arbitrage' as Tab, label: 'Arbitrage', icon: Activity, badge: 0, tone: 'violet' },
+              { key: 'deposit-addresses' as Tab, label: 'Deposit Addresses', icon: Wallet, badge: activeAddressNetworks.length, tone: 'cyan' },
+              { key: 'fund-requests' as Tab, label: 'Fund Requests', icon: Clock, badge: pendingCount, tone: 'yellow' },
+              { key: 'auto-trade' as Tab, label: 'Auto Trade', icon: TrendingUp, badge: autoTradePlans.filter(p => p.status === 'active').length, tone: 'green' },
+              { key: 'activation-fees' as Tab, label: 'Activations', icon: Gift, badge: activationFeeReqs.filter(f => f.status === 'pending').length, tone: 'amber' },
+              { key: 'withdrawals' as Tab, label: 'Withdrawals', icon: ArrowUpCircle, badge: withdrawalReqs.filter(w => w.status === 'pending').length, tone: 'red' },
+              { key: 'wallets' as Tab, label: 'Wallets', icon: Wallet, badge: traderBalances.length, tone: 'emerald' },
+              { key: 'ai-support' as Tab, label: 'AI Assistant', icon: Sparkles, badge: 0, tone: 'pink' },
+            ]).map(tab => (
+              <button key={tab.key} onClick={() => setActiveTab(tab.key)} className={`group flex min-h-16 items-center gap-2 rounded-xl border px-2.5 py-2 text-left transition-all ${activeTab === tab.key ? 'border-red-400/50 bg-red-500/10 text-white shadow-lg shadow-red-950/30' : 'border-slate-800 bg-slate-950/40 text-slate-400 hover:border-slate-600 hover:bg-slate-800/70 hover:text-white'}`}>
+                <tab.icon className={`h-4 w-4 shrink-0 ${activeTab === tab.key ? 'text-red-400' : 'text-slate-500 group-hover:text-slate-300'}`} />
+                <span className="min-w-0 flex-1 text-[11px] font-semibold leading-tight">{tab.label}</span>
+                {tab.badge > 0 && <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold ${tab.key === 'fund-requests' || tab.key === 'activation-fees' || tab.key === 'withdrawals' ? 'bg-amber-400 text-slate-950' : 'bg-slate-700 text-slate-300'}`}>{tab.badge}</span>}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -680,6 +728,19 @@ export default function AdminClient() {
                             >
                               <KeyRound className="w-4 h-4" />
                             </Button>
+                            {(u.role === 'trader' || u.role === 'protrader') && (
+                              <Button
+                                onClick={() => handleBotActivation(u)}
+                                variant="ghost"
+                                size="sm"
+                                className={u.isActivated
+                                  ? 'text-emerald-400 hover:text-red-400 hover:bg-red-900/20 h-8 px-2 text-xs'
+                                  : 'text-violet-400 hover:text-violet-300 hover:bg-violet-900/20 h-8 px-2 text-xs'}
+                                title={u.isActivated ? 'Remove bot access' : 'Activate bot access'}
+                              >
+                                {u.isActivated ? 'Bot active' : 'Activate bot'}
+                              </Button>
+                            )}
                             <Button
                               onClick={() => handleDeleteUser(u.id)}
                               disabled={deletingUserId === u.id}
@@ -1060,6 +1121,28 @@ export default function AdminClient() {
         {/* ── ACTIVATION FEES TAB ── */}
         {activeTab === 'activation-fees' && (
           <div className="space-y-6">
+            <Card className="bg-slate-900 border-slate-800">
+              <div className="px-6 py-4 border-b border-slate-800"><div className="flex items-start gap-3"><div className="rounded-lg bg-amber-500/10 p-2"><Gift className="h-5 w-5 text-amber-400" /></div><div><h2 className="text-white font-bold text-lg">Bot Activation Plans & INR Payments</h2><p className="text-slate-500 text-xs mt-1">Set visible plans, INR pricing, UPI/QR payment options, and approve activation requests below.</p></div></div></div>
+              <form onSubmit={saveActivationPlan} className="p-6 grid gap-3 md:grid-cols-4"><input value={planForm.name} onChange={e => setPlanForm(v => ({ ...v, name: e.target.value }))} placeholder="Plan name" className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white" required /><input type="number" min="1" value={planForm.durationMonths} onChange={e => setPlanForm(v => ({ ...v, durationMonths: e.target.value }))} placeholder="Months" className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white" required /><input type="number" min="1" value={planForm.priceInr} onChange={e => setPlanForm(v => ({ ...v, priceInr: e.target.value }))} placeholder="Price INR" className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white" required /><input value={planForm.description} onChange={e => setPlanForm(v => ({ ...v, description: e.target.value }))} placeholder="Description" className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white" /><Button type="submit" disabled={savingActivationPlan} className="md:col-span-4 bg-amber-600 hover:bg-amber-500 text-white">{savingActivationPlan ? 'Saving...' : 'Save Activation Plan'}</Button></form>
+              <div className="px-6 pb-6 space-y-2">{activationPlans.map(plan => <div key={plan.id} className="flex items-center justify-between rounded-lg border border-slate-800 bg-slate-950/40 p-3"><div><p className="text-white text-sm font-medium">{plan.name} · ₹{Number(plan.priceInr).toLocaleString('en-IN')}</p><p className="text-slate-500 text-xs">{plan.description || 'Algo Bot access'} · {plan.isActive ? 'Active' : 'Hidden'}</p></div><Button type="button" variant="outline" size="sm" onClick={async () => { await toggleBotActivationPlan(plan.id, !plan.isActive); await loadActivationPlans() }}>{plan.isActive ? 'Hide' : 'Show'}</Button></div>)}</div>
+            </Card>
+            <Card className="bg-slate-900 border-slate-800">
+              <div className="px-6 py-4 border-b border-slate-800">
+                <h2 className="text-white font-bold text-lg">Activation Payment Details</h2>
+                <p className="text-slate-500 text-xs mt-1">Configure the UPI ID, QR image URL, and instructions traders see when activating for ₹999/month.</p>
+              </div>
+              <form onSubmit={savePaymentMethod} className="p-6 grid gap-4 md:grid-cols-2">
+                <input value={paymentForm.label} onChange={e => setPaymentForm(v => ({ ...v, label: e.target.value }))} placeholder="Label e.g. UPI" className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white" required />
+                <input value={paymentForm.method} onChange={e => setPaymentForm(v => ({ ...v, method: e.target.value }))} placeholder="Method key e.g. upi" className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white" required />
+                <input value={paymentForm.upiId} onChange={e => setPaymentForm(v => ({ ...v, upiId: e.target.value }))} placeholder="UPI ID e.g. pay@upi" className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white" />
+                <input value={paymentForm.qrImageUrl} onChange={e => setPaymentForm(v => ({ ...v, qrImageUrl: e.target.value }))} placeholder="QR image URL" className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white" />
+                <input value={paymentForm.instructions} onChange={e => setPaymentForm(v => ({ ...v, instructions: e.target.value }))} placeholder="Instructions for traders" className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white md:col-span-2" />
+                <Button type="submit" disabled={savingPaymentMethod} className="md:col-span-2 bg-amber-600 hover:bg-amber-500 text-white">{savingPaymentMethod ? 'Saving...' : 'Save Payment Details'}</Button>
+              </form>
+              <div className="px-6 pb-6 space-y-2">
+                {paymentMethods.map(method => <div key={method.id} className="flex items-center justify-between rounded-lg border border-slate-800 bg-slate-950/40 p-3"><div><p className="text-white text-sm font-medium">{method.label}</p><p className="text-slate-500 text-xs">{method.upiId || 'QR only'}{method.isActive ? ' · Active' : ' · Hidden'}</p></div><Button type="button" variant="outline" size="sm" onClick={async () => { await toggleActivationPaymentMethod(method.id, !method.isActive); await loadPaymentMethods() }}>{method.isActive ? 'Hide' : 'Show'}</Button></div>)}
+              </div>
+            </Card>
             <Card className="bg-slate-900 border-slate-800 overflow-hidden">
               <div className="px-6 py-4 border-b border-slate-800 flex items-center justify-between">
                 <h2 className="text-white font-bold text-lg flex items-center gap-2">

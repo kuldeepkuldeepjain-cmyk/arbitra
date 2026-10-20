@@ -4,7 +4,7 @@ import dynamic from 'next/dynamic'
 import { motion, useMotionValue, animate } from 'framer-motion'
 import { useEffect, useMemo, useState } from 'react'
 import { ArrowRight, Play, TrendingUp, Zap, Globe, Clock } from 'lucide-react'
-import { ArbitrageIQLogo } from '@/components/logo'
+import { NexaAlgoLogo } from '@/components/logo'
 import Link from 'next/link'
 
 function AnimatedCounter({ from, to, suffix = '' }: { from: number; to: number; suffix?: string }) {
@@ -49,10 +49,10 @@ function LiveTickingCounter({ base, suffix = '' }: { base: number; suffix?: stri
 }
 
 const stats = [
-  { icon: Globe,     label: 'Exchanges Supported',  value: 12,    suffix: '+',  live: false },
-  { icon: TrendingUp,label: 'Active Opportunities',  value: 2847,  suffix: '',   live: true  },
-  { icon: Zap,       label: 'Markets Monitored',     value: 38400, suffix: '+',  live: false },
-  { icon: Clock,     label: 'Response Speed',        value: 47,    suffix: 'ms', live: false },
+  { icon: Globe,     label: 'Venues Connected',      value: 12,    suffix: '+',  live: false },
+  { icon: TrendingUp,label: 'Signals Scored Today',    value: 2847,  suffix: '',   live: true  },
+  { icon: Zap,       label: 'Instruments Watched',    value: 38400, suffix: '+',  live: false },
+  { icon: Clock,     label: 'Signal Latency',         value: 47,    suffix: 'ms', live: false },
 ]
 
 // Stable seeded PRNG so particles are identical on every render of the same component tree
@@ -166,7 +166,7 @@ export function Hero() {
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[#00D4FF]/20 bg-[#00D4FF]/5 text-[#00D4FF] text-sm font-medium mb-8"
           >
             <span className="w-2 h-2 rounded-full bg-[#00FF99] animate-pulse" />
-            AI-Powered Arbitrage Intelligence — Live
+            Autonomous market intelligence — live across 40,000+ instruments
           </motion.div>
 
           {/* Headline */}
@@ -176,14 +176,14 @@ export function Hero() {
             transition={{ duration: 0.6, delay: 0.1 }}
             className="text-5xl md:text-7xl font-extrabold text-white tracking-tight leading-[1.05] text-balance mb-6"
           >
-            Find Real-Time Crypto{' '}
+            Let AI scan every market.{' '}
             <span
               className="text-transparent bg-clip-text"
-              style={{ backgroundImage: 'linear-gradient(90deg, #00D4FF, #6C63FF)' }}
+              style={{ backgroundImage: 'linear-gradient(90deg, #00D4FF, #E8B85B)' }}
             >
-              Arbitrage Opportunities
+              Trade with a sharper edge
             </span>{' '}
-            Across Multiple Exchanges
+            across crypto, commodities & forex
           </motion.h1>
 
           {/* Subheadline */}
@@ -193,8 +193,7 @@ export function Hero() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="text-lg md:text-xl text-[#98A2B3] leading-relaxed max-w-2xl mx-auto mb-10"
           >
-            Monitor prices across global exchanges, compare spreads, estimate transaction costs,
-            and identify potential arbitrage opportunities using AI-powered analytics.
+            NexaAlgo watches Bitcoin, gold, silver, and global currency pairs around the clock—then surfaces high-conviction setups with entry logic, risk context, and automated execution controls. Built for disciplined traders, not promises.
           </motion.p>
 
           {/* CTAs */}
@@ -265,7 +264,7 @@ export function Hero() {
           ))}
           <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
             <div className="p-2 rounded-2xl bg-[#0E1324]/90 border border-[#00D4FF]/20 shadow-[0_0_40px_rgba(0,212,255,0.25)]">
-              <ArbitrageIQLogo size="md" variant="icon" />
+              <NexaAlgoLogo size="md" variant="icon" />
             </div>
             {/* Connection ring */}
             <motion.div

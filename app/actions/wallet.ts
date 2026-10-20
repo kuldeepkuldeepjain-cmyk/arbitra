@@ -1,7 +1,7 @@
 'use server'
 
 import { db } from '@/lib/db'
-import { walletTransactions, withdrawals, fundRequests, user, referralCommissions, autoTradeLogs } from '@/lib/db/schema'
+import { walletTransactions, walletBalances, withdrawals, fundRequests, user, referralCommissions, autoTradeLogs } from '@/lib/db/schema'
 import { eq, desc, sum, sql, and, gte } from 'drizzle-orm'
 import { auth } from '@/lib/auth'
 import { headers } from 'next/headers'
@@ -21,6 +21,27 @@ function setCachedBalance(userId: string, value: number) {
 }
 export async function invalidateBalanceCache(userId: string) {
   _balanceCache.delete(userId)
+}
+
+async function persistWalletSnapshot(userId: string, values: {
+  available?: number
+  totalDeposited?: number
+  totalProfit?: number
+  totalReferral?: number
+  totalWithdrawn?: number
+  pendingWithdrawal?: number
+}) {
+  const snapshot = Object.fromEntries(
+    Object.entries(values).map(([key, value]) => [key, value === undefined ? undefined : value.toFixed(2)])
+  )
+  await db.insert(walletBalances).values({
+    userId,
+    ...snapshot,
+    updatedAt: new Date(),
+  }).onConflictDoUpdate({
+    target: walletBalances.userId,
+    set: { ...snapshot, updatedAt: new Date() },
+  })
 }
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
@@ -45,7 +66,7 @@ export async function computeWalletBalance(userId: string): Promise<number> {
 
   const results = await Promise.all([
     db.select({ total: sum(fundRequests.amount) }).from(fundRequests)
-      .where(sql`"userId" = ${userId} AND status = 'confirmed'`),
+      .where(and(eq(fundRequests.userId, userId), eq(fundRequests.status, 'confirmed'))),
     db.select({ total: sum(autoTradeLogs.dailyNet) }).from(autoTradeLogs)
       .where(eq(autoTradeLogs.userId, userId)),
     db.select({ total: sum(referralCommissions.amount) }).from(referralCommissions)
@@ -72,6 +93,7 @@ export async function computeWalletBalance(userId: string): Promise<number> {
   const available = deposits + profits + commissions - withdrawn - pendingWith - activationDebit - autoTradeShifted
   const result = Math.max(0, parseFloat(available.toFixed(2)))
   setCachedBalance(userId, result)
+  await persistWalletSnapshot(userId, { available: result })
   return result
 }
 
@@ -93,7 +115,7 @@ export async function getWalletSummary() {
   // All queries fire in parallel for speed
   const results = await Promise.all([
     db.select({ total: sum(fundRequests.amount) }).from(fundRequests)
-      .where(sql`"userId" = ${userId} AND status = 'confirmed'`),
+      .where(and(eq(fundRequests.userId, userId), eq(fundRequests.status, 'confirmed'))),
     db.select({ total: sum(fundRequests.amount) }).from(fundRequests)
       .where(sql`"userId" = ${userId} AND status = 'pending'`),
     db.select({ total: sum(autoTradeLogs.dailyNet) }).from(autoTradeLogs)
@@ -145,6 +167,15 @@ export async function getWalletSummary() {
     ? new Date(new Date(lastWithdrawalAt).getTime() + 7 * 24 * 60 * 60 * 1000)
     : null
   const canWithdrawNow = !nextWithdrawalAvailable || new Date() >= nextWithdrawalAvailable
+
+  await persistWalletSnapshot(userId, {
+    available,
+    totalDeposited,
+    totalProfit: tradeProfits,
+    totalReferral: referralEarnings,
+    totalWithdrawn,
+    pendingWithdrawal,
+  })
 
   return {
     available,
@@ -213,7 +244,7 @@ export async function requestWithdrawal(
 
   // Check available balance
   const available = await computeWalletBalance(userId)
-  if (amount > available) throw new Error(`Insufficient balance. Available: $${available.toFixed(2)}`)
+  if (amount > available) throw new Error(`Insufficient balance. Available: USDT ${available.toFixed(2)}`)
 
   // Check withdrawal availability
   const withdrawalCheck = await checkWithdrawalAvailable()
@@ -291,13 +322,15 @@ export async function getAllTraderBalances() {
   const results = await Promise.all(
     traders.map(async (t) => {
       // All 5 balance queries fire in parallel for each trader
-      const [depRes, profitRes, commRes, withRes, pendRes] = await Promise.all([
+      const [depRes, profitRes, commRes, withRes, pendRes, shiftRes] = await Promise.all([
         db.select({ total: sum(fundRequests.amount) }).from(fundRequests)
           .where(sql`"userId" = ${t.id} AND status = 'confirmed'`),
         db.select({ total: sum(autoTradeLogs.dailyNet) }).from(autoTradeLogs)
           .where(eq(autoTradeLogs.userId, t.id)),
         db.select({ total: sum(referralCommissions.amount) }).from(referralCommissions)
-          .where(sql`"userId" = ${t.id} AND status = 'paid'`),
+          .where(sql`"userId" = ${t.id} AND status IN ('pending','paid')`),
+        db.select({ total: sum(walletTransactions.amount) }).from(walletTransactions)
+          .where(sql`"userId" = ${t.id} AND type = 'auto_trade_principal' AND status = 'completed'`),
         db.select({ total: sum(withdrawals.amount) }).from(withdrawals)
           .where(sql`"userId" = ${t.id} AND status = 'approved'`),
         db.select({ total: sum(withdrawals.amount) }).from(withdrawals)
@@ -309,10 +342,11 @@ export async function getAllTraderBalances() {
       const referralEarnings = parseFloat(String(commRes[0]?.total ?? '0')) || 0
       const totalWithdrawn = parseFloat(String(withRes[0]?.total ?? '0')) || 0
       const pendingWithdrawal = parseFloat(String(pendRes[0]?.total ?? '0')) || 0
+      const autoTradeShifted = Math.abs(parseFloat(String(shiftRes[0]?.total ?? '0')) || 0)
 
       const activationDebit = t.isActivated ? 100 : 0
       const available = Math.max(0, parseFloat(
-        (totalDeposited + tradeProfits + referralEarnings - totalWithdrawn - pendingWithdrawal - activationDebit).toFixed(2)
+        (totalDeposited + tradeProfits + referralEarnings - totalWithdrawn - pendingWithdrawal - activationDebit - autoTradeShifted).toFixed(2)
       ))
 
       return {
@@ -355,7 +389,7 @@ export async function getAllWithdrawals() {
   return rows
 }
 
-// ─── Admin: approve or reject withdrawal ─────────────────────────────────────
+// ─── Admin: approve or reject withdrawal ─���───────────────────────────────────
 
 export async function reviewWithdrawal(
   withdrawalId: number,
@@ -385,5 +419,26 @@ export async function reviewWithdrawal(
     updatedAt: new Date(),
   }).where(eq(withdrawals.id, withdrawalId))
 
+  if (action === 'approved') {
+    const existingLedgerEntry = await db.select({ id: walletTransactions.id })
+      .from(walletTransactions)
+      .where(and(eq(walletTransactions.userId, row.userId), eq(walletTransactions.refId, String(row.id)), eq(walletTransactions.refTable, 'withdrawals')))
+      .limit(1)
+
+    if (!existingLedgerEntry.length) {
+      await db.insert(walletTransactions).values({
+        userId: row.userId,
+        type: 'withdrawal',
+        amount: String(-Math.abs(Number(row.amount))),
+        balanceAfter: '0',
+        refId: String(row.id),
+        refTable: 'withdrawals',
+        description: `Approved ${row.network} withdrawal`,
+        status: 'completed',
+      })
+    }
+  }
+
+  invalidateBalanceCache(row.userId)
   return { success: true }
 }

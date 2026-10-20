@@ -13,6 +13,7 @@ export {
   createProTraderUser,
   resetUserPassword,
   updateUserProfile,
+  setUserBotActivation,
 } from '@/app/actions/users'
 
 export {
@@ -61,6 +62,13 @@ export {
   getAllWithdrawals,
   reviewWithdrawal,
 } from '@/app/actions/wallet'
+
+export {
+  getActivationPaymentMethods,
+  getAllActivationPaymentMethods,
+  upsertActivationPaymentMethod,
+  toggleActivationPaymentMethod,
+} from '@/app/actions/activation-payment-methods'
 
 export {
   getExchangeApiKeys,

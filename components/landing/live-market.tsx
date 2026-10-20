@@ -189,7 +189,7 @@ export function LiveMarket() {
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-5 border-b border-white/[0.06]">
             <div className="flex items-center gap-2">
               <TrendingUp className="w-4 h-4 text-[#00D4FF]" />
-              <span className="text-sm font-semibold text-white">Arbitrage Scanner</span>
+              <span className="text-sm font-semibold text-white">NexaAlgo Scanner</span>
               <span className="text-xs text-[#98A2B3] ml-2">{filtered.length} opportunities</span>
             </div>
             <div className="flex items-center gap-3 w-full sm:w-auto">

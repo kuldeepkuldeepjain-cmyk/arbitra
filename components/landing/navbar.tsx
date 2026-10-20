@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import { Menu, X } from 'lucide-react'
-import { ArbitrageIQLogo } from '@/components/logo'
+import { NexaAlgoLogo } from '@/components/logo'
 
 const navLinks = [
   { label: 'Features', href: '#features' },
@@ -38,7 +38,7 @@ export function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center group">
-          <ArbitrageIQLogo size="sm" variant="full" />
+          <NexaAlgoLogo size="sm" variant="full" />
         </Link>
 
         {/* Desktop nav */}

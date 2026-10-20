@@ -65,10 +65,30 @@ export async function getAllUsers() {
     name: u.name,
     email: u.email,
     role: u.role,
+    isActivated: u.isActivated,
     createdAt: u.createdAt,
     lastLoginAt: u.lastLoginAt ?? latestSessionByUser.get(u.id)?.createdAt ?? null,
     lastLoginIp: u.lastLoginIp ?? latestSessionByUser.get(u.id)?.ipAddress ?? null,
   }))
+}
+
+// Activate or deactivate a trader's Algo Bot access directly from the admin panel.
+export async function setUserBotActivation(userId: string, isActivated: boolean) {
+  const session = await auth.api.getSession({ headers: await headers() })
+  if (!session?.user) throw new Error('Unauthorized')
+
+  const [currentUser] = await db.select({ role: user.role }).from(user).where(eq(user.id, session.user.id)).limit(1)
+  if (currentUser?.role !== 'admin') throw new Error('Only admins can manage bot activation')
+  if (userId === session.user.id) throw new Error('You cannot change your own bot activation')
+
+  await db.update(user).set({ isActivated }).where(eq(user.id, userId))
+  await logAudit({
+    userId: session.user.id,
+    action: isActivated ? 'admin_bot_activated' : 'admin_bot_deactivated',
+    resource: 'users',
+    details: { targetUserId: userId, isActivated },
+  })
+  return { success: true }
 }
 
 // Change user role (admin only)

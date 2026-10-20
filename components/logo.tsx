@@ -9,7 +9,7 @@ const sizes = {
   lg: { icon: 48, text: 'text-3xl', gap: 'gap-3' },
 }
 
-export function ArbitrageIQLogo({ size = 'md', variant = 'full' }: LogoProps) {
+export function NexaAlgoLogo({ size = 'md', variant = 'full' }: LogoProps) {
   const s = sizes[size]
 
   return (
@@ -27,30 +27,19 @@ export function ArbitrageIQLogo({ size = 'md', variant = 'full' }: LogoProps) {
         <rect width="36" height="36" rx="9" fill="#0E1324" />
         <rect width="36" height="36" rx="9" fill="url(#logo-bg)" opacity="0.6" />
 
-        {/* Rising bars — arbitrage chart motif */}
-        <rect x="6"  y="22" width="4" height="8"  rx="1.5" fill="#6C63FF" opacity="0.7" />
-        <rect x="12" y="17" width="4" height="13" rx="1.5" fill="#00D4FF" opacity="0.85" />
-        <rect x="18" y="12" width="4" height="18" rx="1.5" fill="#00D4FF" />
-        <rect x="24" y="7"  width="4" height="23" rx="1.5" fill="#00FF99" />
-
-        {/* Upward trend arrow */}
+        {/* Neural trend mark — three nodes connected by an upward signal */}
         <path
-          d="M7 20 L17 10 L24 15 L30 6"
+          d="M7 25 L15 18 L22 21 L30 10"
           stroke="#00D4FF"
-          strokeWidth="1.8"
+          strokeWidth="2"
           strokeLinecap="round"
           strokeLinejoin="round"
-          opacity="0.5"
         />
-        {/* Arrow head */}
-        <path
-          d="M27 6 L30 6 L30 9"
-          stroke="#00D4FF"
-          strokeWidth="1.8"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          opacity="0.5"
-        />
+        <circle cx="7" cy="25" r="3" fill="#6C63FF" />
+        <circle cx="15" cy="18" r="3" fill="#00D4FF" />
+        <circle cx="22" cy="21" r="3" fill="#00D4FF" />
+        <circle cx="30" cy="10" r="3" fill="#E8B85B" />
+        <path d="M27 10 H30 V13" stroke="#E8B85B" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
 
         <defs>
           <linearGradient id="logo-bg" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse">
@@ -63,12 +52,12 @@ export function ArbitrageIQLogo({ size = 'md', variant = 'full' }: LogoProps) {
       {/* Wordmark */}
       {variant === 'full' && (
         <span className={`font-extrabold tracking-tight ${s.text} leading-none select-none`}>
-          <span className="text-white">Arbitrage</span>
+          <span className="text-white">Nexa</span>
           <span
             className="text-transparent bg-clip-text"
             style={{ backgroundImage: 'linear-gradient(90deg, #00D4FF, #6C63FF)' }}
           >
-            IQ
+            Algo
           </span>
         </span>
       )}

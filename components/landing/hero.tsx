@@ -4,7 +4,7 @@ import dynamic from 'next/dynamic'
 import { motion, useMotionValue, animate } from 'framer-motion'
 import { useEffect, useMemo, useState } from 'react'
 import { ArrowRight, Play, TrendingUp, Zap, Globe, Clock } from 'lucide-react'
-import { ArbitrageIQLogo } from '@/components/logo'
+import { NexaAlgoLogo } from '@/components/logo'
 import Link from 'next/link'
 
 function AnimatedCounter({ from, to, suffix = '' }: { from: number; to: number; suffix?: string }) {
@@ -193,7 +193,7 @@ export function Hero() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="text-lg md:text-xl text-[#98A2B3] leading-relaxed max-w-2xl mx-auto mb-10"
           >
-            Arbitra watches Bitcoin, gold, silver, and global currency pairs around the clock—then surfaces high-conviction setups with entry logic, risk context, and automated execution controls. Built for disciplined traders, not promises.
+            NexaAlgo watches Bitcoin, gold, silver, and global currency pairs around the clock—then surfaces high-conviction setups with entry logic, risk context, and automated execution controls. Built for disciplined traders, not promises.
           </motion.p>
 
           {/* CTAs */}
@@ -264,7 +264,7 @@ export function Hero() {
           ))}
           <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
             <div className="p-2 rounded-2xl bg-[#0E1324]/90 border border-[#00D4FF]/20 shadow-[0_0_40px_rgba(0,212,255,0.25)]">
-              <ArbitrageIQLogo size="md" variant="icon" />
+              <NexaAlgoLogo size="md" variant="icon" />
             </div>
             {/* Connection ring */}
             <motion.div

@@ -247,7 +247,7 @@ export default function AdminArbitragePanel() {
     setLoadingHistory(true)
     try {
       const { getTransferHistory } = await loadActions()
-      setTxHistory(await getTransferHistory(30) as Record<string, unknown>[])
+      setTxHistory(await getTransferHistory(30) as unknown as Record<string, unknown>[])
     } catch { setTxHistory([]) }
     finally { setLoadingHistory(false) }
   }
@@ -964,7 +964,7 @@ export default function AdminArbitragePanel() {
                             <div className="relative">
                               <input
                                 type={showSecrets[field] ? 'text' : 'password'}
-                                value={(editForm as Record<string, string>)[field]}
+                                value={(editForm as unknown as Record<string, string | boolean>)[field] as string}
                                 onChange={e => setEditForm(f => ({ ...f, [field]: e.target.value }))}
                                 placeholder={`Enter ${label.toLowerCase()}`}
                                 className="w-full bg-slate-900 border border-slate-700 rounded px-3 py-1.5 text-sm text-white pr-8"
@@ -1270,7 +1270,7 @@ export default function AdminArbitragePanel() {
                       <label className="text-xs text-slate-400 mb-1 block">{label}</label>
                       <input
                         type="number"
-                        value={(botConfig as Record<string, unknown>)[field] as number}
+                        value={(botConfig as unknown as Record<string, number>)[field]}
                         onChange={e => setBotConfig(c => c ? { ...c, [field]: parseFloat(e.target.value) || 0 } : c)}
                         className="w-full bg-slate-900 border border-slate-700 rounded px-3 py-1.5 text-sm text-white"
                       />
@@ -1373,7 +1373,7 @@ export default function AdminArbitragePanel() {
                     <label className="text-xs text-slate-400 mb-1 block">{label}</label>
                     <input
                       type="number"
-                      value={(botConfig as Record<string, unknown>)[field] as number}
+                      value={(botConfig as unknown as Record<string, number>)[field]}
                       onChange={e => setBotConfig(c => c ? { ...c, [field]: parseFloat(e.target.value) || 0 } : c)}
                       className="w-full bg-slate-900 border border-slate-700 rounded px-3 py-1.5 text-sm text-white"
                     />
@@ -1391,7 +1391,7 @@ export default function AdminArbitragePanel() {
                   <label key={field} className="flex items-center gap-2 cursor-pointer">
                     <input
                       type="checkbox"
-                      checked={(botConfig as Record<string, unknown>)[field] as boolean}
+                      checked={(botConfig as unknown as Record<string, boolean>)[field]}
                       onChange={e => setBotConfig(c => c ? { ...c, [field]: e.target.checked } : c)}
                       className="accent-cyan-500 w-4 h-4"
                     />

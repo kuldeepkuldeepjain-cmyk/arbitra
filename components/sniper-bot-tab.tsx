@@ -637,7 +637,7 @@ export function SniperBotTab() {
                   <label className="text-xs text-slate-400 mb-1 block">{label}</label>
                   <input
                     type={type}
-                    value={(localConfig as Record<string, unknown>)[key] as number}
+                    value={(localConfig as unknown as Record<string, number>)[key]}
                     onChange={e => setLocalConfig(c => c ? { ...c, [key]: parseFloat(e.target.value) || 0 } : c)}
                     className="w-full bg-slate-900 border border-slate-700 rounded px-3 py-1.5 text-sm text-white"
                   />

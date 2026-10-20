@@ -49,7 +49,8 @@ const countryOptions = [
 
 export function Registration() {
   const [form, setForm] = useState({
-    name: '',
+    firstName: '',
+    lastName: '',
     email: '',
     phone: '',
     country: 'India',
@@ -136,7 +137,7 @@ export function Registration() {
 
       // Step 2: Create the account via Better Auth
       const { data, error: signUpError } = await authClient.signUp.email({
-        name: form.name.trim(),
+        name: `${form.firstName.trim()} ${form.lastName.trim()}`.trim(),
         email: form.email.toLowerCase().trim(),
         password: form.password,
       })
@@ -250,23 +251,49 @@ export function Registration() {
                 </>
               ) : (
                 <>
-                  <h3 className="text-3xl font-bold tracking-tight text-white mb-2">Create Your <span className="text-[#00C8FF]">AlgoBot Trader</span> Account</h3>
-                  <p className="text-sm text-[#8eafd9] mb-8">Enter your details to get started.</p>
+                  <div className="mb-6 flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#00bfff]/30 bg-[#00bfff]/10">
+                      <ShieldCheck className="h-5 w-5 text-[#00C8FF]" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#00C8FF]">Secure registration</p>
+                      <p className="mt-1 text-xs text-[#8eafd9]">Create your AlgoBot Trader account</p>
+                    </div>
+                  </div>
+                  <h3 className="text-3xl font-bold tracking-tight text-white mb-2">Create your account</h3>
+                  <p className="text-sm text-[#8eafd9] mb-8">Set up your secure trading profile in a few simple steps.</p>
 
                   <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                       <div>
-                        <label className="mb-2 block text-xs font-medium text-[#8eafd9]">Full Name *</label>
+                        <label htmlFor="first-name" className="mb-2 block text-xs font-medium text-[#8eafd9]">First name *</label>
                         <input
+                          id="first-name"
                           type="text"
                           required
-                          value={form.name}
-                          onChange={(e) => setForm({ ...form, name: e.target.value })}
-                          placeholder="John Smith"
+                          autoComplete="given-name"
+                          value={form.firstName}
+                          onChange={(e) => setForm({ ...form, firstName: e.target.value })}
+                          placeholder="John"
                           className="w-full rounded-xl border border-[#264467] bg-[#0b1a31]/80 px-4 py-3.5 text-sm text-white placeholder-[#7f9abd]/60 transition-colors focus:border-[#00C8FF] focus:outline-none focus:ring-1 focus:ring-[#00C8FF]/40"
                         />
                       </div>
                       <div>
+                        <label htmlFor="last-name" className="mb-2 block text-xs font-medium text-[#8eafd9]">Last name *</label>
+                        <input
+                          id="last-name"
+                          type="text"
+                          required
+                          autoComplete="family-name"
+                          value={form.lastName}
+                          onChange={(e) => setForm({ ...form, lastName: e.target.value })}
+                          placeholder="Smith"
+                          className="w-full rounded-xl border border-[#264467] bg-[#0b1a31]/80 px-4 py-3.5 text-sm text-white placeholder-[#7f9abd]/60 transition-colors focus:border-[#00C8FF] focus:outline-none focus:ring-1 focus:ring-[#00C8FF]/40"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
                           <label htmlFor="mobile-number" className="mb-2 block text-xs font-medium text-[#8eafd9]">Mobile Number *</label>
                           <div className="flex rounded-xl border border-[#264467] bg-[#0b1a31]/80 transition-colors focus-within:border-[#00C8FF] focus-within:ring-1 focus-within:ring-[#00C8FF]/40">
                             <span className="flex items-center border-r border-[#264467] px-3 text-sm font-medium text-[#00C8FF]" aria-label={`Country calling code for ${form.country}`}>
@@ -283,13 +310,14 @@ export function Registration() {
                             />
                           </div>
                       </div>
-                    </div>
 
                     <div>
-                      <label className="mb-2 block text-xs font-medium text-[#8eafd9]">Email Address *</label>
+                      <label htmlFor="email" className="mb-2 block text-xs font-medium text-[#8eafd9]">Email address *</label>
                       <input
+                        id="email"
                         type="email"
                         required
+                        autoComplete="email"
                         value={form.email}
                         onChange={(e) => setForm({ ...form, email: e.target.value })}
                         placeholder="john@example.com"
@@ -297,7 +325,7 @@ export function Registration() {
                       />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div>
                       <div>
                           <label htmlFor="country" className="mb-2 block text-xs font-medium text-[#8eafd9]">Country *</label>
                           <select
@@ -317,7 +345,7 @@ export function Registration() {
 
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                       <div>
                         <label className="mb-2 block text-xs font-medium text-[#8eafd9]">Password *</label>
                         <input

@@ -8,7 +8,7 @@ import {
 } from 'lucide-react'
 
 const features = [
-  { icon: Brain, title: 'AI Opportunity Scanner', desc: 'GPT-4 powered scoring ranks opportunities by estimated profit, risk, and liquidity in real time.', accent: '#00D4FF' },
+  { icon: Brain, title: 'AI Opportunity Scanner', desc: 'Strategy-aware scoring ranks setups by expected edge, risk, liquidity, and execution quality in real time.', accent: '#00D4FF' },
   { icon: Radio, title: 'Real-Time Price Monitoring', desc: 'WebSocket feeds from 12+ exchanges with sub-50ms latency for always-accurate data.', accent: '#6C63FF' },
   { icon: Building2, title: 'Multi Exchange Support', desc: 'Connect Binance, Coinbase, Kraken, Bybit, KuCoin, Huobi and more from one dashboard.', accent: '#00FF99' },
   { icon: ArrowDownUp, title: 'Withdrawal Status', desc: 'Live withdrawal availability per coin per exchange so you never miss a window.', accent: '#00D4FF' },
@@ -23,7 +23,7 @@ const features = [
   { icon: Send, title: 'Telegram Alerts', desc: 'Instant bot alerts the moment a qualifying opportunity appears on your watchlist.', accent: '#00D4FF' },
   { icon: MessageSquare, title: 'WhatsApp Alerts', desc: 'Reach you on WhatsApp Business API when high-score opportunities are detected.', accent: '#6C63FF' },
   { icon: Mail, title: 'Email Notifications', desc: 'Daily digests and real-time alerts straight to your inbox with full opportunity details.', accent: '#00FF99' },
-  { icon: Code2, title: 'API Integration', desc: 'Programmatic REST & WebSocket API to pipe NexaAlgo data into your own systems.', accent: '#00D4FF' },
+  { icon: Code2, title: 'API Integration', desc: 'Programmatic REST and WebSocket APIs to connect AlgoBot signals and execution workflows to your own systems.', accent: '#00D4FF' },
   { icon: Wifi, title: 'WebSocket Engine', desc: 'Persistent WebSocket connections ensure zero-latency streaming to your browser.', accent: '#6C63FF' },
   { icon: Moon, title: 'Dark & Light Mode', desc: 'System-aware theme that looks stunning in both dark and light environments.', accent: '#00FF99' },
 ]
@@ -42,13 +42,13 @@ export function Features() {
           className="text-center mb-16"
         >
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-[#6C63FF]/30 bg-[#6C63FF]/10 text-[#6C63FF] text-xs font-medium mb-4">
-            18 Powerful Features
+            18 Built for Algo Trading
           </div>
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-4 text-balance">
-            Everything You Need to Trade Smarter
+            Everything You Need to Automate Smarter
           </h2>
           <p className="text-[#98A2B3] text-lg max-w-2xl mx-auto">
-            A complete arbitrage intelligence toolkit — from real-time scanning to AI scoring to instant alerts.
+            A complete algorithmic trading toolkit — from strategy automation and signal validation to risk controls, execution, and performance analytics.
           </p>
         </motion.div>
 

@@ -3,7 +3,6 @@
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { Send, ExternalLink, Globe, MessageCircle } from 'lucide-react'
-import { NexaAlgoLogo } from '@/components/logo'
 
 const links = {
   Product: ['Features', 'Live Markets', 'AI Scanner', 'API', 'Pricing'],
@@ -22,7 +21,7 @@ export function Footer() {
           {/* Brand */}
           <div className="col-span-2">
             <Link href="/" className="inline-flex mb-5">
-              <NexaAlgoLogo size="sm" variant="full" />
+              <img src="/algobot-logo.png" alt="AlgoBot" className="h-10 w-auto object-contain" />
             </Link>
             <p className="text-sm text-[#98A2B3] leading-relaxed mb-6 max-w-xs">
               AI-powered crypto arbitrage intelligence. Monitor, compare, and discover
@@ -71,7 +70,7 @@ export function Footer() {
         <div className="border-t border-white/[0.06] pt-8">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <p className="text-xs text-[#98A2B3]/60">
-              &copy; 2025 NexaAlgo. All rights reserved.
+              &copy; 2025 AlgoBot. All rights reserved.
             </p>
             <p className="text-xs text-[#98A2B3]/40 max-w-lg text-right leading-relaxed">
               Crypto markets involve significant risk. Arbitrage opportunities depend on market conditions, liquidity,

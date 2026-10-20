@@ -30,6 +30,13 @@ const FREE_FEATURES = [
   { label: 'Priority opportunity detection', included: false },
 ]
 
+const INR_PLANS = [
+  { name: '1 Month', price: '₹999', detail: 'Flexible starter access' },
+  { name: '3 Months', price: '₹1,999', detail: 'Quarterly momentum' },
+  { name: '6 Months', price: '₹2,999', detail: 'Best for consistent use', popular: true },
+  { name: '1 Year', price: '₹4,999', detail: 'Maximum long-term value' },
+]
+
 const BOT_FEATURES = [
   { icon: TrendingUp,  label: 'Full arbitrage opportunity list', sub: '100+ live opportunities across 12 exchanges' },
   { icon: Bot,         label: 'Automated bot trading',          sub: '24/7 trading bot with custom strategy settings' },
@@ -63,11 +70,11 @@ export function Pricing() {
             Simple Pricing
           </div>
           <h2 className="text-4xl sm:text-5xl font-bold text-white mb-4 text-balance">
-            One Plan. Unlimited{' '}
-            <span style={{ color: '#00FF99' }}>Earning Power.</span>
+            Choose Your AlgoBot Plan.{' '}
+            <span style={{ color: '#00FF99' }}>Pay in INR.</span>
           </h2>
           <p className="text-lg max-w-xl mx-auto" style={{ color: '#98A2B3' }}>
-            Start free. When you&apos;re ready to capture every opportunity the market throws at you — unlock everything for a single, one-time payment.
+            Start free, then choose the access period that fits your trading workflow. Every paid plan includes the complete AlgoBot toolkit with transparent INR pricing.
           </p>
         </div>
 
@@ -87,7 +94,7 @@ export function Pricing() {
             <div className="mb-6">
               <p className="text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: '#98A2B3' }}>Viewer</p>
               <div className="flex items-end gap-2 mb-1">
-                <span className="text-5xl font-bold text-white">$0</span>
+                <span className="text-5xl font-bold text-white">₹0</span>
                 <span className="text-sm pb-2" style={{ color: '#98A2B3' }}>forever</span>
               </div>
               <p className="text-sm" style={{ color: '#98A2B3' }}>Great for exploring arbitrage concepts and getting started.</p>
@@ -141,15 +148,18 @@ export function Pricing() {
             </div>
 
             <div className="mb-6">
-              <p className="text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: '#00D4FF' }}>AlgoBot Trading Bot</p>
-              <div className="flex items-end gap-3 mb-1">
-                <span className="text-5xl font-bold text-white">$100</span>
-                <div className="pb-2 flex flex-col">
-                  <span className="text-sm line-through" style={{ color: 'rgba(152,162,179,0.5)' }}>$499</span>
-                  <span className="text-xs font-semibold" style={{ color: '#00FF99' }}>one-time payment</span>
-                </div>
+              <p className="text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: '#00D4FF' }}>AlgoBot Trading Plans</p>
+              <div className="grid grid-cols-2 gap-2 mb-4">
+                {INR_PLANS.map((plan) => (
+                  <div key={plan.name} className="relative rounded-xl p-3" style={{ backgroundColor: plan.popular ? 'rgba(0,212,255,0.12)' : 'rgba(255,255,255,0.04)', border: plan.popular ? '1px solid rgba(0,212,255,0.45)' : '1px solid rgba(255,255,255,0.08)' }}>
+                    {plan.popular && <span className="absolute -top-2 right-2 rounded-full px-2 py-0.5 text-[9px] font-bold uppercase" style={{ backgroundColor: '#00D4FF', color: '#050816' }}>Popular</span>}
+                    <p className="text-xs font-semibold text-white">{plan.name}</p>
+                    <p className="mt-1 text-2xl font-black" style={{ color: '#00FF99' }}>{plan.price}</p>
+                    <p className="mt-0.5 text-[10px]" style={{ color: '#98A2B3' }}>{plan.detail}</p>
+                  </div>
+                ))}
               </div>
-              <p className="text-sm" style={{ color: '#98A2B3' }}>Full access to every tool we offer. Earn back the cost in your first opportunity.</p>
+              <p className="text-sm" style={{ color: '#98A2B3' }}>Full AlgoBot access with strategy automation, risk controls, market scanning, and execution workflows. No hidden recurring charges.</p>
             </div>
 
             <Link
@@ -191,7 +201,7 @@ export function Pricing() {
             >
               <Lock className="w-3.5 h-3.5" style={{ color: '#00FF99' }} />
               <span className="text-xs font-medium" style={{ color: '#00FF99' }}>
-                Secure payment &nbsp;·&nbsp; Instant activation &nbsp;·&nbsp; No recurring charges
+                Secure INR payment &nbsp;·&nbsp; Admin-reviewed activation &nbsp;·&nbsp; Transparent pricing
               </span>
             </div>
           </div>
@@ -199,7 +209,7 @@ export function Pricing() {
 
         {/* Bottom comparison note */}
         <p className="text-center mt-10 text-xs" style={{ color: 'rgba(152,162,179,0.5)' }}>
-          * Free plan shows limited opportunities. Bot plan unlocks all 100+ live arbitrage signals across 12 exchanges in real time.
+          * Paid AlgoBot plans are billed in INR. Payment and activation are reviewed through the secure dashboard workflow.
         </p>
       </div>
     </section>

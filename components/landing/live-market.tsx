@@ -138,7 +138,7 @@ export function LiveMarket() {
             Live Market Preview
           </h2>
           <p className="text-[#98A2B3] text-lg max-w-xl mx-auto">
-            Live algorithmic strategy runs with illustrative P&L, allocation, drawdown, and execution status.
+            Live algorithmic strategy runs with illustrative USDT P&L, allocation, drawdown, and execution status.
           </p>
         </motion.div>
 
@@ -211,9 +211,9 @@ export function LiveMarket() {
                       <td className="px-4 py-3 font-bold text-white whitespace-nowrap">{row.strategy}</td>
                       <td className="px-4 py-3 text-[#98A2B3] whitespace-nowrap">{row.market}</td>
                       <td className="px-4 py-3 text-[#98A2B3] whitespace-nowrap">{row.timeframe}</td>
-                      <td className="px-4 py-3 text-white whitespace-nowrap font-mono text-xs">₹{row.allocation.toLocaleString('en-IN')}</td>
+                      <td className="px-4 py-3 text-white whitespace-nowrap font-mono text-xs">{row.allocation.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USDT</td>
                       <td className="px-4 py-3 whitespace-nowrap"><SpreadBadge value={row.returnPct} /></td>
-                      <td className="px-4 py-3 whitespace-nowrap"><span className="font-bold text-sm text-[#00FF99]">+₹{row.profit.toFixed(2)}</span></td>
+                      <td className="px-4 py-3 whitespace-nowrap"><span className="font-bold text-sm text-[#00FF99]">+{row.profit.toFixed(2)} USDT</span></td>
                       <td className="px-4 py-3 whitespace-nowrap"><span className="text-xs text-orange-300">{row.drawdown.toFixed(2)}%</span></td>
                       <td className="px-4 py-3 whitespace-nowrap"><span className={`rounded-full px-2 py-1 text-xs font-semibold ${row.status === 'Running' ? 'bg-[#00FF99]/10 text-[#00FF99]' : 'bg-[#00D4FF]/10 text-[#00D4FF]'}`}>{row.status}</span></td>
                       <td className="px-4 py-3 text-[#98A2B3] whitespace-nowrap text-xs">
@@ -264,7 +264,7 @@ export function LiveMarket() {
         </motion.div>
 
         <div className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-4">
-          {[['₹18,420', 'Illustrative total P&L'], ['+4.82%', 'Strategy basket return'], ['1.24%', 'Average drawdown'], ['8', 'Strategies monitored']].map(([value, label]) => <div key={label} className="rounded-xl border border-white/[0.08] bg-[#0E1324]/70 p-4"><p className="text-xl font-black text-white">{value}</p><p className="mt-1 text-[10px] uppercase tracking-wide text-[#98A2B3]">{label}</p></div>)}
+          {[['18,420 USDT', 'Illustrative total P&L'], ['+4.82%', 'Strategy basket return'], ['1.24%', 'Average drawdown'], ['8', 'Strategies monitored']].map(([value, label]) => <div key={label} className="rounded-xl border border-white/[0.08] bg-[#0E1324]/70 p-4"><p className="text-xl font-black text-white">{value}</p><p className="mt-1 text-[10px] uppercase tracking-wide text-[#98A2B3]">{label}</p></div>)}
         </div>
 
         {/* Disclaimer */}

@@ -17,6 +17,7 @@ import {
   Eye, EyeOff, Bot, Sparkles, Loader,
 } from 'lucide-react'
 import { ActivationFeeModal } from '@/components/activation-fee-modal'
+import { TraderActivationPage } from '@/components/trader-activation-page'
 import { TraderAiArbitrageModal } from '@/components/trader-ai-modal'
 import { MarketTicker } from '@/components/market-ticker'
 import { formatPrice, formatVolume, timeAgo, CopyButton } from '@/lib/trader-utils'
@@ -42,7 +43,7 @@ type DepositAddress = Awaited<ReturnType<typeof getDepositAddresses>>[number]
 type FundRequest = Awaited<ReturnType<typeof getMyFundRequests>>[number]
 
 type Network = 'TRC20' | 'BEP20' | 'ERC20'
-type Tab = 'wallet' | 'opportunities' | 'funds' | 'exchanges' | 'trade' | 'auto-trade' | 'passive-income' | 'trading-bot' | 'arb-bot'
+type Tab = 'wallet' | 'activation' | 'opportunities' | 'funds' | 'exchanges' | 'trade' | 'auto-trade' | 'passive-income' | 'trading-bot' | 'arb-bot'
 type SortKey = 'netProfit' | 'spread' | 'volume24h' | 'symbol'
 type SortDir = 'asc' | 'desc'
 
@@ -344,7 +345,8 @@ export function TraderClient({ user, isActivated, createdAt }: { user: { id: str
         <div className="max-w-screen-xl mx-auto overflow-x-auto scrollbar-none">
           <div className="flex min-w-max px-3 sm:px-4 md:px-6">
             {([
-              { key: 'wallet'         as Tab, label: 'Wallet',     icon: Wallet,          count: null },
+{ key: 'wallet'          as Tab, label: 'Wallet',      icon: Wallet,       count: null },
+    { key: 'activation'     as Tab, label: 'Activate',    icon: Shield,       count: null },
               { key: 'auto-trade'     as Tab, label: 'Auto Trade', icon: Zap,             count: null },
               { key: 'trading-bot'    as Tab, label: 'Bots',       icon: Bot,             count: null },
               { key: 'arb-bot'        as Tab, label: 'Arb Bot',    icon: ArrowRightLeft,  count: null },
@@ -384,11 +386,10 @@ export function TraderClient({ user, isActivated, createdAt }: { user: { id: str
 
       <main className="flex-1 max-w-screen-xl mx-auto px-3 sm:px-4 md:px-6 py-4 sm:py-6 w-full">
         {/* ── TAB: WALLET ───── */}
-        {activeTab === 'wallet' && (
-          <Suspense fallback={<TabLoader />}>
-            <TraderWallet />
-          </Suspense>
-        )}
+{activeTab === 'wallet' && (
+            <Suspense fallback={<TabLoader />}><TraderWallet /></Suspense>
+          )}
+          {activeTab === 'activation' && <TraderActivationPage />}
 
         {/* ── TAB: AUTO TRADE ── */}
         {activeTab === 'auto-trade' && (

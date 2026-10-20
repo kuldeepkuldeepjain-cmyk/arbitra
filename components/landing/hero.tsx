@@ -253,13 +253,12 @@ export function Hero() {
           </motion.div>
         </div>
 
-        <motion.div initial={{ opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.7, delay: 0.25 }} className="relative mt-8 lg:mt-0">
-          <div className="absolute -inset-4 rounded-[2rem] bg-[#00D4FF]/10 blur-2xl" />
-          <div className="relative overflow-hidden rounded-[1.5rem] border border-[#00D4FF]/25 bg-[#0E1324] shadow-[0_0_80px_rgba(0,212,255,0.18)]">
-            <img src="/algobot-hero.png" alt="AlgoBot trading platform with AI strategies, live markets, and trading dashboard" className="block h-auto w-full object-cover" />
-            <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between rounded-xl border border-white/10 bg-[#050816]/85 px-3 py-2 backdrop-blur-md">
-              <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#00D4FF]">AI-powered trading platform</span>
-              <span className="text-[10px] text-[#98A2B3]">Live strategy workspace</span>
+        <motion.div initial={{ opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.7, delay: 0.25 }} className="relative mt-8 lg:mt-0 flex min-h-[520px] items-center justify-center">
+          <div className="absolute inset-10 rounded-[2rem] border border-[#00D4FF]/15 bg-[#0E1324]/65 shadow-[0_0_80px_rgba(0,212,255,0.1)] backdrop-blur-xl" />
+          <div className="relative z-10 flex flex-col items-center gap-8 text-center">
+            <img src="/algobot-logo.png" alt="AlgoBot AI trading emblem" className="w-[min(30vw,22rem)] object-contain drop-shadow-[0_0_35px_rgba(0,212,255,0.35)]" />
+            <div className="grid grid-cols-2 gap-3 text-left">
+              {[['12+', 'venues connected'], ['40K+', 'instruments watched'], ['24/7', 'market coverage'], ['Risk-first', 'workflow']].map(([value, label]) => <div key={label} className="rounded-xl border border-white/[0.08] bg-[#050816]/80 px-4 py-3"><p className="text-lg font-bold text-white">{value}</p><p className="text-[10px] uppercase tracking-wide text-[#98A2B3]">{label}</p></div>)}
             </div>
           </div>
         </motion.div>

@@ -4,7 +4,6 @@ import dynamic from 'next/dynamic'
 import { motion, useMotionValue, animate } from 'framer-motion'
 import { useEffect, useMemo, useState } from 'react'
 import { ArrowRight, Play, TrendingUp, Zap, Globe, Clock } from 'lucide-react'
-import { NexaAlgoLogo } from '@/components/logo'
 import Link from 'next/link'
 
 function AnimatedCounter({ from, to, suffix = '' }: { from: number; to: number; suffix?: string }) {
@@ -157,7 +156,7 @@ export function Hero() {
       <ParticleField />
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 w-full min-w-0">
-        <div className="text-center max-w-4xl mx-auto">
+        <div className="hidden">
           {/* Badge */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -166,8 +165,10 @@ export function Hero() {
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[#00D4FF]/20 bg-[#00D4FF]/5 text-[#00D4FF] text-sm font-medium mb-8"
           >
             <span className="w-2 h-2 rounded-full bg-[#00FF99] animate-pulse" />
-            Autonomous market intelligence — live across 40,000+ instruments
+            AlgoBot automated trading infrastructure — built for disciplined execution
           </motion.div>
+
+          <div className="mb-8 flex items-center gap-4 lg:hidden"><img src="/algobot-logo.png" alt="AlgoBot AI trading platform" className="h-16 w-auto object-contain" /><span className="text-xs font-semibold uppercase tracking-[0.22em] text-[#98A2B3]">AI-assisted market intelligence</span></div>
 
           {/* Headline */}
           <motion.h1
@@ -176,12 +177,12 @@ export function Hero() {
             transition={{ duration: 0.6, delay: 0.1 }}
             className="text-5xl md:text-7xl font-extrabold text-white tracking-tight leading-[1.05] text-balance mb-6"
           >
-            Let AI scan every market.{' '}
+            Let AlgoBot run the strategy. {' '}
             <span
               className="text-transparent bg-clip-text"
               style={{ backgroundImage: 'linear-gradient(90deg, #00D4FF, #E8B85B)' }}
             >
-              Trade with a sharper edge
+              Automate with a sharper edge
             </span>{' '}
             across crypto, commodities & forex
           </motion.h1>
@@ -193,7 +194,7 @@ export function Hero() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="text-lg md:text-xl text-[#98A2B3] leading-relaxed max-w-2xl mx-auto mb-10"
           >
-            NexaAlgo watches Bitcoin, gold, silver, and global currency pairs around the clock—then surfaces high-conviction setups with entry logic, risk context, and automated execution controls. Built for disciplined traders, not promises.
+            AlgoBot connects live market data, configurable strategies, risk controls, and execution workflows in one professional workspace. Automate repeatable decisions while keeping visibility and control over every trade.
           </motion.p>
 
           {/* CTAs */}
@@ -252,6 +253,30 @@ export function Hero() {
           </motion.div>
         </div>
 
+        <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }} className="relative z-10 mx-auto w-full max-w-[1680px]">
+          <div className="relative overflow-hidden rounded-2xl border border-[#00D4FF]/25 bg-[#050816] shadow-[0_0_80px_rgba(0,212,255,0.18)]">
+            <img src="/algobot-hero.png" alt="AlgoBot AI trading platform with automated strategies and live market dashboard" className="block h-auto w-full" />
+            <div className="absolute bottom-[8%] left-[5%] flex flex-wrap gap-3">
+              <Link href="/sign-up" className="group inline-flex items-center gap-2 rounded-xl bg-[#00D4FF] px-5 py-3 text-sm font-bold text-[#050816] shadow-[0_0_28px_rgba(0,212,255,0.4)] transition hover:bg-white"><span>Start Trading Now</span><ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" /></Link>
+              <Link href="#markets" className="inline-flex items-center gap-2 rounded-xl border border-white/30 bg-[#050816]/75 px-5 py-3 text-sm font-bold text-white backdrop-blur-md transition hover:border-[#00D4FF] hover:text-[#00D4FF]"><TrendingUp className="h-4 w-4" /><span>View Strategies</span></Link>
+            </div>
+          </div>
+        </motion.div>
+
+        <motion.div initial={{ opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.7, delay: 0.25 }} className="hidden">
+          <div className="absolute -inset-5 rounded-[2rem] bg-[#00D4FF]/15 blur-3xl" />
+          <div className="relative overflow-hidden rounded-[1.5rem] border border-[#00D4FF]/30 bg-[#050816] shadow-[0_0_80px_rgba(0,212,255,0.2)]">
+            <img src="/algobot-hero.png" alt="AlgoBot AI trading platform with strategy dashboard and global markets" className="block h-auto w-full object-cover" />
+            <div className="absolute inset-x-4 bottom-4 flex flex-wrap items-center justify-center gap-2 rounded-xl border border-white/15 bg-[#050816]/90 p-2.5 backdrop-blur-md sm:justify-between">
+              <span className="hidden px-2 text-[10px] font-bold uppercase tracking-[0.16em] text-[#00D4FF] sm:inline">AI strategy platform</span>
+              <div className="flex items-center gap-2">
+                <Link href="/sign-up" className="inline-flex items-center gap-1.5 rounded-lg bg-[#00D4FF] px-3 py-2 text-xs font-bold text-[#050816] transition hover:bg-white"><span>Start Trading</span><ArrowRight className="h-3.5 w-3.5" /></Link>
+                <Link href="#markets" className="inline-flex items-center gap-1.5 rounded-lg border border-white/20 px-3 py-2 text-xs font-bold text-white transition hover:border-[#00D4FF] hover:text-[#00D4FF]"><TrendingUp className="h-3.5 w-3.5" /><span>View Strategies</span></Link>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
         {/* Floating exchange badges */}
         <motion.div
           initial={{ opacity: 0 }}
@@ -264,7 +289,7 @@ export function Hero() {
           ))}
           <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
             <div className="p-2 rounded-2xl bg-[#0E1324]/90 border border-[#00D4FF]/20 shadow-[0_0_40px_rgba(0,212,255,0.25)]">
-              <NexaAlgoLogo size="md" variant="icon" />
+              <img src="/algobot-logo.png" alt="AlgoBot" className="h-12 w-12 object-cover rounded-xl" />
             </div>
             {/* Connection ring */}
             <motion.div

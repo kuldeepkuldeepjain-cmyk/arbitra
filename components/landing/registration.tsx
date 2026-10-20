@@ -10,15 +10,9 @@ import { authClient } from '@/lib/auth-client'
 
 const benefits = [
   { icon: Zap, text: 'Free forever plan — no credit card required' },
-  { icon: TrendingUp, text: 'Access 2,800+ live arbitrage opportunities' },
+  { icon: TrendingUp, text: 'Access automated trading strategies across global markets' },
   { icon: ShieldCheck, text: 'Read-only API keys — your funds stay safe' },
   { icon: Bell, text: 'Telegram, WhatsApp & email alerts included' },
-]
-
-const countries = [
-  'United States', 'United Kingdom', 'Canada', 'Australia', 'Germany',
-  'France', 'Singapore', 'Japan', 'South Korea', 'United Arab Emirates',
-  'India', 'Brazil', 'Mexico', 'Other',
 ]
 
 // --- Math captcha helpers ---
@@ -57,7 +51,6 @@ export function Registration() {
     country: '',
     password: '',
     confirmPassword: '',
-    tradingExperienceLevel: 'beginner' as 'beginner' | 'intermediate' | 'advanced',
     agree: false,
   })
   const [submitted, setSubmitted] = useState(false)
@@ -119,12 +112,11 @@ export function Registration() {
         return
       }
 
-      // Step 2: Create the account via Better Auth (role defaults to 'viewer' in schema)
+      // Step 2: Create the account via Better Auth
       const { data, error: signUpError } = await authClient.signUp.email({
         name: form.name.trim(),
         email: form.email.toLowerCase().trim(),
         password: form.password,
-        role: 'viewer',
       })
 
       if (signUpError || !data?.user?.id) {
@@ -138,12 +130,11 @@ export function Registration() {
         userId: data.user.id,
         phone: form.phone || undefined,
         country: form.country || undefined,
-        tradingExperienceLevel: form.tradingExperienceLevel,
       })
 
-      // Step 4: Redirect to viewer dashboard
+      // Step 4: Redirect to the account dashboard
       setSubmitted(true)
-      setTimeout(() => router.push('/viewer'), 2000)
+      setTimeout(() => router.push('/trader'), 2000)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.')
       refreshChallenge()
@@ -170,11 +161,10 @@ export function Registration() {
               Start for Free Today
             </div>
             <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 text-balance">
-              Join 3,200+ Traders Already Using NexaAlgo
+              Join 3,200+ Traders Already Using AlgoBot
             </h2>
             <p className="text-[#98A2B3] text-lg leading-relaxed mb-10">
-              Create your free account in under 60 seconds and start discovering
-              arbitrage opportunities across 12+ exchanges instantly.
+              Create your AlgoBot account in under 60 seconds and manage automated strategies across crypto, forex, commodities, and more.
             </p>
 
             <div className="flex flex-col gap-4 mb-10">
@@ -221,14 +211,14 @@ export function Registration() {
                   </div>
                   <h3 className="text-xl font-bold text-white mb-2">Account Created!</h3>
                   <p className="text-[#98A2B3] text-sm mb-2">
-                    Welcome to NexaAlgo. Your free Viewer account is ready.
+                    Welcome to AlgoBot. Your account is ready.
                   </p>
                   <p className="text-xs text-[#98A2B3]/60 mb-6 flex items-center gap-1.5">
                     <Loader2 className="w-3 h-3 animate-spin" />
                     Redirecting to your dashboard...
                   </p>
                   <Link
-                    href="/viewer"
+                    href="/trader"
                     className="px-5 py-2.5 rounded-xl text-sm font-semibold text-[#050816] bg-[#00D4FF] hover:bg-[#00D4FF]/90 transition-all"
                   >
                     Go to Dashboard
@@ -253,9 +243,10 @@ export function Registration() {
                         />
                       </div>
                       <div>
-                        <label className="block text-xs text-[#98A2B3] mb-1.5">Phone</label>
+                        <label className="block text-xs text-[#98A2B3] mb-1.5">Mobile Number *</label>
                         <input
                           type="tel"
+                          required
                           value={form.phone}
                           onChange={(e) => setForm({ ...form, phone: e.target.value })}
                           placeholder="+1 555 000 0000"
@@ -278,32 +269,17 @@ export function Registration() {
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-xs text-[#98A2B3] mb-1.5">Country *</label>
-                        <select
+                        <label className="block text-xs text-[#98A2B3] mb-1.5">State *</label>
+                        <input
+                          type="text"
                           required
                           value={form.country}
                           onChange={(e) => setForm({ ...form, country: e.target.value })}
-                          className="w-full px-4 py-2.5 text-sm rounded-xl bg-[#0E1324] border border-white/[0.08] text-white focus:outline-none focus:border-[#00D4FF]/40 transition-colors appearance-none"
-                        >
-                          <option value="" disabled>Select country</option>
-                          {countries.map((c) => (
-                            <option key={c} value={c}>{c}</option>
-                          ))}
-                        </select>
+                          placeholder="Maharashtra"
+                          className="w-full px-4 py-2.5 text-sm rounded-xl bg-white/[0.04] border border-white/[0.08] text-white placeholder-[#98A2B3]/50 focus:outline-none focus:border-[#00D4FF]/40 transition-colors"
+                        />
                       </div>
-                      <div>
-                        <label className="block text-xs text-[#98A2B3] mb-1.5">Trading Experience *</label>
-                        <select
-                          required
-                          value={form.tradingExperienceLevel}
-                          onChange={(e) => setForm({ ...form, tradingExperienceLevel: e.target.value as 'beginner' | 'intermediate' | 'advanced' })}
-                          className="w-full px-4 py-2.5 text-sm rounded-xl bg-[#0E1324] border border-white/[0.08] text-white focus:outline-none focus:border-[#00D4FF]/40 transition-colors appearance-none"
-                        >
-                          <option value="beginner">Beginner</option>
-                          <option value="intermediate">Intermediate</option>
-                          <option value="advanced">Advanced</option>
-                        </select>
-                      </div>
+
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">

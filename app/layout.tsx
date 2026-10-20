@@ -6,13 +6,13 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
 
 export const metadata: Metadata = {
-  title: 'NexaAlgo — AI-powered algorithmic trading intelligence',
-  description: 'Scan crypto, commodities, and forex markets with AI. Spot disciplined opportunities across Bitcoin, gold, silver, and more with NexaAlgo.',
+  title: 'AlgoBot — AI-assisted market intelligence',
+  description: 'Scan markets, understand risk, and manage disciplined trading workflows with AlgoBot.',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
-    title: 'NexaAlgo',
+    title: 'AlgoBot',
   },
   icons: {
     icon: [

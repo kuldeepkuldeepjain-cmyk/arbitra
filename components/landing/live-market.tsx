@@ -54,13 +54,6 @@ function SpreadBadge({ value }: { value: number }) {
   )
 }
 
-function LiquidityBadge({ value }: { value: 'High' | 'Medium' | 'Low' }) {
-  const map = { High: 'text-[#00FF99] bg-[#00FF99]/10', Medium: 'text-[#00D4FF] bg-[#00D4FF]/10', Low: 'text-[#98A2B3] bg-white/5' }
-  return (
-    <span className={`px-2 py-0.5 rounded text-xs font-medium ${map[value]}`}>{value}</span>
-  )
-}
-
 const PAGE_SIZE = 8
 
 export function LiveMarket() {
@@ -91,8 +84,6 @@ export function LiveMarket() {
         indices.forEach((i) => {
           const row = next[i]
           if (!row) return
-          // Tiny drift: 0.01-0.05% per tick — much more realistic
-          const drift = (Math.random() - 0.5) * 0.0004
           const nextReturn = Math.max(0.05, row.returnPct + (Math.random() - 0.45) * 0.08)
           next[i] = { ...row, returnPct: nextReturn, profit: nextReturn / 100 * row.allocation, updated: Date.now() }
         })
@@ -190,7 +181,7 @@ export function LiveMarket() {
               <tbody>
                 {!mounted && Array.from({ length: 8 }, (_, i) => (
                   <tr key={i} className="border-b border-white/[0.04]">
-                    {Array.from({ length: 11 }, (_, j) => (
+                    {Array.from({ length: 9 }, (_, j) => (
                       <td key={j} className="px-4 py-3">
                         <div className="h-4 rounded bg-white/[0.05] animate-pulse" style={{ width: `${40 + (j * 13) % 40}%` }} />
                       </td>

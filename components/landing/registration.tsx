@@ -200,24 +200,6 @@ export function Registration() {
                 </div>
               ))}
             </div>
-            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 text-balance">
-              Join 3,200+ Traders Already Using AlgoBot
-            </h2>
-            <p className="text-[#98A2B3] text-lg leading-relaxed mb-10">
-              Create your AlgoBot account in under 60 seconds and manage automated strategies across crypto, forex, commodities, and more.
-            </p>
-
-            <div className="flex flex-col gap-4 mb-10">
-              {benefits.map((b) => (
-                <div key={b.text} className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-xl bg-[#00D4FF]/10 border border-[#00D4FF]/20 flex items-center justify-center flex-shrink-0">
-                    <b.icon className="w-4 h-4 text-[#00D4FF]" />
-                  </div>
-                  <span className="text-sm text-[#98A2B3]">{b.text}</span>
-                </div>
-              ))}
-            </div>
-
           </motion.div>
 
           {/* Right: form */}

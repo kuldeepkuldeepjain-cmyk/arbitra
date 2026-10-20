@@ -71,21 +71,25 @@ export function Pricing() {
           </div>
           <h2 className="text-4xl sm:text-5xl font-bold text-white mb-4 text-balance">
             Choose Your AlgoBot Plan.{' '}
-            <span style={{ color: '#00FF99' }}>Pay in INR.</span>
+            <span style={{ color: '#00FF99' }}>Trade With Clarity.</span>
           </h2>
           <p className="text-lg max-w-xl mx-auto" style={{ color: '#98A2B3' }}>
-            Start free, then choose the access period that fits your trading workflow. Every paid plan includes the complete AlgoBot toolkit with transparent INR pricing.
+            Start free, then choose the access period that fits your trading workflow. Paid AlgoBot activation is available in INR with clear, one-time plan pricing.
           </p>
         </div>
 
+        <div className="mx-auto mb-10 grid max-w-3xl grid-cols-3 overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.025]">
+          {[['4', 'activation plans'], ['1', 'simple payment'], ['0', 'auto-renewals']].map(([value, label], index) => <div key={label} className={`px-3 py-4 text-center ${index > 0 ? 'border-l border-white/[0.08]' : ''}`}><p className="text-2xl font-black text-white">{value}</p><p className="mt-1 text-[9px] font-bold uppercase tracking-[0.16em] text-[#98A2B3]">{label}</p></div>)}
+        </div>
+
         {/* Cards */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+        <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[0.78fr_1.22fr]">
 
           {/* Free Plan */}
           <div
             onMouseEnter={() => setHovered('free')}
             onMouseLeave={() => setHovered(null)}
-            className="relative rounded-2xl border p-8 transition-all duration-300"
+            className="relative rounded-2xl border p-8 transition-all duration-300 hover:-translate-y-1"
             style={{
               backgroundColor: '#0E1324',
               borderColor: hovered === 'free' ? 'rgba(152,162,179,0.3)' : 'rgba(255,255,255,0.08)',
@@ -94,7 +98,7 @@ export function Pricing() {
             <div className="mb-6">
               <p className="text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: '#98A2B3' }}>Viewer</p>
               <div className="flex items-end gap-2 mb-1">
-                <span className="text-5xl font-bold text-white">₹0</span>
+                <span className="text-5xl font-bold text-white">$0</span>
                 <span className="text-sm pb-2" style={{ color: '#98A2B3' }}>forever</span>
               </div>
               <p className="text-sm" style={{ color: '#98A2B3' }}>Great for exploring arbitrage concepts and getting started.</p>
@@ -127,7 +131,7 @@ export function Pricing() {
           <div
             onMouseEnter={() => setHovered('bot')}
             onMouseLeave={() => setHovered(null)}
-            className="relative rounded-2xl p-8 transition-all duration-300"
+            className="relative rounded-2xl p-8 transition-all duration-300 hover:-translate-y-1"
             style={{
               background: 'linear-gradient(145deg, #0E1B2E 0%, #0A1628 50%, #071220 100%)',
               border: '1px solid rgba(0,212,255,0.35)',
@@ -201,7 +205,7 @@ export function Pricing() {
             >
               <Lock className="w-3.5 h-3.5" style={{ color: '#00FF99' }} />
               <span className="text-xs font-medium" style={{ color: '#00FF99' }}>
-                Secure INR payment &nbsp;·&nbsp; Admin-reviewed activation &nbsp;·&nbsp; Transparent pricing
+                Secure INR payment &nbsp;·&nbsp; Admin-reviewed activation &nbsp;·&nbsp; No hidden renewals
               </span>
             </div>
           </div>
@@ -209,7 +213,7 @@ export function Pricing() {
 
         {/* Bottom comparison note */}
         <p className="text-center mt-10 text-xs" style={{ color: 'rgba(152,162,179,0.5)' }}>
-          * Paid AlgoBot plans are billed in INR. Payment and activation are reviewed through the secure dashboard workflow.
+          * Paid AlgoBot activation plans are billed in INR. Payment and activation are reviewed through the secure dashboard workflow.
         </p>
       </div>
     </section>

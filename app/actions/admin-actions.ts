@@ -64,6 +64,13 @@ export {
 } from '@/app/actions/wallet'
 
 export {
+  getActivationPaymentMethods,
+  getAllActivationPaymentMethods,
+  upsertActivationPaymentMethod,
+  toggleActivationPaymentMethod,
+} from '@/app/actions/activation-payment-methods'
+
+export {
   getExchangeApiKeys,
   saveExchangeApiKey,
   deleteExchangeApiKey,

@@ -26,6 +26,7 @@ import {
   getAllAutoTradePlans, createAutoTradePlan, updateAutoTradePlanStatus,
   getActivationFeeRequests, approveActivationFee, rejectActivationFee,
   getAllTraderBalances, getAllWithdrawals, reviewWithdrawal,
+  getAllActivationPaymentMethods, upsertActivationPaymentMethod, toggleActivationPaymentMethod,
 } from '@/app/actions/admin-actions'
 
 type Tab = 'users' | 'deposit-addresses' | 'fund-requests' | 'auto-trade' | 'activation-fees' | 'withdrawals' | 'wallets' | 'arbitrage' | 'ai-support'
@@ -51,6 +52,10 @@ interface ActivationFeeReq {
   id: number; userId: string; amount: string; txHash: string | null
   status: string; note: string | null; createdAt: Date; reviewedAt: Date | null
   trader: { name: string | null; email: string; referredBy: string | null } | null
+}
+interface ActivationPaymentMethod {
+  id: number; method: string; label: string; upiId: string | null; qrImageUrl: string | null
+  instructions: string | null; isActive: boolean; createdAt: Date; updatedAt: Date
 }
 interface WithdrawalReq {
   id: number; userId: string; amount: string; network: string; walletAddress: string
@@ -157,6 +162,9 @@ export default function AdminClient() {
   const [reviewingFeeId, setReviewingFeeId] = useState<number | null>(null)
   const [rejectNote, setRejectNote] = useState('')
   const [showRejectModal, setShowRejectModal] = useState<number | null>(null)
+  const [paymentMethods, setPaymentMethods] = useState<ActivationPaymentMethod[]>([])
+  const [paymentForm, setPaymentForm] = useState({ method: 'upi', label: 'UPI', upiId: '', qrImageUrl: '', instructions: '' })
+  const [savingPaymentMethod, setSavingPaymentMethod] = useState(false)
 
   // Trader Balances
   const [traderBalances, setTraderBalances] = useState<TraderBalance[]>([])
@@ -172,6 +180,7 @@ export default function AdminClient() {
 
   useEffect(() => { loadUsers() }, [])
   useEffect(() => {
+    if (activeTab === 'activation-fees') loadPaymentMethods()
     if (activeTab === 'deposit-addresses') loadAddresses()
     if (activeTab === 'fund-requests') loadFundRequests()
     if (activeTab === 'auto-trade') loadAutoTradePlans()
@@ -206,6 +215,22 @@ export default function AdminClient() {
       setAddresses((await getAllDepositAddresses()) as DepositAddress[])
     } catch (e) { showToast(e instanceof Error ? e.message : 'Failed to load addresses', 'error') }
     finally { setLoadingAddresses(false) }
+  }
+
+  const loadPaymentMethods = async () => {
+    try { setPaymentMethods((await getAllActivationPaymentMethods()) as ActivationPaymentMethod[]) }
+    catch (e) { showToast(e instanceof Error ? e.message : 'Failed to load payment methods', 'error') }
+  }
+
+  const savePaymentMethod = async (e: React.FormEvent) => {
+    e.preventDefault()
+    try {
+      setSavingPaymentMethod(true)
+      await upsertActivationPaymentMethod(paymentForm)
+      await loadPaymentMethods()
+      showToast('Activation payment details saved')
+    } catch (e) { showToast(e instanceof Error ? e.message : 'Failed to save payment details', 'error') }
+    finally { setSavingPaymentMethod(false) }
   }
 
   const loadFundRequests = async () => {
@@ -1083,6 +1108,23 @@ export default function AdminClient() {
         {/* ── ACTIVATION FEES TAB ── */}
         {activeTab === 'activation-fees' && (
           <div className="space-y-6">
+            <Card className="bg-slate-900 border-slate-800">
+              <div className="px-6 py-4 border-b border-slate-800">
+                <h2 className="text-white font-bold text-lg">Activation Payment Details</h2>
+                <p className="text-slate-500 text-xs mt-1">Configure the UPI ID, QR image URL, and instructions traders see when activating for ₹999/month.</p>
+              </div>
+              <form onSubmit={savePaymentMethod} className="p-6 grid gap-4 md:grid-cols-2">
+                <input value={paymentForm.label} onChange={e => setPaymentForm(v => ({ ...v, label: e.target.value }))} placeholder="Label e.g. UPI" className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white" required />
+                <input value={paymentForm.method} onChange={e => setPaymentForm(v => ({ ...v, method: e.target.value }))} placeholder="Method key e.g. upi" className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white" required />
+                <input value={paymentForm.upiId} onChange={e => setPaymentForm(v => ({ ...v, upiId: e.target.value }))} placeholder="UPI ID e.g. pay@upi" className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white" />
+                <input value={paymentForm.qrImageUrl} onChange={e => setPaymentForm(v => ({ ...v, qrImageUrl: e.target.value }))} placeholder="QR image URL" className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white" />
+                <input value={paymentForm.instructions} onChange={e => setPaymentForm(v => ({ ...v, instructions: e.target.value }))} placeholder="Instructions for traders" className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white md:col-span-2" />
+                <Button type="submit" disabled={savingPaymentMethod} className="md:col-span-2 bg-amber-600 hover:bg-amber-500 text-white">{savingPaymentMethod ? 'Saving...' : 'Save Payment Details'}</Button>
+              </form>
+              <div className="px-6 pb-6 space-y-2">
+                {paymentMethods.map(method => <div key={method.id} className="flex items-center justify-between rounded-lg border border-slate-800 bg-slate-950/40 p-3"><div><p className="text-white text-sm font-medium">{method.label}</p><p className="text-slate-500 text-xs">{method.upiId || 'QR only'}{method.isActive ? ' · Active' : ' · Hidden'}</p></div><Button type="button" variant="outline" size="sm" onClick={async () => { await toggleActivationPaymentMethod(method.id, !method.isActive); await loadPaymentMethods() }}>{method.isActive ? 'Hide' : 'Show'}</Button></div>)}
+              </div>
+            </Card>
             <Card className="bg-slate-900 border-slate-800 overflow-hidden">
               <div className="px-6 py-4 border-b border-slate-800 flex items-center justify-between">
                 <h2 className="text-white font-bold text-lg flex items-center gap-2">

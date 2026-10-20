@@ -290,6 +290,19 @@ export const withdrawals = pgTable('withdrawals', {
 
 // --- Trading Bots ---
 
+export const activationPaymentMethods = pgTable('activation_payment_methods', {
+  id: serial('id').primaryKey(),
+  method: text('method').notNull().unique(),
+  label: text('label').notNull(),
+  upiId: text('upi_id'),
+  qrImageUrl: text('qr_image_url'),
+  instructions: text('instructions'),
+  isActive: boolean('is_active').notNull().default(true),
+  createdBy: text('created_by').references(() => user.id, { onDelete: 'set null' }),
+  createdAt: timestamp('createdAt').notNull().defaultNow(),
+  updatedAt: timestamp('updatedAt').notNull().defaultNow(),
+})
+
 // --- Registration Audit ---
 
 export const registrationAudits = pgTable('registration_audits', {

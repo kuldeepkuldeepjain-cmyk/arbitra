@@ -362,6 +362,11 @@ function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
                   />
                 </div>
               )}
+              {!isSignUp && loginMethod === 'password' && (
+                <div className="-mt-2 text-right">
+                  <Link href="/forgot-password" className="text-xs text-primary hover:underline">Forgot password?</Link>
+                </div>
+              )}
             </>
           )}
 

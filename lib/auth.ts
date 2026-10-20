@@ -40,8 +40,8 @@ export const auth = betterAuth({
           {
             from: process.env.RESEND_FROM_EMAIL ?? 'AlgoBot <onboarding@resend.dev>',
             to: email,
-            subject: type === 'sign-in' ? 'Your AlgoBot sign-in code' : 'Verify your AlgoBot account',
-            html: `<div style="font-family:Arial,sans-serif;max-width:560px;margin:auto;color:#0b1220"><h1 style="color:#087ea4">Your AlgoBot verification code</h1><p>Use this one-time code to continue:</p><p style="font-size:32px;font-weight:800;letter-spacing:10px;color:#050816">${otp}</p><p style="color:#64748b;font-size:13px">This code expires in 10 minutes. If you did not request it, you can ignore this email.</p></div>`,
+            subject: type === 'sign-in' ? 'Your AlgoBot sign-in code' : type === 'forget-password' ? 'Reset your AlgoBot password' : 'Verify your AlgoBot account',
+            html: `<div style="font-family:Arial,sans-serif;max-width:560px;margin:auto;color:#0b1220"><h1 style="color:#087ea4">${type === 'forget-password' ? 'Reset your AlgoBot password' : 'Your AlgoBot verification code'}</h1><p>${type === 'forget-password' ? 'Use this one-time code to securely reset your password:' : 'Use this one-time code to continue:'}</p><p style="font-size:32px;font-weight:800;letter-spacing:10px;color:#050816">${otp}</p><p style="color:#64748b;font-size:13px">This code expires in 15 minutes. If you did not request it, you can ignore this email.</p></div>`,
           },
           { idempotencyKey: `otp/${type}/${email}/${otp}` },
         )

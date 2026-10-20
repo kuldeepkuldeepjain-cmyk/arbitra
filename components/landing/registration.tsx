@@ -170,7 +170,7 @@ export function Registration() {
               Start for Free Today
             </div>
             <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 text-balance">
-              Join 3,200+ Traders Already Using NexaAlgo
+              Join 3,200+ Traders Already Using AlgoBot
             </h2>
             <p className="text-[#98A2B3] text-lg leading-relaxed mb-10">
               Create your free account in under 60 seconds and start discovering
@@ -221,7 +221,7 @@ export function Registration() {
                   </div>
                   <h3 className="text-xl font-bold text-white mb-2">Account Created!</h3>
                   <p className="text-[#98A2B3] text-sm mb-2">
-                    Welcome to NexaAlgo. Your free Viewer account is ready.
+                    Welcome to AlgoBot. Your free Viewer account is ready.
                   </p>
                   <p className="text-xs text-[#98A2B3]/60 mb-6 flex items-center gap-1.5">
                     <Loader2 className="w-3 h-3 animate-spin" />

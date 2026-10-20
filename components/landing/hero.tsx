@@ -165,7 +165,7 @@ export function Hero() {
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[#00D4FF]/20 bg-[#00D4FF]/5 text-[#00D4FF] text-sm font-medium mb-8"
           >
             <span className="w-2 h-2 rounded-full bg-[#00FF99] animate-pulse" />
-            AlgoBot intelligence layer — built for disciplined decisions
+            AlgoBot automated trading infrastructure — built for disciplined execution
           </motion.div>
 
           <div className="mb-8 flex items-center gap-4 lg:hidden"><img src="/algobot-logo.png" alt="AlgoBot AI trading platform" className="h-16 w-auto object-contain" /><span className="text-xs font-semibold uppercase tracking-[0.22em] text-[#98A2B3]">AI-assisted market intelligence</span></div>
@@ -177,12 +177,12 @@ export function Hero() {
             transition={{ duration: 0.6, delay: 0.1 }}
             className="text-5xl md:text-7xl font-extrabold text-white tracking-tight leading-[1.05] text-balance mb-6"
           >
-            Let AI scan every market.{' '}
+            Let AlgoBot run the strategy. {' '}
             <span
               className="text-transparent bg-clip-text"
               style={{ backgroundImage: 'linear-gradient(90deg, #00D4FF, #E8B85B)' }}
             >
-              Trade with a sharper edge
+              Automate with a sharper edge
             </span>{' '}
             across crypto, commodities & forex
           </motion.h1>
@@ -194,7 +194,7 @@ export function Hero() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="text-lg md:text-xl text-[#98A2B3] leading-relaxed max-w-2xl mx-auto mb-10"
           >
-            AlgoBot brings market scanning, signal context, and execution controls into one disciplined workspace. Follow the data, understand the risk, and decide with clarity—without promises of guaranteed returns.
+            AlgoBot connects live market data, configurable strategies, risk controls, and execution workflows in one professional workspace. Automate repeatable decisions while keeping visibility and control over every trade.
           </motion.p>
 
           {/* CTAs */}

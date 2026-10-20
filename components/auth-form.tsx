@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card } from '@/components/ui/card'
-import { RefreshCw, Shield, ArrowLeft } from 'lucide-react'
+import { RefreshCw, Shield, ArrowLeft, Eye, EyeOff } from 'lucide-react'
 
 // Server actions are imported dynamically inside event handlers to avoid bundling them on the client
 
@@ -48,6 +48,7 @@ function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
   const [otp, setOtp] = useState('')
   const [otpSent, setOtpSent] = useState(false)
   const [loginMethod, setLoginMethod] = useState<'password' | 'otp'>('password')
+  const [showPassword, setShowPassword] = useState(false)
   const [referralCode, setReferralCode] = useState('')
   const [referralValid, setReferralValid] = useState<boolean | null>(null)
   const [referralChecking, setReferralChecking] = useState(false)
@@ -350,15 +351,28 @@ function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
               {(isSignUp || loginMethod === 'password') && (
                 <div className="flex flex-col gap-2">
                   <Label htmlFor="password">{isSignUp ? 'Create password' : 'Password'}</Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    minLength={isSignUp ? 8 : undefined}
-                    autoComplete={isSignUp ? 'new-password' : 'current-password'}
-                  />
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      type={showPassword ? 'text' : 'password'}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      minLength={isSignUp ? 8 : undefined}
+                      autoComplete={isSignUp ? 'new-password' : 'current-password'}
+                      className="pr-10"
+                    />
+                    {!isSignUp && (
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword((visible) => !visible)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        aria-label={showPassword ? 'Hide password' : 'Show password'}
+                      >
+                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    )}
+                  </div>
                 </div>
               )}
               {!isSignUp && loginMethod === 'password' && (

@@ -2,7 +2,7 @@
 
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
-import { activationPaymentMethods, user } from '@/lib/db/schema'
+import { activationPaymentMethods, botActivationPlans, user } from '@/lib/db/schema'
 import { asc, eq } from 'drizzle-orm'
 import { headers } from 'next/headers'
 
@@ -58,5 +58,31 @@ export async function upsertActivationPaymentMethod(input: {
 export async function toggleActivationPaymentMethod(id: number, isActive: boolean) {
   await requireAdmin()
   await db.update(activationPaymentMethods).set({ isActive, updatedAt: new Date() }).where(eq(activationPaymentMethods.id, id))
+  return { success: true }
+}
+
+export async function getActiveBotActivationPlans() {
+  return db.select().from(botActivationPlans)
+    .where(eq(botActivationPlans.isActive, true))
+    .orderBy(asc(botActivationPlans.durationMonths))
+}
+
+export async function getAllBotActivationPlans() {
+  await requireAdmin()
+  return db.select().from(botActivationPlans).orderBy(asc(botActivationPlans.durationMonths))
+}
+
+export async function upsertBotActivationPlan(input: { id?: number; name: string; durationMonths: number; priceInr: string; description?: string; isActive?: boolean }) {
+  const adminId = await requireAdmin()
+  if (!input.name.trim() || input.durationMonths < 1 || Number(input.priceInr) <= 0) throw new Error('Valid plan name, duration, and price are required')
+  const values = { name: input.name.trim(), durationMonths: input.durationMonths, priceInr: input.priceInr, description: input.description?.trim() || null, isActive: input.isActive ?? true, createdBy: adminId, updatedAt: new Date() }
+  if (input.id) await db.update(botActivationPlans).set(values).where(eq(botActivationPlans.id, input.id))
+  else await db.insert(botActivationPlans).values(values)
+  return { success: true }
+}
+
+export async function toggleBotActivationPlan(id: number, isActive: boolean) {
+  await requireAdmin()
+  await db.update(botActivationPlans).set({ isActive, updatedAt: new Date() }).where(eq(botActivationPlans.id, id))
   return { success: true }
 }

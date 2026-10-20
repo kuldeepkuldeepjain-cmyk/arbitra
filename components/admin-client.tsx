@@ -28,6 +28,7 @@ import {
   getAllTraderBalances, getAllWithdrawals, reviewWithdrawal,
   getAllActivationPaymentMethods, upsertActivationPaymentMethod, toggleActivationPaymentMethod,
 } from '@/app/actions/admin-actions'
+import { getAllBotActivationPlans, upsertBotActivationPlan, toggleBotActivationPlan } from '@/app/actions/activation-payment-methods'
 
 type Tab = 'users' | 'deposit-addresses' | 'fund-requests' | 'auto-trade' | 'activation-fees' | 'withdrawals' | 'wallets' | 'arbitrage' | 'ai-support'
 type Network = 'TRC20' | 'BEP20' | 'ERC20'
@@ -165,6 +166,9 @@ export default function AdminClient() {
   const [paymentMethods, setPaymentMethods] = useState<ActivationPaymentMethod[]>([])
   const [paymentForm, setPaymentForm] = useState({ method: 'upi', label: 'UPI', upiId: '', qrImageUrl: '', instructions: '' })
   const [savingPaymentMethod, setSavingPaymentMethod] = useState(false)
+  const [activationPlans, setActivationPlans] = useState<Array<{ id: number; name: string; durationMonths: number; priceInr: string; description: string | null; isActive: boolean }>>([])
+  const [planForm, setPlanForm] = useState({ name: '1 Month', durationMonths: '1', priceInr: '999', description: 'Algo Bot access' })
+  const [savingActivationPlan, setSavingActivationPlan] = useState(false)
 
   // Trader Balances
   const [traderBalances, setTraderBalances] = useState<TraderBalance[]>([])
@@ -180,7 +184,7 @@ export default function AdminClient() {
 
   useEffect(() => { loadUsers() }, [])
   useEffect(() => {
-    if (activeTab === 'activation-fees') loadPaymentMethods()
+    if (activeTab === 'activation-fees') { loadPaymentMethods(); loadActivationPlans() }
     if (activeTab === 'deposit-addresses') loadAddresses()
     if (activeTab === 'fund-requests') loadFundRequests()
     if (activeTab === 'auto-trade') loadAutoTradePlans()
@@ -220,6 +224,22 @@ export default function AdminClient() {
   const loadPaymentMethods = async () => {
     try { setPaymentMethods((await getAllActivationPaymentMethods()) as ActivationPaymentMethod[]) }
     catch (e) { showToast(e instanceof Error ? e.message : 'Failed to load payment methods', 'error') }
+  }
+
+  const loadActivationPlans = async () => {
+    try { setActivationPlans((await getAllBotActivationPlans()) as typeof activationPlans) }
+    catch (e) { showToast(e instanceof Error ? e.message : 'Failed to load activation plans', 'error') }
+  }
+
+  const saveActivationPlan = async (e: React.FormEvent) => {
+    e.preventDefault()
+    try {
+      setSavingActivationPlan(true)
+      await upsertBotActivationPlan({ ...planForm, durationMonths: Number(planForm.durationMonths) })
+      await loadActivationPlans()
+      showToast('Activation plan saved')
+    } catch (e) { showToast(e instanceof Error ? e.message : 'Failed to save plan', 'error') }
+    finally { setSavingActivationPlan(false) }
   }
 
   const savePaymentMethod = async (e: React.FormEvent) => {
@@ -1108,6 +1128,11 @@ export default function AdminClient() {
         {/* ── ACTIVATION FEES TAB ── */}
         {activeTab === 'activation-fees' && (
           <div className="space-y-6">
+            <Card className="bg-slate-900 border-slate-800">
+              <div className="px-6 py-4 border-b border-slate-800"><h2 className="text-white font-bold text-lg">Bot Activation Plans</h2><p className="text-slate-500 text-xs mt-1">These plans and prices appear in the Trader Dashboard.</p></div>
+              <form onSubmit={saveActivationPlan} className="p-6 grid gap-3 md:grid-cols-4"><input value={planForm.name} onChange={e => setPlanForm(v => ({ ...v, name: e.target.value }))} placeholder="Plan name" className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white" required /><input type="number" min="1" value={planForm.durationMonths} onChange={e => setPlanForm(v => ({ ...v, durationMonths: e.target.value }))} placeholder="Months" className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white" required /><input type="number" min="1" value={planForm.priceInr} onChange={e => setPlanForm(v => ({ ...v, priceInr: e.target.value }))} placeholder="Price INR" className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white" required /><input value={planForm.description} onChange={e => setPlanForm(v => ({ ...v, description: e.target.value }))} placeholder="Description" className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white" /><Button type="submit" disabled={savingActivationPlan} className="md:col-span-4 bg-amber-600 hover:bg-amber-500 text-white">{savingActivationPlan ? 'Saving...' : 'Save Activation Plan'}</Button></form>
+              <div className="px-6 pb-6 space-y-2">{activationPlans.map(plan => <div key={plan.id} className="flex items-center justify-between rounded-lg border border-slate-800 bg-slate-950/40 p-3"><div><p className="text-white text-sm font-medium">{plan.name} · ₹{Number(plan.priceInr).toLocaleString('en-IN')}</p><p className="text-slate-500 text-xs">{plan.description || 'Algo Bot access'} · {plan.isActive ? 'Active' : 'Hidden'}</p></div><Button type="button" variant="outline" size="sm" onClick={async () => { await toggleBotActivationPlan(plan.id, !plan.isActive); await loadActivationPlans() }}>{plan.isActive ? 'Hide' : 'Show'}</Button></div>)}</div>
+            </Card>
             <Card className="bg-slate-900 border-slate-800">
               <div className="px-6 py-4 border-b border-slate-800">
                 <h2 className="text-white font-bold text-lg">Activation Payment Details</h2>

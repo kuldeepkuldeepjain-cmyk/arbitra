@@ -301,6 +301,18 @@ export const withdrawals = pgTable('withdrawals', {
 
 // --- Trading Bots ---
 
+export const botActivationPlans = pgTable('bot_activation_plans', {
+  id: serial('id').primaryKey(),
+  name: text('name').notNull(),
+  durationMonths: integer('durationMonths').notNull(),
+  priceInr: decimal('priceInr', { precision: 10, scale: 2 }).notNull(),
+  description: text('description'),
+  isActive: boolean('isActive').notNull().default(true),
+  createdBy: text('createdBy').references(() => user.id, { onDelete: 'set null' }),
+  createdAt: timestamp('createdAt').notNull().defaultNow(),
+  updatedAt: timestamp('updatedAt').notNull().defaultNow(),
+})
+
 export const activationPaymentMethods = pgTable('activation_payment_methods', {
   id: serial('id').primaryKey(),
   method: text('method').notNull().unique(),
@@ -399,7 +411,7 @@ export const exchangeApiKeys = pgTable('exchange_api_keys', {
   id: serial('id').primaryKey(),
   exchange: text('exchange').notNull().unique(), // 'binance' | 'kraken' | 'okx' etc.
   label: text('label').notNull(),               // display name
-  apiKey: text('api_key'),                       // optional — some public APIs don't need keys
+  apiKey: text('api_key'),                       // optional ��� some public APIs don't need keys
   apiSecret: text('api_secret'),
   passphrase: text('passphrase'),                // KuCoin, Bitget etc.
   isEnabled: boolean('is_enabled').notNull().default(true),

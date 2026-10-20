@@ -268,20 +268,6 @@ export function TraderClient({ user, isActivated, createdAt }: { user: { id: str
           {/* Center: live market ticker (desktop) — fetched from Binance's public API */}
           <MarketTicker variant="desktop" />
 
-          {/* Bot activation plans */}
-          <button
-            type="button"
-            onClick={() => setActiveTab('trading-bot')}
-            className="hidden xl:flex items-center gap-2 rounded-lg border border-amber-400/25 bg-amber-400/5 px-2.5 py-1.5 text-left transition hover:border-amber-400/50 hover:bg-amber-400/10"
-            aria-label="View bot activation plans"
-          >
-            <Bot className="h-3.5 w-3.5 shrink-0 text-amber-300" />
-            <div className="leading-none">
-              <span className="block text-[9px] font-bold uppercase tracking-wide text-amber-300">Bot plans</span>
-              <span className="mt-1 block text-[10px] font-semibold text-slate-300">₹999 · ₹1,999 · ₹2,999 · ₹4,999</span>
-            </div>
-          </button>
-
           {/* Right: wallet + user + logout */}
           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             {/* Wallet chip */}
@@ -338,24 +324,7 @@ export function TraderClient({ user, isActivated, createdAt }: { user: { id: str
         <div className="lg:hidden border-t border-slate-800/60 bg-slate-900/40 overflow-x-auto scrollbar-none">
           <MarketTicker variant="mobile" />
         </div>
-        <div className="border-t border-amber-400/10 bg-amber-400/[0.03] overflow-x-auto scrollbar-none">
-          <button
-            type="button"
-            onClick={() => setActiveTab('trading-bot')}
-            className="mx-auto flex min-w-max items-center gap-2 px-3 py-2 text-left"
-            aria-label="View bot activation plans"
-          >
-            <Bot className="h-3.5 w-3.5 text-amber-300" />
-            <span className="text-[10px] font-bold uppercase tracking-wide text-amber-300">Bot activation plans</span>
-            <span className="text-[10px] font-semibold text-slate-300">1M ₹999</span>
-            <span className="text-slate-600">•</span>
-            <span className="text-[10px] font-semibold text-slate-300">3M ₹1,999</span>
-            <span className="text-slate-600">•</span>
-            <span className="text-[10px] font-semibold text-slate-300">6M ₹2,999</span>
-            <span className="text-slate-600">•</span>
-            <span className="text-[10px] font-semibold text-slate-300">12M ₹4,999</span>
-          </button>
-        </div>
+
       </header>
 
       {/* ── Tab Navigation ─────────────────────────���───────������──── */}

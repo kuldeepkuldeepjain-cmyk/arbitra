@@ -1,17 +1,27 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Check, CreditCard, Loader2, QrCode, ShieldCheck, Smartphone } from 'lucide-react'
 import { createBotSubscriptionCheckout } from '@/app/actions/bot-subscription'
+import { getActiveBotActivationPlans, getActivationPaymentMethods } from '@/app/actions/activation-payment-methods'
 
 export function BotSubscriptionCard({ isActivated }: { isActivated: boolean }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const plans = [
-    { duration: '1 Month', price: '₹999', value: 'Best for getting started' },
-    { duration: '3 Months', price: '₹1,999', value: 'Save on quarterly access' },
-    { duration: '6 Months', price: '₹2,999', value: 'Popular trader plan' },
-    { duration: '12 Months', price: '₹4,999', value: 'Best annual value' },
+  const [plans, setPlans] = useState<Array<{ id: number; name: string; durationMonths: number; priceInr: string; description: string | null }>>([])
+  const [paymentMethods, setPaymentMethods] = useState<Array<{ id: number; label: string; upiId: string | null; instructions: string | null }>>([])
+  useEffect(() => {
+    Promise.all([getActiveBotActivationPlans(), getActivationPaymentMethods()]).then(([loadedPlans, methods]) => {
+      setPlans(loadedPlans)
+      setPaymentMethods(methods)
+    }).catch(() => setError('Unable to load activation plans'))
+  }, [])
+
+  const fallbackPlans = [
+    { id: 1, name: '1 Month', durationMonths: 1, priceInr: '999', description: 'Best for getting started' },
+    { id: 2, name: '3 Months', durationMonths: 3, priceInr: '1999', description: 'Save on quarterly access' },
+    { id: 3, name: '6 Months', durationMonths: 6, priceInr: '2999', description: 'Popular trader plan' },
+    { id: 4, name: '12 Months', durationMonths: 12, priceInr: '4999', description: 'Best annual value' },
   ]
 
   if (isActivated) return null
@@ -39,14 +49,15 @@ export function BotSubscriptionCard({ isActivated }: { isActivated: boolean }) {
           <h2 id="bot-subscription-title" className="text-balance text-xl font-black text-white sm:text-2xl">Activate your Algo Bot</h2>
           <p className="mt-1.5 text-sm leading-6 text-slate-300">Unlock automated strategies, bot controls, and live trading tools with flexible INR activation plans.</p>
           <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
-            {plans.map((plan, index) => (
-              <div key={plan.duration} className={`rounded-xl border p-3 ${index === 0 ? 'border-amber-300/60 bg-amber-300/10' : 'border-slate-700/80 bg-slate-900/60'}`}>
-                <p className="text-[10px] font-bold uppercase tracking-wide text-slate-400">{plan.duration}</p>
-                <p className="mt-1 text-lg font-black text-white">{plan.price}</p>
-                <p className="mt-1 text-[10px] leading-4 text-slate-500">{plan.value}</p>
+            {(plans.length ? plans : fallbackPlans).map((plan, index) => (
+              <div key={plan.id} className={`rounded-xl border p-3 ${index === 0 ? 'border-amber-300/60 bg-amber-300/10' : 'border-slate-700/80 bg-slate-900/60'}`}>
+                <p className="text-[10px] font-bold uppercase tracking-wide text-slate-400">{plan.name}</p>
+                <p className="mt-1 text-lg font-black text-white">₹{Number(plan.priceInr).toLocaleString('en-IN')}</p>
+                <p className="mt-1 text-[10px] leading-4 text-slate-500">{plan.description}</p>
               </div>
             ))}
           </div>
+          {paymentMethods.length > 0 && <div className="mt-4 rounded-xl border border-slate-700/70 bg-slate-950/50 p-3"><p className="text-[10px] font-bold uppercase tracking-wide text-slate-500">Payment options set by admin</p><div className="mt-2 flex flex-wrap gap-2">{paymentMethods.map(method => <span key={method.id} className="rounded-lg bg-slate-800 px-2.5 py-1.5 text-xs font-semibold text-slate-300">{method.label}{method.upiId ? ` · ${method.upiId}` : ''}</span>)}</div></div>}
           <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-xs text-slate-400">
             {['All bot strategies', 'Cancel anytime', 'Secure Stripe checkout'].map(item => <span key={item} className="inline-flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-emerald-400" />{item}</span>)}
           </div>

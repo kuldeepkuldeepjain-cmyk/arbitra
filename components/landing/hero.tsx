@@ -255,7 +255,7 @@ export function Hero() {
 
         <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }} className="relative z-10 mx-auto w-full max-w-[1680px]">
           <div className="relative overflow-hidden rounded-2xl border border-[#00D4FF]/25 bg-[#050816] shadow-[0_0_80px_rgba(0,212,255,0.18)]">
-            <img src="/algobot-hero.png" alt="AlgoBot AI trading platform with automated strategies and live market dashboard" className="block h-auto w-full" />
+            <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-wkcb98HlWdkGRmA7p48OrQjGwin2pe.png" alt="AlgoBot registration page with account creation form and automated trading benefits" className="block h-auto w-full" />
             <div className="absolute bottom-[8%] left-[5%] flex flex-wrap gap-3">
               <Link href="/sign-up" className="group inline-flex items-center gap-2 rounded-xl bg-[#00D4FF] px-5 py-3 text-sm font-bold text-[#050816] shadow-[0_0_28px_rgba(0,212,255,0.4)] transition hover:bg-white"><span>Start Trading Now</span><ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" /></Link>
               <Link href="#markets" className="inline-flex items-center gap-2 rounded-xl border border-white/30 bg-[#050816]/75 px-5 py-3 text-sm font-bold text-white backdrop-blur-md transition hover:border-[#00D4FF] hover:text-[#00D4FF]"><TrendingUp className="h-4 w-4" /><span>View Strategies</span></Link>
@@ -266,7 +266,7 @@ export function Hero() {
         <motion.div initial={{ opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.7, delay: 0.25 }} className="hidden">
           <div className="absolute -inset-5 rounded-[2rem] bg-[#00D4FF]/15 blur-3xl" />
           <div className="relative overflow-hidden rounded-[1.5rem] border border-[#00D4FF]/30 bg-[#050816] shadow-[0_0_80px_rgba(0,212,255,0.2)]">
-            <img src="/algobot-hero.png" alt="AlgoBot AI trading platform with strategy dashboard and global markets" className="block h-auto w-full object-cover" />
+            <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-wkcb98HlWdkGRmA7p48OrQjGwin2pe.png" alt="AlgoBot registration page with verification security check and account form" className="block h-auto w-full object-cover" />
             <div className="absolute inset-x-4 bottom-4 flex flex-wrap items-center justify-center gap-2 rounded-xl border border-white/15 bg-[#050816]/90 p-2.5 backdrop-blur-md sm:justify-between">
               <span className="hidden px-2 text-[10px] font-bold uppercase tracking-[0.16em] text-[#00D4FF] sm:inline">AI strategy platform</span>
               <div className="flex items-center gap-2">

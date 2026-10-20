@@ -143,7 +143,7 @@ export const auditLogs = pgTable('audit_logs', {
   userId: text('userId').notNull().references(() => user.id, { onDelete: 'cascade' }),
   action: text('action').notNull(),
   resource: text('resource').notNull(),
-  resourceId: serial('resourceId'),
+  resourceId: integer('resourceId'),
   details: text('details'), // JSON stringified
   ipAddress: text('ipAddress'),
   userAgent: text('userAgent'),

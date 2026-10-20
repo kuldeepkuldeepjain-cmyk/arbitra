@@ -299,6 +299,18 @@ export function TraderClient({ user, isActivated, createdAt }: { user: { id: str
               </span>
             </button>
 
+            {/* Activation plan shortcut */}
+            <button
+              type="button"
+              onClick={() => setActiveTab('trading-bot')}
+              className="flex items-center gap-1.5 rounded-lg border border-amber-500/30 bg-amber-500/10 px-2 py-1.5 text-left transition-colors hover:border-amber-400/60 hover:bg-amber-500/20"
+              aria-label="View bot activation plans"
+            >
+              <Bot className="h-3.5 w-3.5 shrink-0 text-amber-400" />
+              <span className="hidden lg:block text-[9px] font-bold uppercase leading-none tracking-wide text-amber-300">Activation Plans</span>
+              <span className="text-[10px] font-bold leading-none text-white">INR</span>
+            </button>
+
             {/* User badge */}
             <div className="hidden sm:flex items-center gap-2 px-2.5 py-1.5 bg-slate-800/80 rounded-lg border border-slate-700">
               <div className="w-5 h-5 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-[10px] font-bold text-black shrink-0">

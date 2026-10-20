@@ -244,7 +244,7 @@ export async function requestWithdrawal(
 
   // Check available balance
   const available = await computeWalletBalance(userId)
-  if (amount > available) throw new Error(`Insufficient balance. Available: $${available.toFixed(2)}`)
+  if (amount > available) throw new Error(`Insufficient balance. Available: ₹${available.toFixed(2)}`)
 
   // Check withdrawal availability
   const withdrawalCheck = await checkWithdrawalAvailable()

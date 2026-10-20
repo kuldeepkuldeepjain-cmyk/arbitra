@@ -32,7 +32,7 @@ export const auth = betterAuth({
   plugins: [
     emailOTP({
       otpLength: 6,
-      expiresIn: 600,
+      expiresIn: 900,
       sendVerificationOnSignUp: true,
       sendVerificationOTP: async ({ email, otp, type }) => {
         const resend = new Resend(process.env.RESEND_API_KEY)
@@ -53,7 +53,7 @@ export const auth = betterAuth({
     }),
   ],
   emailVerification: {
-    sendOnSignUp: true,
+    sendOnSignUp: false,
     autoSignInAfterVerification: true,
     sendVerificationEmail: async ({ user, url }) => {
       const resend = new Resend(process.env.RESEND_API_KEY)

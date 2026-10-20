@@ -3,67 +3,43 @@
 import { useState, useEffect, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { Search, RefreshCw, TrendingUp, ChevronLeft, ChevronRight } from 'lucide-react'
-import { BASE_PRICES } from '@/lib/constants/prices'
 
-interface Opportunity {
+interface StrategyRun {
   id: number
-  coin: string
-  buyExchange: string
-  sellExchange: string
-  buyPrice: number
-  sellPrice: number
-  spread: number
-  fee: number
-  netSpread: number
-  profitPer1k: number
-  liquidity: 'High' | 'Medium' | 'Low'
-  network: string
+  strategy: string
+  market: string
+  timeframe: string
+  allocation: number
+  returnPct: number
+  profit: number
+  drawdown: number
+  status: 'Running' | 'Monitoring' | 'Paused'
   updated: number
 }
 
-const COINS = ['BTC', 'ETH', 'SOL', 'BNB', 'XRP', 'AVAX', 'MATIC', 'DOGE', 'ADA', 'LINK', 'DOT', 'UNI', 'ATOM', 'LTC', 'NEAR', 'ARB', 'OP', 'AAVE', 'PEPE', 'TON']
-const EXCHANGES = ['Binance', 'Coinbase', 'Kraken', 'Bybit', 'KuCoin', 'OKX', 'Gate.io', 'Bitget', 'Gemini', 'Bitfinex']
-const NETWORKS = ['ERC-20', 'BEP-20', 'TRC-20', 'Solana', 'Polygon', 'Bitcoin', 'Avalanche', 'Arbitrum', 'Optimism']
-const LIQUIDITY: Array<'High' | 'Medium' | 'Low'> = ['High', 'High', 'Medium', 'Medium', 'Low']
+const STRATEGIES = ['Trend Momentum', 'Mean Reversion', 'Breakout Alpha', 'Volatility Guard', 'Multi-Factor Core', 'Grid Adaptive', 'Statistical Edge', 'Momentum Shield']
+const MARKETS = ['BTC/USDT', 'ETH/USDT', 'SOL/USDT', 'BNB/USDT', 'NIFTY 50', 'GOLD/USD']
+const TIMEFRAMES = ['5m', '15m', '1h', '4h', '1D']
 
-const MAJOR_COINS = new Set(['BTC', 'ETH', 'BNB', 'SOL', 'XRP', 'DOGE'])
-
-function generateRow(id: number): Opportunity {
-  const coin = COINS[id % COINS.length]
-  const base = BASE_PRICES[coin] ?? 1
-  const isMajor = MAJOR_COINS.has(coin)
-  const buyEx = EXCHANGES[Math.floor(Math.random() * EXCHANGES.length)]
-  let sellEx = EXCHANGES[Math.floor(Math.random() * EXCHANGES.length)]
-  while (sellEx === buyEx) sellEx = EXCHANGES[Math.floor(Math.random() * EXCHANGES.length)]
-  // Tighter, more realistic spread: majors 0.05-0.8%, alts 0.2-1.8%
-  const spreadMin = isMajor ? 0.05 : 0.2
-  const spreadMax = isMajor ? 0.8  : 1.8
-  const spread = spreadMin + Math.random() * (spreadMax - spreadMin)
-  const buyPrice = base * (1 - spread / 200)
-  const sellPrice = base * (1 + spread / 200)
-  const fee = isMajor ? 0.06 + Math.random() * 0.10 : 0.08 + Math.random() * 0.18
-  const netSpread = spread - fee
-  const profitPer1k = (netSpread / 100) * 1000
+function generateRow(id: number): StrategyRun {
+  const returnPct = 0.18 + Math.random() * 1.65
   return {
     id,
-    coin,
-    buyExchange: buyEx,
-    sellExchange: sellEx,
-    buyPrice,
-    sellPrice,
-    spread,
-    fee,
-    netSpread,
-    profitPer1k,
-    liquidity: LIQUIDITY[Math.floor(Math.random() * LIQUIDITY.length)],
-    network: NETWORKS[Math.floor(Math.random() * NETWORKS.length)],
+    strategy: STRATEGIES[id % STRATEGIES.length],
+    market: MARKETS[id % MARKETS.length],
+    timeframe: TIMEFRAMES[id % TIMEFRAMES.length],
+    allocation: 1000 + (id % 5) * 750,
+    returnPct,
+    profit: returnPct / 100 * (1000 + (id % 5) * 750),
+    drawdown: 0.12 + Math.random() * 1.1,
+    status: id % 5 === 0 ? 'Monitoring' : 'Running',
     updated: 0,
   }
 }
 
-function buildData(): Opportunity[] {
+function buildData(): StrategyRun[] {
   const now = Date.now()
-  return Array.from({ length: 48 }, (_, i) => ({ ...generateRow(i), updated: now }))
+  return Array.from({ length: 24 }, (_, i) => ({ ...generateRow(i), updated: now }))
 }
 
 function SpreadBadge({ value }: { value: number }) {
@@ -89,7 +65,7 @@ const PAGE_SIZE = 8
 
 export function LiveMarket() {
   const [mounted, setMounted] = useState(false)
-  const [data, setData] = useState<Opportunity[]>([])
+  const [data, setData] = useState<StrategyRun[]>([])
   const [query, setQuery] = useState('')
   const [page, setPage] = useState(0)
   const [pulse, setPulse] = useState<number[]>([])
@@ -117,19 +93,8 @@ export function LiveMarket() {
           if (!row) return
           // Tiny drift: 0.01-0.05% per tick — much more realistic
           const drift = (Math.random() - 0.5) * 0.0004
-          const newBuy = row.buyPrice * (1 + drift)
-          const newSpread = Math.max(0.04, row.spread + (Math.random() - 0.5) * 0.02)
-          const newSell = newBuy * (1 + newSpread / 100)
-          const newNet = newSpread - row.fee
-          next[i] = {
-            ...row,
-            buyPrice: newBuy,
-            sellPrice: newSell,
-            spread: newSpread,
-            netSpread: newNet,
-            profitPer1k: (newNet / 100) * 1000,
-            updated: Date.now(),
-          }
+          const nextReturn = Math.max(0.05, row.returnPct + (Math.random() - 0.45) * 0.08)
+          next[i] = { ...row, returnPct: nextReturn, profit: nextReturn / 100 * row.allocation, updated: Date.now() }
         })
         return next
       })
@@ -138,9 +103,9 @@ export function LiveMarket() {
   }, [])
 
   const filtered = data.filter((r) =>
-    r.coin.toLowerCase().includes(query.toLowerCase()) ||
-    r.buyExchange.toLowerCase().includes(query.toLowerCase()) ||
-    r.sellExchange.toLowerCase().includes(query.toLowerCase())
+    r.strategy.toLowerCase().includes(query.toLowerCase()) ||
+    r.market.toLowerCase().includes(query.toLowerCase()) ||
+    r.status.toLowerCase().includes(query.toLowerCase())
   )
 
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE)
@@ -173,7 +138,7 @@ export function LiveMarket() {
             Live Market Preview
           </h2>
           <p className="text-[#98A2B3] text-lg max-w-xl mx-auto">
-            Real-time arbitrage opportunities updated every second across 12+ exchanges.
+            Live algorithmic strategy runs with illustrative P&L, allocation, drawdown, and execution status.
           </p>
         </motion.div>
 
@@ -189,15 +154,15 @@ export function LiveMarket() {
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-5 border-b border-white/[0.06]">
             <div className="flex items-center gap-2">
               <TrendingUp className="w-4 h-4 text-[#00D4FF]" />
-              <span className="text-sm font-semibold text-white">AlgoBot Scanner</span>
-              <span className="text-xs text-[#98A2B3] ml-2">{filtered.length} opportunities</span>
+              <span className="text-sm font-semibold text-white">AlgoBot Strategy Monitor</span>
+              <span className="text-xs text-[#98A2B3] ml-2">{filtered.length} active runs</span>
             </div>
             <div className="flex items-center gap-3 w-full sm:w-auto">
               <div className="relative flex-1 sm:flex-none">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#98A2B3]" />
                 <input
                   type="text"
-                  placeholder="Search coin or exchange..."
+                  placeholder="Search strategy or market..."
                   value={query}
                   onChange={(e) => handleSearch(e.target.value)}
                   className="w-full sm:w-64 pl-8 pr-4 py-2 text-sm rounded-lg bg-white/[0.04] border border-white/[0.08] text-white placeholder-[#98A2B3] focus:outline-none focus:border-[#00D4FF]/40 transition-colors"
@@ -215,7 +180,7 @@ export function LiveMarket() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-white/[0.06]">
-                  {['Coin', 'Buy Exchange', 'Sell Exchange', 'Buy Price', 'Sell Price', 'Spread', 'Est. Fees', 'Net Spread', '$ /1k', 'Liquidity', 'Network', 'Updated'].map((h) => (
+                  {['Strategy', 'Market', 'Timeframe', 'Allocation', 'Return', 'Profit', 'Drawdown', 'Status', 'Updated'].map((h) => (
                     <th key={h} className="px-4 py-3 text-left text-xs font-medium text-[#98A2B3] whitespace-nowrap">
                       {h}
                     </th>
@@ -243,32 +208,14 @@ export function LiveMarket() {
                       animate={isUpdating ? { backgroundColor: ['rgba(0,212,255,0.08)', 'rgba(0,212,255,0)'] } : {}}
                       transition={{ duration: 0.6 }}
                     >
-                      <td className="px-4 py-3 font-bold text-white whitespace-nowrap">
-                        <div className="flex items-center gap-2">
-                          <div className="w-6 h-6 rounded-full bg-[#00D4FF]/10 border border-[#00D4FF]/20 flex items-center justify-center text-[10px] font-bold text-[#00D4FF]">
-                            {row.coin.slice(0, 1)}
-                          </div>
-                          {row.coin}
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 text-[#98A2B3] whitespace-nowrap">{row.buyExchange}</td>
-                      <td className="px-4 py-3 text-[#98A2B3] whitespace-nowrap">{row.sellExchange}</td>
-                      <td className="px-4 py-3 text-white whitespace-nowrap font-mono text-xs">
-                        ${row.buyPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                      </td>
-                      <td className="px-4 py-3 text-white whitespace-nowrap font-mono text-xs">
-                        ${row.sellPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                      </td>
-                      <td className="px-4 py-3 whitespace-nowrap"><SpreadBadge value={row.spread} /></td>
-                      <td className="px-4 py-3 text-[#98A2B3] whitespace-nowrap text-xs">{row.fee.toFixed(2)}%</td>
-                      <td className="px-4 py-3 whitespace-nowrap"><SpreadBadge value={row.netSpread} /></td>
-                      <td className="px-4 py-3 whitespace-nowrap">
-                        <span className={`font-bold text-sm ${row.profitPer1k > 0 ? 'text-[#00FF99]' : 'text-red-400'}`}>
-                          {row.profitPer1k > 0 ? '+' : ''}{row.profitPer1k.toFixed(2)}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 whitespace-nowrap"><LiquidityBadge value={row.liquidity} /></td>
-                      <td className="px-4 py-3 text-[#98A2B3] whitespace-nowrap text-xs">{row.network}</td>
+                      <td className="px-4 py-3 font-bold text-white whitespace-nowrap">{row.strategy}</td>
+                      <td className="px-4 py-3 text-[#98A2B3] whitespace-nowrap">{row.market}</td>
+                      <td className="px-4 py-3 text-[#98A2B3] whitespace-nowrap">{row.timeframe}</td>
+                      <td className="px-4 py-3 text-white whitespace-nowrap font-mono text-xs">₹{row.allocation.toLocaleString('en-IN')}</td>
+                      <td className="px-4 py-3 whitespace-nowrap"><SpreadBadge value={row.returnPct} /></td>
+                      <td className="px-4 py-3 whitespace-nowrap"><span className="font-bold text-sm text-[#00FF99]">+₹{row.profit.toFixed(2)}</span></td>
+                      <td className="px-4 py-3 whitespace-nowrap"><span className="text-xs text-orange-300">{row.drawdown.toFixed(2)}%</span></td>
+                      <td className="px-4 py-3 whitespace-nowrap"><span className={`rounded-full px-2 py-1 text-xs font-semibold ${row.status === 'Running' ? 'bg-[#00FF99]/10 text-[#00FF99]' : 'bg-[#00D4FF]/10 text-[#00D4FF]'}`}>{row.status}</span></td>
                       <td className="px-4 py-3 text-[#98A2B3] whitespace-nowrap text-xs">
                         {new Date(row.updated).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })}
                       </td>
@@ -316,10 +263,13 @@ export function LiveMarket() {
           </div>
         </motion.div>
 
+        <div className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-4">
+          {[['₹18,420', 'Illustrative total P&L'], ['+4.82%', 'Strategy basket return'], ['1.24%', 'Average drawdown'], ['8', 'Strategies monitored']].map(([value, label]) => <div key={label} className="rounded-xl border border-white/[0.08] bg-[#0E1324]/70 p-4"><p className="text-xl font-black text-white">{value}</p><p className="mt-1 text-[10px] uppercase tracking-wide text-[#98A2B3]">{label}</p></div>)}
+        </div>
+
         {/* Disclaimer */}
         <p className="text-center text-xs text-[#98A2B3]/60 mt-6 max-w-2xl mx-auto">
-          Crypto markets involve significant risk. Arbitrage opportunities depend on market conditions, liquidity, transfer times, fees, and exchange availability.
-          This platform provides market intelligence and analytics only. Users are responsible for their own trading decisions.
+          Illustrative strategy metrics are simulated examples for demonstration and are not promises of future returns. Algorithmic trading involves significant risk; users are responsible for their own trading decisions.
         </p>
       </div>
     </section>

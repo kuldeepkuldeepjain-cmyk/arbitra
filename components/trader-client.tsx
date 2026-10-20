@@ -316,6 +316,11 @@ export function TraderClient({ user, isActivated, createdAt }: { user: { id: str
               <Bot className="h-3.5 w-3.5 shrink-0 text-amber-400" />
               <span className="hidden sm:block text-[9px] font-bold uppercase leading-none tracking-wide text-amber-300">Activate</span>
               <span className="text-[10px] font-bold leading-none text-white">INR</span>
+              {activationStatus?.latestFee && (
+                <span className={`hidden md:inline-flex rounded-full px-1.5 py-0.5 text-[8px] font-black uppercase leading-none tracking-wide ${activationStatus.latestFee.status === 'confirmed' ? 'bg-emerald-400/20 text-emerald-300' : activationStatus.latestFee.status === 'rejected' ? 'bg-red-400/20 text-red-300' : 'bg-amber-400/20 text-amber-300'}`}>
+                  {activationStatus.latestFee.status === 'confirmed' ? 'Active' : activationStatus.latestFee.status === 'rejected' ? 'Rejected' : 'Pending'}
+                </span>
+              )}
             </button>
 
             {/* User badge */}

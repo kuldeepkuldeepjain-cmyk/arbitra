@@ -1,10 +1,10 @@
 'use server'
 
 import { db } from '@/lib/db'
-import { depositAddresses, fundRequests, user } from '@/lib/db/schema'
+import { depositAddresses, fundRequests, walletTransactions, user } from '@/lib/db/schema'
 import { auth } from '@/lib/auth'
 import { headers } from 'next/headers'
-import { eq, desc } from 'drizzle-orm'
+import { and, eq, desc } from 'drizzle-orm'
 
 type Network = 'TRC20' | 'BEP20' | 'ERC20'
 
@@ -196,8 +196,24 @@ export async function reviewFundRequest(
     .where(eq(fundRequests.id, id))
     .returning()
 
-  // Invalidate cached balance for the trader whose deposit changed
   if (status === 'confirmed' && row?.userId) {
+    const existingLedgerEntry = await db.select({ id: walletTransactions.id })
+      .from(walletTransactions)
+      .where(and(eq(walletTransactions.userId, row.userId), eq(walletTransactions.refId, String(row.id)), eq(walletTransactions.refTable, 'fund_requests')))
+      .limit(1)
+
+    if (!existingLedgerEntry.length) {
+      await db.insert(walletTransactions).values({
+        userId: row.userId,
+        type: 'deposit',
+        amount: String(row.amount),
+        balanceAfter: '0',
+        refId: String(row.id),
+        refTable: 'fund_requests',
+        description: `Confirmed ${row.network} deposit`,
+        status: 'completed',
+      })
+    }
     const { invalidateBalanceCache } = await import('@/app/actions/wallet')
     invalidateBalanceCache(row.userId)
   }

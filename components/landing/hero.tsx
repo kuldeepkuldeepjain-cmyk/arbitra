@@ -165,10 +165,10 @@ export function Hero() {
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[#00D4FF]/20 bg-[#00D4FF]/5 text-[#00D4FF] text-sm font-medium mb-8"
           >
             <span className="w-2 h-2 rounded-full bg-[#00FF99] animate-pulse" />
-            AlgoBot automated trading infrastructure — built for disciplined execution
+            AI-assisted market intelligence for disciplined execution
           </motion.div>
 
-          <div className="mb-8 flex items-center gap-4 lg:hidden"><img src="/algobot-logo.png" alt="AlgoBot AI trading platform" className="h-16 w-auto object-contain" /><span className="text-xs font-semibold uppercase tracking-[0.22em] text-[#98A2B3]">AI-assisted market intelligence</span></div>
+          <div className="mb-8 flex justify-center lg:hidden"><img src="/algobot-logo.png" alt="AlgoBot AI trading platform" className="h-14 w-auto object-contain" /></div>
 
           {/* Headline */}
           <motion.h1
@@ -177,14 +177,13 @@ export function Hero() {
             transition={{ duration: 0.6, delay: 0.1 }}
             className="text-5xl md:text-7xl font-extrabold text-white tracking-tight leading-[1.05] text-balance mb-6"
           >
-            Let AlgoBot run the strategy. {' '}
+            Build a more disciplined trading workflow.
             <span
-              className="text-transparent bg-clip-text"
+              className="block text-transparent bg-clip-text"
               style={{ backgroundImage: 'linear-gradient(90deg, #00D4FF, #E8B85B)' }}
             >
-              Automate with a sharper edge
-            </span>{' '}
-            across crypto, commodities & forex
+              Execute with clarity across every market.
+            </span>
           </motion.h1>
 
           {/* Subheadline */}
@@ -194,7 +193,7 @@ export function Hero() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="text-lg md:text-xl text-[#98A2B3] leading-relaxed max-w-2xl mx-auto mb-10"
           >
-            AlgoBot connects live market data, configurable strategies, risk controls, and execution workflows in one professional workspace. Automate repeatable decisions while keeping visibility and control over every trade.
+            AlgoBot brings live market data, configurable strategies, risk controls, and execution workflows into one professional workspace. Automate repeatable decisions while keeping visibility and control at every step.
           </motion.p>
 
           {/* CTAs */}

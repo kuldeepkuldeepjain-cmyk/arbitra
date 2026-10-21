@@ -60,6 +60,10 @@ export const auth = betterAuth({
     sendOnSignUp: false,
     autoSignInAfterVerification: true,
     sendVerificationEmail: async ({ user, url }) => {
+      if (!process.env.RESEND_API_KEY) {
+        console.error('[v0] Verification email unavailable: RESEND_API_KEY is missing')
+        throw new Error('Email delivery is not configured')
+      }
       const resend = new Resend(process.env.RESEND_API_KEY)
       const { error } = await resend.emails.send(
         {

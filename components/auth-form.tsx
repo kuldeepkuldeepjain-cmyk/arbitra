@@ -162,7 +162,8 @@ function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
         type: 'email-verification',
       })
       if (otpError) {
-        setError(otpError.message ?? 'Account created, but we could not send the verification code. Please try again.')
+        console.error('[v0] Registration OTP request failed:', otpError)
+        setError('We could not send the verification code. Check your email delivery settings or try again.')
         setLoading(false)
         return
       }

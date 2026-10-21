@@ -70,7 +70,7 @@ export function ActivationFeeModal({ serverIsActivated, createdAt }: { serverIsA
     setSubmitting(true)
     setSubmitError(null)
     try {
-      await submitActivationFee(txHash.trim(), selectedAmount)
+      await submitActivationFee(txHash.trim(), selectedAmount, { paymentMethod: selectedMethod ?? undefined, network: isCryptoPayment ? selectedPaymentMethod?.label : 'UPI', planId: selectedPlanId ?? undefined })
       setSubmitted(true)
     } catch (err) {
       setSubmitError(err instanceof Error ? err.message : 'Submission failed. Please try again.')
@@ -104,6 +104,8 @@ export function ActivationFeeModal({ serverIsActivated, createdAt }: { serverIsA
 
   const selectedAmount = Number(plans.find(plan => plan.id === selectedPlanId)?.priceInr ?? (selectedPlanId === 2 ? 1999 : selectedPlanId === 3 ? 2999 : selectedPlanId === 4 ? 4999 : 999))
   const selectedPaymentMethod = paymentMethods.find((method) => method.method === selectedMethod)
+  const cryptoAmount = selectedAmount === 999 ? 10 : selectedAmount === 1999 ? 20 : selectedAmount === 2999 ? 30 : selectedAmount === 4999 ? 50 : Math.ceil(selectedAmount / 100)
+  const isCryptoPayment = selectedPaymentMethod?.currency === 'USDT'
 
   useEffect(() => {
     let cancelled = false
@@ -189,7 +191,7 @@ export function ActivationFeeModal({ serverIsActivated, createdAt }: { serverIsA
         <div className="mx-6 mb-5 flex items-center gap-4 bg-amber-500/5 border border-amber-500/20 rounded-xl px-5 py-4">
           <div>
             <p className="text-slate-400 text-xs font-medium uppercase tracking-wide">Activation Fee</p>
-            <p className="text-amber-400 font-black text-3xl font-mono leading-tight">₹{selectedAmount.toLocaleString('en-IN')} <span className="text-base font-semibold text-slate-400">selected plan</span></p>
+            <p className="text-amber-400 font-black text-3xl font-mono leading-tight">{isCryptoPayment ? `${cryptoAmount} USDT` : `₹${selectedAmount.toLocaleString('en-IN')}`} <span className="text-base font-semibold text-slate-400">selected plan</span></p>
           </div>
           <div className="ml-auto text-right">
             <p className="text-slate-500 text-xs">Multi-Level Referral Plan</p>
@@ -303,7 +305,8 @@ export function ActivationFeeModal({ serverIsActivated, createdAt }: { serverIsA
                                 {method.label}
                               </div>
                               <div className="flex-1 min-w-0">
-                                {method.upiId && <p className="text-slate-300 text-xs font-mono truncate">UPI: {method.upiId}</p>}
+                                {method.currency === 'USDT' && method.walletAddress && <div className="flex items-center gap-1"><p className="text-slate-300 text-xs font-mono truncate">{method.walletAddress}</p><CopyBtn text={method.walletAddress} size="sm" /></div>}
+                                {method.currency !== 'USDT' && method.upiId && <p className="text-slate-300 text-xs font-mono truncate">UPI: {method.upiId}</p>}
                                 {method.instructions && <p className="text-slate-500 text-xs">{method.instructions}</p>}
                               </div>
                               {method.upiId && (
@@ -330,7 +333,7 @@ export function ActivationFeeModal({ serverIsActivated, createdAt }: { serverIsA
                   <div>
                     <p className="text-slate-300 text-sm font-semibold mb-2.5 flex items-center gap-1.5">
                       <span className="w-5 h-5 rounded-full bg-amber-500/20 text-amber-400 text-xs flex items-center justify-center font-bold">2</span>
-                      Paste UTR / transaction reference after paying in INR
+                      {isCryptoPayment ? `Send ${cryptoAmount} USDT, then paste the transaction hash` : 'Pay in INR, then paste the UTR / transaction reference'}
                     </p>
                     <div className="relative">
                       <Wallet className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
@@ -338,7 +341,7 @@ export function ActivationFeeModal({ serverIsActivated, createdAt }: { serverIsA
                         type="text"
                         value={txHash}
                         onChange={e => { setTxHash(e.target.value); setSubmitError(null) }}
-                        placeholder="e.g. UPI123456789 or bank reference"
+                        placeholder={isCryptoPayment ? 'e.g. 0x... or blockchain transaction hash' : 'e.g. UPI123456789 or bank reference'}
                         className="w-full bg-slate-800 border border-slate-700 focus:border-amber-500/50 rounded-xl pl-10 pr-4 py-3 text-white placeholder-slate-600 text-sm font-mono focus:outline-none transition-colors"
                       />
                     </div>

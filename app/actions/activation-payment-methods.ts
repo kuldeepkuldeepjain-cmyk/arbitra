@@ -31,6 +31,8 @@ export async function upsertActivationPaymentMethod(input: {
   method: string
   label: string
   upiId?: string
+  walletAddress?: string
+  currency?: string
   qrImageUrl?: string
   instructions?: string
   isActive?: boolean
@@ -40,6 +42,8 @@ export async function upsertActivationPaymentMethod(input: {
     method: input.method.trim().toLowerCase(),
     label: input.label.trim(),
     upiId: input.upiId?.trim() || null,
+    walletAddress: input.walletAddress?.trim() || null,
+    currency: input.currency?.trim().toUpperCase() || 'INR',
     qrImageUrl: input.qrImageUrl?.trim() || null,
     instructions: input.instructions?.trim() || null,
     isActive: input.isActive ?? true,

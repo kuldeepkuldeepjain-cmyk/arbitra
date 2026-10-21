@@ -237,6 +237,9 @@ export const activationFees = pgTable('activation_fees', {
   userId: text('userId').notNull().references(() => user.id, { onDelete: 'cascade' }),
   amount: decimal('amount', { precision: 10, scale: 2 }).notNull().default('100.00'),
   txHash: text('tx_hash'),
+  paymentMethod: text('payment_method'),
+  network: text('network'),
+  planId: integer('plan_id'),
   status: text('status').notNull().default('pending'), // 'pending' | 'confirmed' | 'rejected'
   reviewedBy: text('reviewed_by').references(() => user.id),
   reviewedAt: timestamp('reviewed_at'),
@@ -318,6 +321,8 @@ export const activationPaymentMethods = pgTable('activation_payment_methods', {
   method: text('method').notNull().unique(),
   label: text('label').notNull(),
   upiId: text('upi_id'),
+  walletAddress: text('wallet_address'),
+  currency: text('currency').notNull().default('INR'),
   qrImageUrl: text('qr_image_url'),
   instructions: text('instructions'),
   isActive: boolean('is_active').notNull().default(true),

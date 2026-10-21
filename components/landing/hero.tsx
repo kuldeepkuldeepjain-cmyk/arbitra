@@ -156,7 +156,7 @@ export function Hero() {
       <ParticleField />
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 w-full min-w-0">
-        <div className="hidden">
+        <div className="mx-auto max-w-5xl text-center pb-12">
           {/* Badge */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -165,26 +165,26 @@ export function Hero() {
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[#00D4FF]/20 bg-[#00D4FF]/5 text-[#00D4FF] text-sm font-medium mb-8"
           >
             <span className="w-2 h-2 rounded-full bg-[#00FF99] animate-pulse" />
-            AlgoBot automated trading infrastructure — built for disciplined execution
+            AI-assisted market intelligence for disciplined execution
           </motion.div>
 
-          <div className="mb-8 flex items-center gap-4 lg:hidden"><img src="/algobot-logo.png" alt="AlgoBot AI trading platform" className="h-16 w-auto object-contain" /><span className="text-xs font-semibold uppercase tracking-[0.22em] text-[#98A2B3]">AI-assisted market intelligence</span></div>
+          <div className="mb-8 flex justify-center lg:hidden"><img src="/algobot-logo.png" alt="AlgoBot AI trading platform" className="h-14 w-auto object-contain" /></div>
 
           {/* Headline */}
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
+            id="hero-title"
             className="text-5xl md:text-7xl font-extrabold text-white tracking-tight leading-[1.05] text-balance mb-6"
           >
-            Let AlgoBot run the strategy. {' '}
+            Build a more disciplined trading workflow.
             <span
-              className="text-transparent bg-clip-text"
+              className="block text-transparent bg-clip-text"
               style={{ backgroundImage: 'linear-gradient(90deg, #00D4FF, #E8B85B)' }}
             >
-              Automate with a sharper edge
-            </span>{' '}
-            across crypto, commodities & forex
+              Execute with clarity across every market.
+            </span>
           </motion.h1>
 
           {/* Subheadline */}
@@ -194,7 +194,7 @@ export function Hero() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="text-lg md:text-xl text-[#98A2B3] leading-relaxed max-w-2xl mx-auto mb-10"
           >
-            AlgoBot connects live market data, configurable strategies, risk controls, and execution workflows in one professional workspace. Automate repeatable decisions while keeping visibility and control over every trade.
+            AlgoBot brings live market data, configurable strategies, risk controls, and execution workflows into one professional workspace. Automate repeatable decisions while keeping visibility and control at every step.
           </motion.p>
 
           {/* CTAs */}
@@ -253,9 +253,9 @@ export function Hero() {
           </motion.div>
         </div>
 
-        <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }} className="relative z-10 mx-auto w-full max-w-[1680px]">
+        <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }} className="relative z-10 mx-auto w-full max-w-6xl">
           <div className="relative overflow-hidden rounded-2xl border border-[#00D4FF]/25 bg-[#050816] shadow-[0_0_80px_rgba(0,212,255,0.18)]">
-            <img src="/algobot-hero.png" alt="AlgoBot AI trading platform with automated strategies and live market dashboard" className="block h-auto w-full" />
+            <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Algobot_%20Trade%20Smarter%20in%20Neon%20Futures-sGzpSb0yOSpnn2ZacF1o9fIVk2k7PK.png" alt="AlgoBot neon trading platform hero with AI trader, live market dashboard, and portfolio analytics" className="block h-auto w-full" />
             <div className="absolute bottom-[8%] left-[5%] flex flex-wrap gap-3">
               <Link href="/sign-up" className="group inline-flex items-center gap-2 rounded-xl bg-[#00D4FF] px-5 py-3 text-sm font-bold text-[#050816] shadow-[0_0_28px_rgba(0,212,255,0.4)] transition hover:bg-white"><span>Start Trading Now</span><ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" /></Link>
               <Link href="#markets" className="inline-flex items-center gap-2 rounded-xl border border-white/30 bg-[#050816]/75 px-5 py-3 text-sm font-bold text-white backdrop-blur-md transition hover:border-[#00D4FF] hover:text-[#00D4FF]"><TrendingUp className="h-4 w-4" /><span>View Strategies</span></Link>
@@ -266,7 +266,7 @@ export function Hero() {
         <motion.div initial={{ opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.7, delay: 0.25 }} className="hidden">
           <div className="absolute -inset-5 rounded-[2rem] bg-[#00D4FF]/15 blur-3xl" />
           <div className="relative overflow-hidden rounded-[1.5rem] border border-[#00D4FF]/30 bg-[#050816] shadow-[0_0_80px_rgba(0,212,255,0.2)]">
-            <img src="/algobot-hero.png" alt="AlgoBot AI trading platform with strategy dashboard and global markets" className="block h-auto w-full object-cover" />
+            <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Algobot_%20Trade%20Smarter%20in%20Neon%20Futures-sGzpSb0yOSpnn2ZacF1o9fIVk2k7PK.png" alt="AlgoBot AI trading platform artwork with robot trader, market data, and execution dashboard" className="block h-auto w-full object-cover" />
             <div className="absolute inset-x-4 bottom-4 flex flex-wrap items-center justify-center gap-2 rounded-xl border border-white/15 bg-[#050816]/90 p-2.5 backdrop-blur-md sm:justify-between">
               <span className="hidden px-2 text-[10px] font-bold uppercase tracking-[0.16em] text-[#00D4FF] sm:inline">AI strategy platform</span>
               <div className="flex items-center gap-2">
@@ -308,7 +308,11 @@ export function Hero() {
         transition={{ duration: 0.6, delay: 1 }}
         className="relative z-10 w-full border-t border-white/[0.06] mt-8 py-4 overflow-hidden"
       >
-        <p className="text-center text-xs text-[#98A2B3] mb-3">Supported Exchanges</p>
+        <div className="mb-4 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-center text-[10px] font-semibold uppercase tracking-[0.18em] text-[#7894B8]">
+          <span className="h-1.5 w-1.5 rounded-full bg-[#4ADE80]" />
+          Built for transparent, controlled execution
+        </div>
+        <p className="text-center text-xs text-[#98A2B3] mb-3">Connect the markets you already trade</p>
         <div className="flex items-center justify-center gap-6 flex-wrap px-6">
           {exchanges.map((ex) => (
             <span key={ex} className="text-sm font-medium text-[#98A2B3]/60 hover:text-[#98A2B3] transition-colors">

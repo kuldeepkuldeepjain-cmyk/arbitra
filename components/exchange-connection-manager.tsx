@@ -65,12 +65,16 @@ export function ExchangeConnectionManager() {
   const [saving, setSaving] = useState(false)
   const [formError, setFormError] = useState('')
   const [copied, setCopied] = useState<string | null>(null)
+  const [loadError, setLoadError] = useState('')
 
   const loadAccounts = useCallback(async () => {
     setLoading(true)
     try {
+      setLoadError('')
       const accs = await getExchangeAccounts()
       setAccounts(accs as Account[])
+    } catch (err) {
+      setLoadError(err instanceof Error ? err.message : 'Unable to load exchange connections.')
     } finally {
       setLoading(false)
     }
@@ -110,14 +114,16 @@ export function ExchangeConnectionManager() {
     }
     setSaving(true)
     try {
-      await saveExchangeAccount({
+      const savedAccount = await saveExchangeAccount({
         exchangeId: form.exchangeId,
         label: form.label || selectedExchangeMeta?.name || form.exchangeId,
-        apiKey: form.apiKey,
-        apiSecret: form.apiSecret,
-        passphrase: form.passphrase || undefined,
+        apiKey: form.apiKey.trim(),
+        apiSecret: form.apiSecret.trim(),
+        passphrase: form.passphrase.trim() || undefined,
         tradeMode: form.tradeMode,
       })
+      const connection = await testExchangeConnection(savedAccount.id)
+      setTestResults(prev => ({ ...prev, [savedAccount.id]: connection }))
       setForm({ exchangeId: '', label: '', apiKey: '', apiSecret: '', passphrase: '', tradeMode: 'read_only' })
       setShowForm(false)
       await loadAccounts()
@@ -344,6 +350,13 @@ export function ExchangeConnectionManager() {
             </div>
           </form>
         </Card>
+      )}
+
+      {loadError && (
+        <div className="flex items-center justify-between gap-3 rounded-lg border border-red-500/20 bg-red-500/10 px-3 py-2 text-sm text-red-300">
+          <span>{loadError}</span>
+          <Button size="sm" variant="ghost" onClick={loadAccounts} className="text-red-200 hover:bg-red-500/10">Retry</Button>
+        </div>
       )}
 
       {/* Connected Accounts List */}

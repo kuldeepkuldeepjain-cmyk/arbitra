@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import QRCode from 'qrcode'
 import { getActivationStatus, submitActivationFee } from '@/app/actions/referral'
 import { getActiveBotActivationPlans, getActivationPaymentMethods } from '@/app/actions/activation-payment-methods'
 import {
@@ -61,6 +62,7 @@ export function ActivationFeeModal({ serverIsActivated, createdAt }: { serverIsA
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [submitted, setSubmitted] = useState(false)
+  const [qrDataUrl, setQrDataUrl] = useState<string | null>(null)
 
   const handleSubmit = async () => {
     if (!txHash.trim()) return
@@ -68,8 +70,7 @@ export function ActivationFeeModal({ serverIsActivated, createdAt }: { serverIsA
     setSubmitting(true)
     setSubmitError(null)
     try {
-      const selectedPlan = plans.find(plan => plan.id === selectedPlanId)
-      await submitActivationFee(txHash.trim(), selectedPlan ? Number(selectedPlan.priceInr) : 999)
+      await submitActivationFee(txHash.trim(), selectedAmount)
       setSubmitted(true)
     } catch (err) {
       setSubmitError(err instanceof Error ? err.message : 'Submission failed. Please try again.')
@@ -93,12 +94,32 @@ export function ActivationFeeModal({ serverIsActivated, createdAt }: { serverIsA
       setPaymentMethods(methods)
       setPlans(loadedPlans)
       setSelectedPlanId(loadedPlans[0]?.id ?? 1)
+      setSelectedMethod(methods.find((method) => method.upiId)?.method ?? methods[0]?.method ?? null)
     } catch {
       // silent
     } finally {
       setLoading(false)
     }
   }
+
+  const selectedAmount = Number(plans.find(plan => plan.id === selectedPlanId)?.priceInr ?? (selectedPlanId === 2 ? 1999 : selectedPlanId === 3 ? 2999 : selectedPlanId === 4 ? 4999 : 999))
+  const selectedPaymentMethod = paymentMethods.find((method) => method.method === selectedMethod)
+
+  useEffect(() => {
+    let cancelled = false
+    const upiId = selectedPaymentMethod?.upiId
+    if (!upiId || !selectedAmount) {
+      setQrDataUrl(null)
+      return
+    }
+    QRCode.toDataURL(`upi://pay?pa=${encodeURIComponent(upiId)}&pn=AlgoBot&am=${selectedAmount.toFixed(2)}&cu=INR`, {
+      width: 220,
+      margin: 2,
+      color: { dark: '#081426', light: '#ffffff' },
+      errorCorrectionLevel: 'M',
+    }).then((url) => { if (!cancelled) setQrDataUrl(url) }).catch(() => { if (!cancelled) setQrDataUrl(null) })
+    return () => { cancelled = true }
+  }, [selectedPaymentMethod?.upiId, selectedAmount])
 
   // Never show for already-activated traders (server-authoritative check)
   if (serverIsActivated) return null
@@ -120,8 +141,6 @@ export function ActivationFeeModal({ serverIsActivated, createdAt }: { serverIsA
   const hasRejected = status?.latestFee?.status === 'rejected'
   const addresses   = status?.depositAddresses ?? []
   const noAddresses = paymentMethods.length === 0
-  const selectedAmount = Number(plans.find(plan => plan.id === selectedPlanId)?.priceInr ?? (selectedPlanId === 2 ? 1999 : selectedPlanId === 3 ? 2999 : selectedPlanId === 4 ? 4999 : 999))
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
       <div className="relative w-full max-w-lg bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl overflow-hidden">
@@ -287,8 +306,19 @@ export function ActivationFeeModal({ serverIsActivated, createdAt }: { serverIsA
                                 {method.upiId && <p className="text-slate-300 text-xs font-mono truncate">UPI: {method.upiId}</p>}
                                 {method.instructions && <p className="text-slate-500 text-xs">{method.instructions}</p>}
                               </div>
-                              {method.upiId && <CopyBtn text={method.upiId} />}
-                              {method.qrImageUrl && <img src={method.qrImageUrl} alt={`${method.label} INR payment QR code`} className="w-20 h-20 object-contain rounded bg-white p-1" />}
+                              {method.upiId && (
+                                <div onClick={(event) => event.stopPropagation()} className="flex shrink-0 items-center gap-1 rounded-lg border border-slate-600 bg-slate-900/70 px-1.5 py-1">
+                                  <span className="hidden text-[10px] font-medium text-slate-400 sm:inline">Copy UPI</span>
+                                  <CopyBtn text={method.upiId} size="sm" />
+                                </div>
+                              )}
+                              {method.upiId && isSelected && qrDataUrl ? (
+                                <img src={qrDataUrl} alt={`QR code to pay ₹${selectedAmount.toLocaleString('en-IN')} to ${method.label}`} className="h-24 w-24 shrink-0 rounded-lg bg-white object-contain p-1 shadow-lg" />
+                              ) : method.qrImageUrl ? (
+                                <img src={method.qrImageUrl} alt={`${method.label} INR payment QR code`} className="h-24 w-24 shrink-0 rounded-lg bg-white object-contain p-1 opacity-70" />
+                              ) : isSelected ? (
+                                <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-lg border border-dashed border-amber-500/40 text-center text-[10px] text-amber-300">UPI ID required for QR</div>
+                              ) : null}
                             </div>
                           </div>
                         )

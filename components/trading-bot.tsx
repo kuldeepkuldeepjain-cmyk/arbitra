@@ -927,6 +927,7 @@ function MetaTraderBotModal({
   const [explainStrategy, setExplainStrategy] = useState<typeof META_TRADER_STRATEGIES[number] | null>(null)
 
   const filteredAccounts = accounts.filter(a => a.exchange === platform)
+  const liveAccounts = filteredAccounts.filter(account => account.tradeMode === 'live')
   const maxInvestment = cfg.baseOrderSize + cfg.safetyOrderSize * cfg.maxSafetyOrders
   const estProfit = maxInvestment * (cfg.takeProfitPct / 100)
 
@@ -944,6 +945,9 @@ function MetaTraderBotModal({
     setError('')
     setSaving(true)
     try {
+      if (!accountId) throw new Error('Connect a live MT4/MT5 account before deploying this Forex bot.')
+      const liveAccount = liveAccounts.find(account => account.id === accountId)
+      if (!liveAccount) throw new Error('Select a live MetaTrader account to deploy this bot.')
       const [base, quote] = customPair.split('/')
       await createTradingBot({
         name: botName || `${base} MT Bot`,
@@ -1228,10 +1232,10 @@ function MetaTraderBotModal({
                 className="flex-1 border border-slate-700 text-slate-400 hover:text-white hover:bg-slate-800">
                 Cancel
               </Button>
-              <Button type="submit" disabled={saving}
-                className="flex-1 bg-blue-500 hover:bg-blue-400 text-white font-bold gap-2">
+              <Button type="submit" disabled={saving || !accountId || !liveAccounts.some(account => account.id === accountId)}
+                className="flex-1 bg-blue-500 hover:bg-blue-400 text-white font-bold gap-2 disabled:cursor-not-allowed disabled:opacity-50">
                 <Cpu className="w-4 h-4" />
-                {saving ? 'Creating...' : 'Create MT4/MT5 Bot'}
+                {saving ? 'Deploying...' : 'Deploy Live Forex Bot'}
               </Button>
             </div>
           </form>
@@ -1462,8 +1466,15 @@ function CreateBotModal({
                 <p className="text-green-400 font-bold text-lg">${estProfit.toFixed(2)}</p>
               </div>
             </div>
-            {error && (
-              <div className="flex items-center gap-2 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2.5 text-red-400 text-sm">
+              {!accountId && (
+                <div className="flex items-start gap-2 rounded-lg border border-amber-500/20 bg-amber-500/10 px-3 py-2.5 text-amber-300 text-xs">
+                  <Shield className="mt-0.5 h-4 w-4 shrink-0" />
+                  <span>Live deployment is locked until a live MT4/MT5 account is selected and its EA bridge is verified.</span>
+                </div>
+              )}
+
+              {error && (
+                <div className="flex items-center gap-2 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2.5 text-red-400 text-sm">
                 <AlertCircle className="w-4 h-4 shrink-0" />{error}
               </div>
             )}
@@ -1995,12 +2006,24 @@ function StrategiesPanel({ accounts, onLaunch, onLaunchGoldSilver, onLaunchMetaT
               <Cpu className="w-4 h-4 text-blue-400" />
               MT4/MT5 Forex Strategies
             </h3>
-            <p className="text-slate-500 text-sm mt-1">7 success strategies for forex majors, XAU/XAG and indices via MetaTrader 4 & 5.</p>
+            <p className="text-slate-500 text-sm mt-1">Choose a proven setup, connect a live MT4/MT5 bridge, then deploy with guided risk controls.</p>
           </div>
           <Button onClick={onLaunchMetaTrader}
             className="bg-blue-500 hover:bg-blue-400 text-white font-bold gap-2 text-sm h-9">
             <Plus className="w-3.5 h-3.5" /> Open Bot Builder
           </Button>
+        </div>
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+          {[
+            ['1', 'Choose a strategy', 'Start with EUR/USD Trend Rider for the cleanest first setup.'],
+            ['2', 'Connect your bridge', 'Use a verified live MT4/MT5 account with the EA attached.'],
+            ['3', 'Deploy live', 'Set capital and protection rules, then send the bot live.'],
+          ].map(([step, title, detail]) => (
+            <div key={step} className="rounded-xl border border-blue-500/15 bg-blue-500/[0.04] p-3">
+              <div className="mb-2 flex items-center gap-2"><span className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-500/15 text-xs font-bold text-blue-300">{step}</span><span className="text-xs font-bold text-slate-200">{title}</span></div>
+              <p className="text-[11px] leading-relaxed text-slate-500">{detail}</p>
+            </div>
+          ))}
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {META_TRADER_STRATEGIES.map(strat => (

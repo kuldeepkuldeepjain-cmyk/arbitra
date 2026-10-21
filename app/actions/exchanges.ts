@@ -45,14 +45,19 @@ export async function saveExchangeAccount(data: {
   const userId = await getUserId()
   const info = SUPPORTED_EXCHANGES[data.exchangeId]
   if (!info) throw new Error('Unsupported exchange')
+  const apiKey = data.apiKey.trim()
+  const apiSecret = data.apiSecret.trim()
+  const passphrase = data.passphrase?.trim() || null
+  if (apiKey.length < 8 || apiSecret.length < 8) throw new Error('API key and secret must be at least 8 characters.')
+  if (info.hasPassphrase && !passphrase) throw new Error(`${info.name} requires a passphrase.`)
 
   const [row] = await db.insert(exchangeAccounts).values({
     userId,
     exchange: data.exchangeId,
-    label: data.label || info.name,
-    apiKey: data.apiKey,
-    apiSecret: data.apiSecret,
-    passphrase: data.passphrase || null,
+    label: data.label.trim() || info.name,
+    apiKey,
+    apiSecret,
+    passphrase,
     tradeMode: data.tradeMode,
     isActive: true,
   }).returning()

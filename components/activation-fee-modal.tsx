@@ -306,7 +306,12 @@ export function ActivationFeeModal({ serverIsActivated, createdAt }: { serverIsA
                                 {method.upiId && <p className="text-slate-300 text-xs font-mono truncate">UPI: {method.upiId}</p>}
                                 {method.instructions && <p className="text-slate-500 text-xs">{method.instructions}</p>}
                               </div>
-                              {method.upiId && <CopyBtn text={method.upiId} />}
+                              {method.upiId && (
+                                <div onClick={(event) => event.stopPropagation()} className="flex shrink-0 items-center gap-1 rounded-lg border border-slate-600 bg-slate-900/70 px-1.5 py-1">
+                                  <span className="hidden text-[10px] font-medium text-slate-400 sm:inline">Copy UPI</span>
+                                  <CopyBtn text={method.upiId} size="sm" />
+                                </div>
+                              )}
                               {method.upiId && isSelected && qrDataUrl ? (
                                 <img src={qrDataUrl} alt={`QR code to pay ₹${selectedAmount.toLocaleString('en-IN')} to ${method.label}`} className="h-24 w-24 shrink-0 rounded-lg bg-white object-contain p-1 shadow-lg" />
                               ) : method.qrImageUrl ? (

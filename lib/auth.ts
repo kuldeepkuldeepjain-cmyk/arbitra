@@ -35,6 +35,10 @@ export const auth = betterAuth({
       expiresIn: 900,
       sendVerificationOnSignUp: true,
       sendVerificationOTP: async ({ email, otp, type }) => {
+        if (!process.env.RESEND_API_KEY) {
+          console.error('[v0] OTP delivery is unavailable: RESEND_API_KEY is missing')
+          throw new Error('Email delivery is not configured')
+        }
         const resend = new Resend(process.env.RESEND_API_KEY)
         const { error } = await resend.emails.send(
           {

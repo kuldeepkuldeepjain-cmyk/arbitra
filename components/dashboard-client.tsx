@@ -81,11 +81,11 @@ export function DashboardClient({ user }: { user: any }) {
       <header className="sticky top-0 z-40 border-b border-slate-800/80 bg-[#07111f]/95 backdrop-blur-xl">
         <div className="mx-auto flex h-[72px] max-w-7xl items-center justify-between gap-3 px-4 sm:px-6">
           <button type="button" onClick={() => router.push('/')} className="flex min-w-0 items-center gap-3 text-left">
-            <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-slate-950 text-sky-400 shadow-sm">
-              <Activity className="size-5" />
+            <span className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-slate-950 shadow-sm">
+              <img src="/algobot-logo.png" alt="AlgoBot" className="size-10 object-contain" />
             </span>
             <span className="min-w-0">
-              <span className="block truncate text-lg font-black tracking-tight">MY ALGO</span>
+              <span className="block truncate text-lg font-black tracking-tight">AlgoBot</span>
               <span className="hidden text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-500 sm:block">Algorithmic trading & arbitrage</span>
             </span>
           </button>

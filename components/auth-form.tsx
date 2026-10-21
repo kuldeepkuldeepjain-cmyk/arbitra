@@ -236,7 +236,7 @@ function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
   }
 
   return (
-    <main className="min-h-svh bg-background flex items-center justify-center px-4">
+    <main className="min-h-svh bg-background flex items-center justify-center px-4 py-8">
       <Card className="w-full max-w-sm p-6">
         <div className="mb-6">
           <Link
@@ -246,6 +246,13 @@ function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
             <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" />
             Back to Home
           </Link>
+          <div className="mb-5 flex items-center gap-3">
+            <img src="/algobot-logo.png" alt="AlgoBot" className="size-12 rounded-xl object-contain" />
+            <div>
+              <p className="text-sm font-bold tracking-tight text-foreground">AlgoBot</p>
+              <p className="text-xs text-muted-foreground">Algorithmic trading intelligence</p>
+            </div>
+          </div>
           <h1 className="text-2xl font-semibold tracking-tight text-foreground">
             {otpSent ? 'Enter your email code' : isSignUp ? 'Create an account' : 'Welcome back'}
           </h1>

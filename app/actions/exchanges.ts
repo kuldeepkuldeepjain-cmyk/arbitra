@@ -145,6 +145,20 @@ export async function fetchExchangeBalance(accountId: number): Promise<Record<st
   return result
 }
 
+// ─── Fetch Live Market Price ────────────────────────────────────────────────
+export async function fetchLiveTickerPrice(accountId: number, symbol: string): Promise<number> {
+  const userId = await getUserId()
+  const [acc] = await db.select().from(exchangeAccounts).where(and(eq(exchangeAccounts.id, accountId), eq(exchangeAccounts.userId, userId))).limit(1)
+  if (!acc) throw new Error('Exchange account not found')
+  if (acc.tradeMode !== 'live') throw new Error('Selected exchange account is not in live mode')
+  const ccxt = await getCCXT()
+  const exchange = buildCCXTInstance(ccxt, acc.exchange, acc.apiKey, acc.apiSecret, acc.passphrase)
+  const ticker = await exchange.fetchTicker(symbol)
+  const price = Number(ticker.last ?? ticker.close ?? ticker.bid ?? 0)
+  if (!Number.isFinite(price) || price <= 0) throw new Error(`No live price available for ${symbol}`)
+  return price
+}
+
 // ─── Place Order ─────────────────────────────────────────────────────────────
 export async function placeTradeOrder(data: {
   accountId: number

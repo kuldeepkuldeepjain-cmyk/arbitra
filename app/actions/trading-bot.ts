@@ -6,6 +6,7 @@ import { eq, desc, and, sql } from 'drizzle-orm'
 import { auth } from '@/lib/auth'
 import { headers } from 'next/headers'
 import type { DcaConfig } from '@/lib/trading-bot-constants'
+import { fetchLiveTickerPrice, placeTradeOrder } from '@/app/actions/exchanges'
 
 async function requireSession() {
   const session = await auth.api.getSession({ headers: await headers() })
@@ -119,20 +120,20 @@ export async function startBot(botId: number) {
     .limit(1)
   if (!bot) throw new Error('Bot not found')
   if (bot.status === 'active') throw new Error('Bot is already running')
+  if (!bot.exchangeAccountId) throw new Error('Connect a live exchange account before starting this bot')
 
   const cfg = bot.config as DcaConfig
-  // Simulate fetching current market price (realistic mock based on symbol)
-  const mockPrices: Record<string, number> = {
-    'BTC/USDT': 67420.0, 'ETH/USDT': 3541.0, 'BNB/USDT': 605.0,
-    'SOL/USDT': 172.0,   'XRP/USDT': 0.625,   'ADA/USDT': 0.48,
-    'DOGE/USDT': 0.162,  'AVAX/USDT': 38.5,   'DOT/USDT': 7.8,
-    'MATIC/USDT': 0.92,  'LINK/USDT': 15.4,   'LTC/USDT': 84.5,
-    'UNI/USDT': 10.2,    'ATOM/USDT': 8.9,    'TRX/USDT': 0.128,
-  }
-  const price = mockPrices[bot.symbol] ?? 1.0
+  const price = await fetchLiveTickerPrice(bot.exchangeAccountId, bot.symbol)
   const qty = cfg.baseOrderSize / price
+  const placed = await placeTradeOrder({
+    accountId: bot.exchangeAccountId,
+    symbol: bot.symbol,
+    side: 'buy',
+    orderType: 'market',
+    amount: qty,
+  })
+  if (!placed.ok) throw new Error(placed.message)
 
-  // Insert base order
   await db.insert(dcaOrders).values({
     botId,
     userId: currentUser.id,

@@ -157,18 +157,6 @@ function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
         return
       }
 
-      const { error: otpError } = await authClient.emailOtp.sendVerificationOtp({
-        email: email.toLowerCase(),
-        type: 'email-verification',
-      })
-      if (otpError) {
-        console.error('[v0] Registration OTP request failed:', otpError)
-        setError('We could not send the verification code. Check your email delivery settings or try again.')
-        setLoading(false)
-        return
-      }
-      setOtpSent(true)
-      setLoading(false)
       // Step 3 — Save extra profile fields via server action
       if (signUpData?.user?.id) {
         try {
@@ -184,6 +172,9 @@ function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
           await storeReferredBy(referralCode)
         } catch { /* non-fatal */ }
       }
+      setLoading(false)
+      window.location.href = '/trader'
+      return
     } else {
       if (loginMethod === 'otp') {
         const { error: otpSendError } = await authClient.emailOtp.sendVerificationOtp({

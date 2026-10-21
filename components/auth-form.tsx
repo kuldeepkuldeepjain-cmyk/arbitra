@@ -54,6 +54,7 @@ function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
   const [referralChecking, setReferralChecking] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [resending, setResending] = useState(false)
 
   // Math captcha — generated client-side only to avoid SSR hydration mismatch
   const [challenge, setChallenge] = useState<CaptchaChallenge | null>(null)
@@ -161,7 +162,7 @@ function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
         type: 'email-verification',
       })
       if (otpError) {
-        setError('Account created, but we could not send the verification code. Please try again.')
+        setError(otpError.message ?? 'Account created, but we could not send the verification code. Please try again.')
         setLoading(false)
         return
       }
@@ -233,6 +234,18 @@ function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
     const role = (session?.data?.user as unknown as { role?: string })?.role ?? 'viewer'
     const dest = role === 'admin' ? '/admin' : role === 'protrader' ? '/protrader' : role === 'trader' ? '/trader' : '/viewer'
     window.location.href = dest
+  }
+
+  const resendOtp = async () => {
+    setError(null)
+    setResending(true)
+    const { error: resendError } = await authClient.emailOtp.sendVerificationOtp({
+      email: email.toLowerCase(),
+      type: isSignUp ? 'email-verification' : 'sign-in',
+    })
+    if (resendError) setError(resendError.message ?? 'Unable to resend the verification code.')
+    else setError('A new verification code was sent.')
+    setResending(false)
   }
 
   return (
@@ -406,7 +419,13 @@ function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
             </p>
           )}
 
-          <Button type="submit" disabled={loading} className="w-full">
+          {otpSent && (
+            <button type="button" onClick={resendOtp} disabled={resending || loading} className="text-sm font-medium text-primary hover:underline disabled:cursor-not-allowed disabled:opacity-50">
+              {resending ? 'Sending a new code…' : 'Resend verification code'}
+            </button>
+          )}
+
+          <Button type="submit" disabled={loading || resending} className="w-full">
             {loading
               ? 'Please wait...'
               : otpSent

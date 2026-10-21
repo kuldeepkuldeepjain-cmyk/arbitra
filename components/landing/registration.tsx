@@ -158,7 +158,16 @@ export function Registration() {
         country: form.country || undefined,
       })
 
-      // Step 4: Ask for the code Better Auth sent through Resend
+      // Step 4: Request the code explicitly. Better Auth is configured not to send
+      // verification mail automatically during sign-up.
+      const { error: otpSendError } = await authClient.emailOtp.sendVerificationOtp({
+        email: form.email.toLowerCase().trim(),
+        type: 'email-verification',
+      })
+      if (otpSendError) {
+        setError(otpSendError.message ?? 'Account created, but we could not send the verification code. Please try again.')
+        return
+      }
       setOtp('')
       setOtpStep(true)
     } catch (err) {
@@ -268,7 +277,7 @@ export function Registration() {
                       onClick={async () => {
                         setError(null)
                         const { error: resendError } = await authClient.emailOtp.sendVerificationOtp({ email: form.email.toLowerCase().trim(), type: 'email-verification' })
-                        if (resendError) setError('We could not resend the code. Please try again.')
+                        if (resendError) setError(resendError.message ?? 'We could not resend the code. Please try again.')
                       }}
                       className="text-sm text-[#00D4FF] hover:underline disabled:opacity-60"
                     >

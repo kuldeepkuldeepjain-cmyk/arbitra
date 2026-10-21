@@ -357,13 +357,21 @@ export function TraderClient({ user, isActivated, createdAt }: { user: { id: str
         const planLabel = Number(activationStatus.latestFee.amount) >= 4999 ? '12 Month' : Number(activationStatus.latestFee.amount) >= 2999 ? '6 Month' : Number(activationStatus.latestFee.amount) >= 1999 ? '3 Month' : '1 Month'
         const approved = feeStatus === 'confirmed'
         return (
-          <button type="button" onClick={() => setActiveTab('activation')} className={`w-full border-b px-4 py-3 text-left transition hover:brightness-110 ${approved ? 'border-emerald-400/30 bg-gradient-to-r from-emerald-500/15 via-teal-500/10 to-transparent' : feeStatus === 'rejected' ? 'border-red-400/30 bg-red-500/10' : 'border-amber-400/30 bg-gradient-to-r from-amber-500/15 via-orange-500/10 to-transparent'}`}>
+          <button type="button" onClick={() => setActiveTab('activation')} className="w-full border-b border-slate-800/80 bg-slate-900/50 px-4 py-2.5 text-left transition-colors hover:bg-slate-800/60">
             <div className="mx-auto flex max-w-screen-xl items-center gap-3">
-              <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${approved ? 'bg-emerald-400/20' : feeStatus === 'rejected' ? 'bg-red-400/20' : 'bg-amber-400/20'}`}>
-                {approved ? <CheckCircle2 className="h-5 w-5 text-emerald-300" /> : feeStatus === 'rejected' ? <XCircle className="h-5 w-5 text-red-300" /> : <Clock className="h-5 w-5 text-amber-300" />}
+              <div className={`flex size-8 shrink-0 items-center justify-center rounded-lg border ${approved ? 'border-emerald-400/30 bg-emerald-400/10' : feeStatus === 'rejected' ? 'border-red-400/30 bg-red-400/10' : 'border-amber-400/30 bg-amber-400/10'}`}>
+                {approved ? <CheckCircle2 className="size-4 text-emerald-300" /> : feeStatus === 'rejected' ? <XCircle className="size-4 text-red-300" /> : <Clock className="size-4 text-amber-300" />}
               </div>
-              <div className="min-w-0 flex-1"><p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400">Bot activation status</p><p className={`mt-0.5 text-sm font-black ${approved ? 'text-emerald-200' : feeStatus === 'rejected' ? 'text-red-200' : 'text-amber-200'}`}>{approved ? `${planLabel} plan approved by Admin` : feeStatus === 'rejected' ? `${planLabel} plan needs resubmission` : `${planLabel} plan selected · awaiting Admin approval`}</p>{approved && activationStatus.remainingDays !== null && <p className="mt-1 text-[11px] font-semibold text-slate-300">Expires {activationStatus.activationExpiresAt ? new Date(activationStatus.activationExpiresAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : 'soon'} · <span className="text-emerald-300">{activationStatus.remainingDays} days remaining</span></p>}</div>
-              <span className={`hidden rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-wide sm:inline-flex ${approved ? 'bg-emerald-400/20 text-emerald-200' : feeStatus === 'rejected' ? 'bg-red-400/20 text-red-200' : 'bg-amber-400/20 text-amber-200'}`}>{approved ? `${activationStatus.remainingDays ?? 0}d left` : feeStatus}</span>
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                  <span className="text-xs font-semibold text-slate-300">Bot access</span>
+                  <span className={`text-sm font-bold ${approved ? 'text-emerald-300' : feeStatus === 'rejected' ? 'text-red-300' : 'text-amber-300'}`}>{approved ? 'Active' : feeStatus === 'rejected' ? 'Action required' : 'Pending review'}</span>
+                  <span className="text-xs text-slate-600">·</span>
+                  <span className="text-xs text-slate-400">{planLabel} plan</span>
+                </div>
+                {approved && activationStatus.remainingDays !== null && <p className="mt-0.5 text-[11px] text-slate-500">Expires {activationStatus.activationExpiresAt ? new Date(activationStatus.activationExpiresAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : 'soon'} <span className="text-slate-600">·</span> <span className="text-emerald-300">{activationStatus.remainingDays} days remaining</span></p>}
+              </div>
+              <span className="hidden shrink-0 text-xs font-medium text-slate-500 sm:block">View activation</span>
             </div>
           </button>
         )

@@ -55,11 +55,15 @@
   --arb-gold:      #E8B85B;
   --arb-signal:    #66E3D5;
   --arb-muted:     #9BA7B8;
+  --arb-navy:      #081426;
+  --arb-line:      rgba(125, 190, 255, 0.16);
 
   --background: #050816;
   --foreground: #FFFFFF;
   --card: #0E1324;
   --card-foreground: #FFFFFF;
+  --navy: #081426;
+  --line: rgba(125, 190, 255, 0.16);
   --popover: #0E1324;
   --popover-foreground: #FFFFFF;
   --primary: #00D4FF;

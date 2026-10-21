@@ -156,7 +156,7 @@ export function Hero() {
       <ParticleField />
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 w-full min-w-0">
-        <div className="hidden">
+        <div className="mx-auto max-w-5xl text-center pb-12">
           {/* Badge */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -253,7 +253,7 @@ export function Hero() {
           </motion.div>
         </div>
 
-        <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }} className="relative z-10 mx-auto w-full max-w-[1680px]">
+        <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }} className="relative z-10 mx-auto w-full max-w-6xl">
           <div className="relative overflow-hidden rounded-2xl border border-[#00D4FF]/25 bg-[#050816] shadow-[0_0_80px_rgba(0,212,255,0.18)]">
             <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Algobot_%20Trade%20Smarter%20in%20Neon%20Futures-sGzpSb0yOSpnn2ZacF1o9fIVk2k7PK.png" alt="AlgoBot neon trading platform hero with AI trader, live market dashboard, and portfolio analytics" className="block h-auto w-full" />
             <div className="absolute bottom-[8%] left-[5%] flex flex-wrap gap-3">

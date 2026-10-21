@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       {
-        url: '/favicon-32.png',
+        url: '/algobot-logo.png',
         sizes: '32x32',
         type: 'image/png',
       },
@@ -48,8 +48,8 @@ export const metadata: Metadata = {
         type: 'image/png',
       },
     ],
-    shortcut: '/favicon-32.png',
-    apple: '/apple-icon.png',
+    shortcut: '/algobot-logo.png',
+    apple: '/algobot-logo.png',
   },
 }
 
@@ -75,9 +75,9 @@ export default function RootLayout({
   return (
     <html lang="en" className={inter.className} style={{ backgroundColor: '#050816' }}>
       <head>
-        <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
+        <link rel="icon" href="/algobot-logo.png" sizes="32x32" type="image/png" />
         <link rel="icon" href="/icon.svg" type="image/svg+xml" />
-        <link rel="shortcut icon" href="/favicon-32.png" />
+        <link rel="shortcut icon" href="/algobot-logo.png" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />

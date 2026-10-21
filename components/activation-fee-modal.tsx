@@ -94,6 +94,7 @@ export function ActivationFeeModal({ serverIsActivated, createdAt }: { serverIsA
       setPaymentMethods(methods)
       setPlans(loadedPlans)
       setSelectedPlanId(loadedPlans[0]?.id ?? 1)
+      setSelectedMethod(methods.find((method) => method.upiId)?.method ?? methods[0]?.method ?? null)
     } catch {
       // silent
     } finally {
@@ -307,9 +308,11 @@ export function ActivationFeeModal({ serverIsActivated, createdAt }: { serverIsA
                               </div>
                               {method.upiId && <CopyBtn text={method.upiId} />}
                               {method.upiId && isSelected && qrDataUrl ? (
-                                <img src={qrDataUrl} alt={`QR code to pay ₹${selectedAmount.toLocaleString('en-IN')} to ${method.label}`} className="h-20 w-20 rounded-lg bg-white object-contain p-1 shadow-lg" />
+                                <img src={qrDataUrl} alt={`QR code to pay ₹${selectedAmount.toLocaleString('en-IN')} to ${method.label}`} className="h-24 w-24 shrink-0 rounded-lg bg-white object-contain p-1 shadow-lg" />
                               ) : method.qrImageUrl ? (
-                                <img src={method.qrImageUrl} alt={`${method.label} INR payment QR code`} className="h-20 w-20 rounded-lg bg-white object-contain p-1 opacity-70" />
+                                <img src={method.qrImageUrl} alt={`${method.label} INR payment QR code`} className="h-24 w-24 shrink-0 rounded-lg bg-white object-contain p-1 opacity-70" />
+                              ) : isSelected ? (
+                                <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-lg border border-dashed border-amber-500/40 text-center text-[10px] text-amber-300">UPI ID required for QR</div>
                               ) : null}
                             </div>
                           </div>

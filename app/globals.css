@@ -1,4 +1,14 @@
 @import 'tailwindcss';
+
+html {
+  scroll-behavior: smooth;
+  background: var(--arb-navy);
+}
+
+::selection {
+  background: rgba(0, 212, 255, 0.28);
+  color: #F5F8FC;
+}
 @import 'tw-animate-css';
 @import 'shadcn/tailwind.css';
 
@@ -57,6 +67,11 @@
   --arb-muted:     #9BA7B8;
   --arb-navy:      #081426;
   --arb-line:      rgba(125, 190, 255, 0.16);
+  --arb-surface:   #0E1324;
+  --arb-surface-2: #111C31;
+  --arb-ink:       #F5F8FC;
+  --arb-soft-ink:  #A7B4C8;
+  --arb-focus:     #00D4FF;
 
   --background: #050816;
   --foreground: #FFFFFF;

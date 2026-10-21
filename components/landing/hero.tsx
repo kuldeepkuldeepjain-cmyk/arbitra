@@ -175,6 +175,7 @@ export function Hero() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
+            id="hero-title"
             className="text-5xl md:text-7xl font-extrabold text-white tracking-tight leading-[1.05] text-balance mb-6"
           >
             Build a more disciplined trading workflow.
@@ -307,7 +308,11 @@ export function Hero() {
         transition={{ duration: 0.6, delay: 1 }}
         className="relative z-10 w-full border-t border-white/[0.06] mt-8 py-4 overflow-hidden"
       >
-        <p className="text-center text-xs text-[#98A2B3] mb-3">Supported Exchanges</p>
+        <div className="mb-4 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-center text-[10px] font-semibold uppercase tracking-[0.18em] text-[#7894B8]">
+          <span className="h-1.5 w-1.5 rounded-full bg-[#4ADE80]" />
+          Built for transparent, controlled execution
+        </div>
+        <p className="text-center text-xs text-[#98A2B3] mb-3">Connect the markets you already trade</p>
         <div className="flex items-center justify-center gap-6 flex-wrap px-6">
           {exchanges.map((ex) => (
             <span key={ex} className="text-sm font-medium text-[#98A2B3]/60 hover:text-[#98A2B3] transition-colors">

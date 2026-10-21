@@ -157,19 +157,7 @@ export function Registration() {
         country: form.country || undefined,
       })
 
-      // Step 4: Request the code explicitly. Better Auth is configured not to send
-      // verification mail automatically during sign-up.
-      const { error: otpSendError } = await authClient.emailOtp.sendVerificationOtp({
-        email: form.email.toLowerCase().trim(),
-        type: 'email-verification',
-      })
-      if (otpSendError) {
-        console.error('[v0] Registration OTP request failed:', otpSendError)
-        setError('We could not send the verification code. Check your email delivery settings or try again.')
-        return
-      }
-      setOtp('')
-      setOtpStep(true)
+      setSubmitted(true)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.')
       refreshChallenge()
@@ -226,10 +214,10 @@ export function Registration() {
                   </div>
                   <h3 className="text-xl font-bold text-white mb-2">Check your email</h3>
                   <p className="text-[#98A2B3] text-sm mb-2">
-                    Your account has been created. Verify your email to continue securely.
+                    Your account has been created. You can now sign in securely.
                   </p>
                   <p className="text-xs text-[#98A2B3]/60 mb-6">
-                    If the message is not visible, check spam or request a new code from the sign-in page.
+                    Your profile and registration details have been saved to your account.
                   </p>
                   <Link
                     href="/sign-in"

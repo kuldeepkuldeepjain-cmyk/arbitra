@@ -299,7 +299,7 @@ export async function getActivationStatus() {
 }
 
 // Submit a $100 activation fee payment (trader submits tx hash for admin review)
-export async function submitActivationFee(txHash: string, amount = ACTIVATION_FEE) {
+export async function submitActivationFee(txHash: string, amount = ACTIVATION_FEE, details?: { paymentMethod?: string; network?: string; planId?: number }) {
   const session = await auth.api.getSession({ headers: await headers() })
   if (!session?.user) throw new Error('Unauthorized')
 
@@ -319,6 +319,9 @@ export async function submitActivationFee(txHash: string, amount = ACTIVATION_FE
     userId: session.user.id,
     amount: String(amount),
     txHash: txHash.trim(),
+    paymentMethod: details?.paymentMethod?.trim() || null,
+    network: details?.network?.trim() || null,
+    planId: details?.planId ?? null,
     status: 'pending',
   })
 

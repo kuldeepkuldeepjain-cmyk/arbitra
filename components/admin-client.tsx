@@ -55,7 +55,7 @@ interface ActivationFeeReq {
   trader: { name: string | null; email: string; referredBy: string | null } | null
 }
 interface ActivationPaymentMethod {
-  id: number; method: string; label: string; upiId: string | null; qrImageUrl: string | null
+  id: number; method: string; label: string; currency: string; upiId: string | null; walletAddress: string | null; qrImageUrl: string | null
   instructions: string | null; isActive: boolean; createdAt: Date; updatedAt: Date
 }
 interface WithdrawalReq {
@@ -164,7 +164,7 @@ export default function AdminClient() {
   const [rejectNote, setRejectNote] = useState('')
   const [showRejectModal, setShowRejectModal] = useState<number | null>(null)
   const [paymentMethods, setPaymentMethods] = useState<ActivationPaymentMethod[]>([])
-  const [paymentForm, setPaymentForm] = useState({ method: 'upi', label: 'UPI', upiId: '', qrImageUrl: '', instructions: '' })
+  const [paymentForm, setPaymentForm] = useState({ method: 'upi', label: 'UPI', currency: 'INR', upiId: '', walletAddress: '', qrImageUrl: '', instructions: '' })
   const [savingPaymentMethod, setSavingPaymentMethod] = useState(false)
   const [activationPlans, setActivationPlans] = useState<Array<{ id: number; name: string; durationMonths: number; priceInr: string; description: string | null; isActive: boolean }>>([])
   const [planForm, setPlanForm] = useState({ name: '1 Month', durationMonths: '1', priceInr: '999', description: 'Algo Bot access' })
@@ -1129,18 +1129,20 @@ export default function AdminClient() {
             <Card className="bg-slate-900 border-slate-800">
               <div className="px-6 py-4 border-b border-slate-800">
                 <h2 className="text-white font-bold text-lg">Activation Payment Details</h2>
-                <p className="text-slate-500 text-xs mt-1">Configure the UPI ID, QR image URL, and instructions traders see when activating for ₹999/month.</p>
+                <p className="text-slate-500 text-xs mt-1">Configure INR UPI or USDT TRC20, BEP20, and ERC20 destinations. Traders submit proof and activation is approved here.</p>
               </div>
               <form onSubmit={savePaymentMethod} className="p-6 grid gap-4 md:grid-cols-2">
                 <input value={paymentForm.label} onChange={e => setPaymentForm(v => ({ ...v, label: e.target.value }))} placeholder="Label e.g. UPI" className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white" required />
-                <input value={paymentForm.method} onChange={e => setPaymentForm(v => ({ ...v, method: e.target.value }))} placeholder="Method key e.g. upi" className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white" required />
-                <input value={paymentForm.upiId} onChange={e => setPaymentForm(v => ({ ...v, upiId: e.target.value }))} placeholder="UPI ID e.g. pay@upi" className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white" />
+                <input value={paymentForm.method} onChange={e => setPaymentForm(v => ({ ...v, method: e.target.value }))} placeholder="Method key: upi / trc20" className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white" required />
+                <input value={paymentForm.currency} onChange={e => setPaymentForm(v => ({ ...v, currency: e.target.value }))} placeholder="Currency: INR or USDT" className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white" required />
+                <input value={paymentForm.upiId} onChange={e => setPaymentForm(v => ({ ...v, upiId: e.target.value }))} placeholder="UPI ID for INR (optional)" className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white" />
+                <input value={paymentForm.walletAddress} onChange={e => setPaymentForm(v => ({ ...v, walletAddress: e.target.value }))} placeholder="USDT wallet address for crypto" className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white" />
                 <div className="space-y-2"><input type="url" value={paymentForm.qrImageUrl} onChange={e => setPaymentForm(v => ({ ...v, qrImageUrl: e.target.value }))} placeholder="QR image URL" className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white" />{paymentForm.qrImageUrl && <img src={paymentForm.qrImageUrl} alt="Payment QR preview" className="h-24 w-24 rounded-lg bg-white object-contain p-1" />}</div>
                 <input value={paymentForm.instructions} onChange={e => setPaymentForm(v => ({ ...v, instructions: e.target.value }))} placeholder="Instructions for traders" className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white md:col-span-2" />
                 <Button type="submit" disabled={savingPaymentMethod} className="md:col-span-2 bg-amber-600 hover:bg-amber-500 text-white">{savingPaymentMethod ? 'Saving...' : 'Save Payment Details'}</Button>
               </form>
               <div className="px-6 pb-6 space-y-2">
-                {paymentMethods.map(method => <div key={method.id} className="flex items-center justify-between rounded-lg border border-slate-800 bg-slate-950/40 p-3"><div><p className="text-white text-sm font-medium">{method.label}</p><p className="text-slate-500 text-xs">{method.upiId || 'QR only'}{method.isActive ? ' · Active' : ' · Hidden'}</p></div><Button type="button" variant="outline" size="sm" onClick={async () => { await toggleActivationPaymentMethod(method.id, !method.isActive); await loadPaymentMethods() }}>{method.isActive ? 'Hide' : 'Show'}</Button></div>)}
+                {paymentMethods.map(method => <div key={method.id} className="flex items-center justify-between rounded-lg border border-slate-800 bg-slate-950/40 p-3"><div><p className="text-white text-sm font-medium">{method.label}</p><p className="text-slate-500 text-xs">{method.currency === 'USDT' ? `${method.label} · ${method.walletAddress || 'Address not set'}` : (method.upiId || 'QR only')}{method.isActive ? ' · Active' : ' · Hidden'}</p></div><Button type="button" variant="outline" size="sm" onClick={async () => { await toggleActivationPaymentMethod(method.id, !method.isActive); await loadPaymentMethods() }}>{method.isActive ? 'Hide' : 'Show'}</Button></div>)}
               </div>
             </Card>
             <Card className="bg-slate-900 border-slate-800 overflow-hidden">

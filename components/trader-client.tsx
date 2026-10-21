@@ -257,12 +257,12 @@ export function TraderClient({ user, isActivated, createdAt }: { user: { id: str
           {/* Left: logo + status */}
           <div className="flex items-center gap-3 min-w-0">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shrink-0 shadow-lg shadow-amber-500/20">
-                <Zap className="w-4 h-4 text-white" />
-              </div>
-              <div className="hidden sm:block">
-                <p className="text-white font-bold text-sm leading-none tracking-tight">Arbitrage IQ</p>
-                <p className="text-slate-500 text-[10px] leading-none mt-0.5 font-medium">TRADING TERMINAL</p>
+              <div className="flex items-center gap-2">
+                <img src="/algobot-logo.png" alt="AlgoBot" className="h-9 w-auto max-w-[132px] shrink-0 object-contain" />
+                <div className="hidden sm:block">
+                  <p className="text-white font-bold text-sm leading-none tracking-tight">AlgoBot</p>
+                  <p className="text-slate-500 text-[10px] leading-none mt-0.5 font-medium">TRADING TERMINAL</p>
+                </div>
               </div>
             </div>
             {/* Live indicator */}

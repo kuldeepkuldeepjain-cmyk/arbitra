@@ -153,7 +153,6 @@ export function Registration() {
 
       // Step 3: Save extended profile fields (phone, country, experience)
       await saveRegistrationProfile({
-        userId: data.user.id,
         phone: form.phone || undefined,
         country: form.country || undefined,
       })

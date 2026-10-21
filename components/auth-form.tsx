@@ -172,7 +172,7 @@ function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
       if (signUpData?.user?.id) {
         try {
           const { saveRegistrationProfile } = await import('@/app/actions/secure-registration')
-          await saveRegistrationProfile({ userId: signUpData.user.id })
+          await saveRegistrationProfile({})
         } catch { /* non-fatal */ }
       }
 

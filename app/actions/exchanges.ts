@@ -45,14 +45,19 @@ export async function saveExchangeAccount(data: {
   const userId = await getUserId()
   const info = SUPPORTED_EXCHANGES[data.exchangeId]
   if (!info) throw new Error('Unsupported exchange')
+  const apiKey = data.apiKey.trim()
+  const apiSecret = data.apiSecret.trim()
+  const passphrase = data.passphrase?.trim() || null
+  if (apiKey.length < 8 || apiSecret.length < 8) throw new Error('API key and secret must be at least 8 characters.')
+  if (info.hasPassphrase && !passphrase) throw new Error(`${info.name} requires a passphrase.`)
 
   const [row] = await db.insert(exchangeAccounts).values({
     userId,
     exchange: data.exchangeId,
-    label: data.label || info.name,
-    apiKey: data.apiKey,
-    apiSecret: data.apiSecret,
-    passphrase: data.passphrase || null,
+    label: data.label.trim() || info.name,
+    apiKey,
+    apiSecret,
+    passphrase,
     tradeMode: data.tradeMode,
     isActive: true,
   }).returning()
@@ -138,6 +143,20 @@ export async function fetchExchangeBalance(accountId: number): Promise<Record<st
     if (amount && (amount as number) > 0) result[coin] = amount as number
   }
   return result
+}
+
+// ─── Fetch Live Market Price ────────────────────────────────────────────────
+export async function fetchLiveTickerPrice(accountId: number, symbol: string): Promise<number> {
+  const userId = await getUserId()
+  const [acc] = await db.select().from(exchangeAccounts).where(and(eq(exchangeAccounts.id, accountId), eq(exchangeAccounts.userId, userId))).limit(1)
+  if (!acc) throw new Error('Exchange account not found')
+  if (acc.tradeMode !== 'live') throw new Error('Selected exchange account is not in live mode')
+  const ccxt = await getCCXT()
+  const exchange = buildCCXTInstance(ccxt, acc.exchange, acc.apiKey, acc.apiSecret, acc.passphrase)
+  const ticker = await exchange.fetchTicker(symbol)
+  const price = Number(ticker.last ?? ticker.close ?? ticker.bid ?? 0)
+  if (!Number.isFinite(price) || price <= 0) throw new Error(`No live price available for ${symbol}`)
+  return price
 }
 
 // ─── Place Order ─────────────────────────────────────────────────────────────

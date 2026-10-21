@@ -153,7 +153,6 @@ export function Registration() {
 
       // Step 3: Save extended profile fields (phone, country, experience)
       await saveRegistrationProfile({
-        userId: data.user.id,
         phone: form.phone || undefined,
         country: form.country || undefined,
       })
@@ -165,7 +164,8 @@ export function Registration() {
         type: 'email-verification',
       })
       if (otpSendError) {
-        setError(otpSendError.message ?? 'Account created, but we could not send the verification code. Please try again.')
+        console.error('[v0] Registration OTP request failed:', otpSendError)
+        setError('We could not send the verification code. Check your email delivery settings or try again.')
         return
       }
       setOtp('')
@@ -226,10 +226,10 @@ export function Registration() {
                   </div>
                   <h3 className="text-xl font-bold text-white mb-2">Check your email</h3>
                   <p className="text-[#98A2B3] text-sm mb-2">
-                    Your AlgoBot account is verified. You can now sign in with your email and password.
+                    Your account has been created. Verify your email to continue securely.
                   </p>
                   <p className="text-xs text-[#98A2B3]/60 mb-6">
-                    Verify your email to securely continue to your AlgoBot dashboard.
+                    If the message is not visible, check spam or request a new code from the sign-in page.
                   </p>
                   <Link
                     href="/sign-in"

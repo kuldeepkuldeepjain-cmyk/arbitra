@@ -4,6 +4,7 @@ import { db } from '@/lib/db'
 import { user, registrationAudits } from '@/lib/db/schema'
 import { eq, and, gt, desc, count } from 'drizzle-orm'
 import { headers } from 'next/headers'
+import { auth } from '@/lib/auth'
 
 const CAPTCHA_SCORE_THRESHOLD = 0.5 // reCAPTCHA v3: score >= 0.5 is likely legitimate
 const RATE_LIMIT_WINDOW_MS = 3600000 // 1 hour
@@ -183,17 +184,19 @@ export async function registerWithCaptcha({
  * Called from the client after authClient.signUp.email() succeeds.
  */
 export async function saveRegistrationProfile({
-  userId,
   phone,
   country,
   tradingExperienceLevel,
 }: {
-  userId: string
   phone?: string
   country?: string
   tradingExperienceLevel?: string
 }): Promise<{ success: boolean }> {
   try {
+    const session = await auth.api.getSession({ headers: await headers() })
+    if (!session?.user?.id) throw new Error('You must be signed in to save your profile.')
+    const userId = session.user.id
+
     await db
       .update(user)
       .set({

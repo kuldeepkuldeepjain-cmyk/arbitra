@@ -162,7 +162,8 @@ function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
         type: 'email-verification',
       })
       if (otpError) {
-        setError(otpError.message ?? 'Account created, but we could not send the verification code. Please try again.')
+        console.error('[v0] Registration OTP request failed:', otpError)
+        setError('We could not send the verification code. Check your email delivery settings or try again.')
         setLoading(false)
         return
       }
@@ -172,7 +173,7 @@ function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
       if (signUpData?.user?.id) {
         try {
           const { saveRegistrationProfile } = await import('@/app/actions/secure-registration')
-          await saveRegistrationProfile({ userId: signUpData.user.id })
+          await saveRegistrationProfile({})
         } catch { /* non-fatal */ }
       }
 

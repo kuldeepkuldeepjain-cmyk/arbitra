@@ -164,7 +164,7 @@ export default function AdminClient() {
   const [rejectNote, setRejectNote] = useState('')
   const [showRejectModal, setShowRejectModal] = useState<number | null>(null)
   const [paymentMethods, setPaymentMethods] = useState<ActivationPaymentMethod[]>([])
-  const [paymentForm, setPaymentForm] = useState({ method: 'upi', label: 'UPI', currency: 'INR', upiId: '', walletAddress: '', qrImageUrl: '', instructions: '' })
+  const [paymentForm, setPaymentForm] = useState({ method: 'upi', label: 'UPI', currency: 'INR', upiId: 'sem@slc', walletAddress: '', qrImageUrl: '', instructions: '' })
   const [savingPaymentMethod, setSavingPaymentMethod] = useState(false)
   const [activationPlans, setActivationPlans] = useState<Array<{ id: number; name: string; durationMonths: number; priceInr: string; description: string | null; isActive: boolean }>>([])
   const [planForm, setPlanForm] = useState({ name: '1 Month', durationMonths: '1', priceInr: '999', description: 'Algo Bot access' })

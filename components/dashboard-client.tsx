@@ -82,7 +82,7 @@ export function DashboardClient({ user }: { user: any }) {
         <div className="mx-auto flex h-[72px] max-w-7xl items-center justify-between gap-3 px-4 sm:px-6">
           <button type="button" onClick={() => router.push('/')} className="flex min-w-0 items-center gap-3 text-left">
             <span className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-slate-950 shadow-sm">
-              <img src="/algobot-logo.png" alt="AlgoBot" className="size-10 object-contain" />
+              <img src="/icon.svg" alt="AlgoBot" className="size-8 object-contain" />
             </span>
             <span className="min-w-0">
               <span className="block truncate text-lg font-black tracking-tight">AlgoBot</span>

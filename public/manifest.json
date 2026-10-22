@@ -1,7 +1,7 @@
 {
-  "name": "ArbitrageIQ",
-  "short_name": "ArbitrageIQ",
-  "description": "Discover arbitrage opportunities before everyone else. Monitor prices across global exchanges and identify profitable trades.",
+  "name": "AlgoBot",
+  "short_name": "AlgoBot",
+  "description": "AlgoBot trading intelligence and account management.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
@@ -11,13 +11,13 @@
   "categories": ["finance", "business"],
   "screenshots": [
     {
-      "src": "/icon-512x512.png",
+      "src": "/algobot-logo.png",
       "sizes": "512x512",
       "type": "image/png",
       "form_factor": "wide"
     },
     {
-      "src": "/icon-192x192.png",
+      "src": "/algobot-logo.png",
       "sizes": "192x192",
       "type": "image/png",
       "form_factor": "narrow"
@@ -25,25 +25,25 @@
   ],
   "icons": [
     {
-      "src": "/icon-192x192.png",
+      "src": "/algobot-logo.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icon-512x512.png",
+      "src": "/algobot-logo.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icon-maskable.png",
+      "src": "/algobot-logo.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "/icon-maskable.png",
+      "src": "/algobot-logo.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
@@ -57,7 +57,7 @@
       "url": "/opportunities",
       "icons": [
         {
-          "src": "/icon-192x192.png",
+          "src": "/algobot-logo.png",
           "sizes": "192x192",
           "type": "image/png"
         }
@@ -70,7 +70,7 @@
       "url": "/trader",
       "icons": [
         {
-          "src": "/icon-192x192.png",
+          "src": "/algobot-logo.png",
           "sizes": "192x192",
           "type": "image/png"
         }

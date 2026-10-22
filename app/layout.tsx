@@ -22,20 +22,9 @@ export const metadata: Metadata = {
         type: 'image/png',
       },
       {
-        url: '/icon-light-32x32.png',
-        sizes: '32x32',
+        url: '/algobot-logo.png',
+        sizes: '192x192',
         type: 'image/png',
-        media: '(prefers-color-scheme: light)',
-      },
-      {
-        url: '/icon-dark-32x32.png',
-        sizes: '32x32',
-        type: 'image/png',
-        media: '(prefers-color-scheme: dark)',
-      },
-      {
-        url: '/icon.svg',
-        type: 'image/svg+xml',
       },
       {
         url: '/icon-192x192.png',
@@ -76,12 +65,11 @@ export default function RootLayout({
     <html lang="en" className={inter.className} style={{ backgroundColor: '#050816' }}>
       <head>
         <link rel="icon" href="/algobot-logo.png" sizes="32x32" type="image/png" />
-        <link rel="icon" href="/icon.svg" type="image/svg+xml" />
         <link rel="shortcut icon" href="/algobot-logo.png" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <meta name="apple-mobile-web-app-title" content="NexaAlgo" />
+        <meta name="apple-mobile-web-app-title" content="AlgoBot" />
       </head>
       <body className="antialiased font-sans" style={{ backgroundColor: '#050816', color: '#FFFFFF' }}>
         {children}

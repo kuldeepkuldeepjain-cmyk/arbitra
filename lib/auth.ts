@@ -44,7 +44,7 @@ export const auth = betterAuth({
           method: 'POST',
           headers: { accept: 'application/json', 'api-key': token, 'content-type': 'application/json' },
           body: JSON.stringify({
-            sender: { name: 'AlgoBot', email: process.env.SENDINBLUE_SENDER_EMAIL ?? 'noreply@algobot.com' },
+            sender: { name: 'AlgoBot', email: process.env.SENDINBLUE_SENDER_EMAIL ?? 'arbitrageiq5@gmail.com' },
             to: [{ email }],
             subject,
             htmlContent: `<div style="font-family:Arial,sans-serif;max-width:560px;margin:auto;color:#0b1220"><h1 style="color:#087ea4">${type === 'forget-password' ? 'Reset your AlgoBot password' : 'Your AlgoBot verification code'}</h1><p>${type === 'forget-password' ? 'Use this one-time code to securely reset your password:' : 'Use this one-time code to verify your email and continue:'}</p><p style="font-size:32px;font-weight:800;letter-spacing:10px;color:#050816">${otp}</p><p style="color:#64748b;font-size:13px">This code expires in 15 minutes. If you did not request it, you can ignore this email.</p></div>`,
@@ -70,7 +70,7 @@ export const auth = betterAuth({
         method: 'POST',
         headers: { accept: 'application/json', 'api-key': token, 'content-type': 'application/json' },
         body: JSON.stringify({
-          sender: { name: 'AlgoBot', email: process.env.SENDINBLUE_SENDER_EMAIL ?? 'noreply@algobot.com' },
+          sender: { name: 'AlgoBot', email: process.env.SENDINBLUE_SENDER_EMAIL ?? 'arbitrageiq5@gmail.com' },
           to: [{ email: user.email }],
           subject: 'Verify your AlgoBot email',
           htmlContent: `<div style="font-family:Arial,sans-serif;max-width:560px;margin:auto;color:#0b1220"><h1 style="color:#087ea4">Verify your AlgoBot email</h1><p>Welcome to AlgoBot. Confirm your email address to activate your account.</p><p><a href="${url}" style="display:inline-block;background:#00d4ff;color:#050816;padding:12px 20px;border-radius:8px;text-decoration:none;font-weight:700">Verify email</a></p><p style="color:#64748b;font-size:13px">This link expires soon. If you did not create an AlgoBot account, you can ignore this email.</p></div>`,

@@ -173,7 +173,8 @@ function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
         } catch { /* non-fatal */ }
       }
       setLoading(false)
-      window.location.href = '/trader'
+      setOtpSent(true)
+      setError('A verification code was sent to your email. Enter it to continue.')
       return
     } else {
       if (loginMethod === 'otp') {
@@ -279,7 +280,12 @@ function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           {otpSent ? (
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-4">
+              <div className="flex items-start gap-3 rounded-lg border border-border bg-muted/40 p-4">
+                <Shield className="mt-0.5 size-4 shrink-0 text-primary" />
+                <div><p className="text-sm font-medium text-foreground">Check your inbox</p><p className="mt-1 text-xs leading-5 text-muted-foreground">Enter the 6-digit code we sent to {email}. It expires in 15 minutes.</p></div>
+              </div>
+              <div className="flex flex-col gap-2">
               <Label htmlFor="otp">Verification code</Label>
               <Input
                 id="otp"
@@ -293,6 +299,7 @@ function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
                 autoFocus
                 className="text-center text-2xl font-bold tracking-[0.45em]"
               />
+              </div>
             </div>
           ) : isSignUp ? (
             <>

@@ -1,6 +1,5 @@
 import { betterAuth } from 'better-auth'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
-import { Resend } from 'resend'
 import { emailOTP } from 'better-auth/plugins'
 import { db } from '@/lib/db'
 import * as schema from '@/lib/db/schema'
@@ -33,24 +32,26 @@ export const auth = betterAuth({
     emailOTP({
       otpLength: 6,
       expiresIn: 900,
-      sendVerificationOnSignUp: false,
+      sendVerificationOnSignUp: true,
       sendVerificationOTP: async ({ email, otp, type }) => {
-        if (!process.env.RESEND_API_KEY) {
-          console.error('[v0] OTP delivery is unavailable: RESEND_API_KEY is missing')
+        const token = process.env.SENDINBLUE_API_TOKEN
+        if (!token) {
+          console.error('[v0] OTP delivery is unavailable: SENDINBLUE_API_TOKEN is missing')
           throw new Error('Email delivery is not configured')
         }
-        const resend = new Resend(process.env.RESEND_API_KEY)
-        const { error } = await resend.emails.send(
-          {
-            from: process.env.RESEND_FROM_EMAIL ?? 'AlgoBot <onboarding@resend.dev>',
-            to: email,
-            subject: type === 'sign-in' ? 'Your AlgoBot sign-in code' : type === 'forget-password' ? 'Reset your AlgoBot password' : 'Verify your AlgoBot account',
-            html: `<div style="font-family:Arial,sans-serif;max-width:560px;margin:auto;color:#0b1220"><h1 style="color:#087ea4">${type === 'forget-password' ? 'Reset your AlgoBot password' : 'Your AlgoBot verification code'}</h1><p>${type === 'forget-password' ? 'Use this one-time code to securely reset your password:' : 'Use this one-time code to continue:'}</p><p style="font-size:32px;font-weight:800;letter-spacing:10px;color:#050816">${otp}</p><p style="color:#64748b;font-size:13px">This code expires in 15 minutes. If you did not request it, you can ignore this email.</p></div>`,
-          },
-          { idempotencyKey: `otp/${type}/${email}/${otp}` },
-        )
-        if (error) {
-          console.error('[v0] Resend OTP email failed:', error.message)
+        const subject = type === 'sign-in' ? 'Your AlgoBot sign-in code' : type === 'forget-password' ? 'Reset your AlgoBot password' : 'Verify your AlgoBot account'
+        const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+          method: 'POST',
+          headers: { accept: 'application/json', 'api-key': token, 'content-type': 'application/json' },
+          body: JSON.stringify({
+            sender: { name: 'AlgoBot', email: process.env.SENDINBLUE_SENDER_EMAIL ?? 'arbitrageiq5@gmail.com' },
+            to: [{ email }],
+            subject,
+            htmlContent: `<div style="font-family:Arial,sans-serif;max-width:560px;margin:auto;color:#0b1220"><h1 style="color:#087ea4">${type === 'forget-password' ? 'Reset your AlgoBot password' : 'Your AlgoBot verification code'}</h1><p>${type === 'forget-password' ? 'Use this one-time code to securely reset your password:' : 'Use this one-time code to verify your email and continue:'}</p><p style="font-size:32px;font-weight:800;letter-spacing:10px;color:#050816">${otp}</p><p style="color:#64748b;font-size:13px">This code expires in 15 minutes. If you did not request it, you can ignore this email.</p></div>`,
+          }),
+        })
+        if (!response.ok) {
+          console.error('[v0] Brevo OTP email failed:', response.status, await response.text())
           throw new Error('Unable to send verification code')
         }
       },
@@ -60,22 +61,23 @@ export const auth = betterAuth({
     sendOnSignUp: false,
     autoSignInAfterVerification: true,
     sendVerificationEmail: async ({ user, url }) => {
-      if (!process.env.RESEND_API_KEY) {
-        console.error('[v0] Verification email unavailable: RESEND_API_KEY is missing')
+      const token = process.env.SENDINBLUE_API_TOKEN
+      if (!token) {
+        console.error('[v0] Verification email unavailable: SENDINBLUE_API_TOKEN is missing')
         throw new Error('Email delivery is not configured')
       }
-      const resend = new Resend(process.env.RESEND_API_KEY)
-      const { error } = await resend.emails.send(
-        {
-          from: process.env.RESEND_FROM_EMAIL ?? 'AlgoBot <onboarding@resend.dev>',
-          to: user.email,
+      const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+        method: 'POST',
+        headers: { accept: 'application/json', 'api-key': token, 'content-type': 'application/json' },
+        body: JSON.stringify({
+          sender: { name: 'AlgoBot', email: process.env.SENDINBLUE_SENDER_EMAIL ?? 'arbitrageiq5@gmail.com' },
+          to: [{ email: user.email }],
           subject: 'Verify your AlgoBot email',
-          html: `<div style="font-family:Arial,sans-serif;max-width:560px;margin:auto;color:#0b1220"><h1 style="color:#087ea4">Verify your AlgoBot email</h1><p>Welcome to AlgoBot. Confirm your email address to activate your account.</p><p><a href="${url}" style="display:inline-block;background:#00d4ff;color:#050816;padding:12px 20px;border-radius:8px;text-decoration:none;font-weight:700">Verify email</a></p><p style="color:#64748b;font-size:13px">This link expires soon. If you did not create an AlgoBot account, you can ignore this email.</p></div>`,
-        },
-        { idempotencyKey: `verify-email/${user.id}` },
-      )
-      if (error) {
-        console.error('[v0] Resend verification email failed:', error.message)
+          htmlContent: `<div style="font-family:Arial,sans-serif;max-width:560px;margin:auto;color:#0b1220"><h1 style="color:#087ea4">Verify your AlgoBot email</h1><p>Welcome to AlgoBot. Confirm your email address to activate your account.</p><p><a href="${url}" style="display:inline-block;background:#00d4ff;color:#050816;padding:12px 20px;border-radius:8px;text-decoration:none;font-weight:700">Verify email</a></p><p style="color:#64748b;font-size:13px">This link expires soon. If you did not create an AlgoBot account, you can ignore this email.</p></div>`,
+        }),
+      })
+      if (!response.ok) {
+        console.error('[v0] Brevo verification email failed:', response.status, await response.text())
         throw new Error('Unable to send verification email')
       }
     },

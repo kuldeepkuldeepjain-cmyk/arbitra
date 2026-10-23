@@ -2,7 +2,7 @@
 
 import { FormEvent, useState } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, CheckCircle2, Loader2, ShieldCheck } from 'lucide-react'
+import { ArrowLeft, CheckCircle2, Loader2, MailCheck, ShieldCheck } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { authClient } from '@/lib/auth-client'
@@ -63,24 +63,28 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#020914] px-4 py-10 text-white sm:py-16">
-      <div className="mx-auto flex min-h-[80vh] max-w-md flex-col justify-center">
-        <Link href="/sign-in" className="mb-8 inline-flex items-center gap-2 text-sm text-[#8eafd9] hover:text-[#00c8ff]">
-          <ArrowLeft className="h-4 w-4" /> Back to sign in
+    <main className="flex min-h-svh items-center justify-center bg-background px-4 py-8">
+      <div className="flex w-full max-w-sm flex-col justify-center">
+        <Link href="/sign-in" className="group mb-5 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground">
+          <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-0.5" /> Back to sign in
         </Link>
-        <div className="rounded-[24px] border border-[#078dff] bg-[#071426]/90 p-7 shadow-[0_0_70px_rgba(0,132,255,0.18)] backdrop-blur-xl sm:p-10">
+        <div className="rounded-xl border border-border bg-card p-6 shadow-sm sm:p-7">
           {step === 'done' ? (
             <div className="text-center">
-              <CheckCircle2 className="mx-auto mb-5 h-14 w-14 text-[#00c8ff]" />
-              <h1 className="text-3xl font-bold">Password updated</h1>
-              <p className="mt-3 text-sm leading-6 text-[#8eafd9]">Your password has been reset successfully.</p>
-              <Link href="/sign-in" className="mt-7 inline-flex rounded-xl bg-[#00c8ff] px-6 py-3 text-sm font-semibold text-[#020914]">Continue to sign in</Link>
+              <CheckCircle2 className="mx-auto mb-5 size-12 text-primary" />
+              <h1 className="text-2xl font-semibold tracking-tight text-foreground">Password updated</h1>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">Your password has been reset successfully.</p>
+              <Link href="/sign-in" className="mt-6 inline-flex rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground">Continue to sign in</Link>
             </div>
           ) : (
             <>
-              <ShieldCheck className="mb-5 h-9 w-9 text-[#00c8ff]" />
-              <h1 className="text-3xl font-bold">Reset your password</h1>
-              <p className="mt-2 text-sm leading-6 text-[#8eafd9]">We&apos;ll send a one-time 6-digit code from AlgoBot to verify your email.</p>
+              <div className="mb-5 flex items-center gap-3">
+                <img src="/algobot-logo.png" alt="AlgoBot" className="size-12 rounded-xl object-contain" />
+                <div><p className="text-sm font-bold tracking-tight text-foreground">AlgoBot</p><p className="text-xs text-muted-foreground">Secure account recovery</p></div>
+              </div>
+              <ShieldCheck className="mb-4 size-8 text-primary" />
+              <h1 className="text-2xl font-semibold tracking-tight text-foreground">Reset your password</h1>
+              <p className="mt-1 text-sm leading-6 text-muted-foreground">We&apos;ll send a one-time 6-digit code from AlgoBot to verify your email.</p>
               <form onSubmit={handleSubmit} className="mt-8 flex flex-col gap-5">
                 <div className="flex flex-col gap-2">
                   <Label htmlFor="reset-email">Email address</Label>
@@ -88,7 +92,7 @@ export default function ForgotPasswordPage() {
                 </div>
                 {step === 'otp' && (
                   <>
-                    <div className="rounded-xl border border-[#008dff] bg-[#061b35]/70 p-4 text-sm text-[#8eafd9]">A 6-digit code was sent to <span className="font-medium text-white">{email}</span>. It expires in 15 minutes.</div>
+                    <div className="flex items-start gap-3 rounded-lg border border-border bg-muted/40 p-4 text-sm text-muted-foreground"><MailCheck className="mt-0.5 size-4 shrink-0 text-primary" /><span>A 6-digit code was sent to <span className="font-medium text-foreground">{email}</span>. It expires in 15 minutes.</span></div>
                     <div className="flex flex-col gap-2">
                       <Label htmlFor="reset-otp">Verification code</Label>
                       <Input id="reset-otp" inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{6}" maxLength={6} required value={otp} onChange={(event) => setOtp(event.target.value.replace(/\D/g, '').slice(0, 6))} className="text-center font-mono text-2xl font-bold tracking-[0.35em]" />
@@ -103,8 +107,8 @@ export default function ForgotPasswordPage() {
                     </div>
                   </>
                 )}
-                {error && <p role="alert" className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-300">{error}</p>}
-                <button type="submit" disabled={loading || (step === 'otp' && otp.length !== 6)} className="flex items-center justify-center gap-2 rounded-xl bg-[#00c8ff] px-5 py-3.5 text-sm font-semibold text-[#020914] transition hover:bg-[#38d7ff] disabled:cursor-not-allowed disabled:opacity-60">
+                {error && <p role="alert" className="rounded-lg border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive">{error}</p>}
+                <button type="submit" disabled={loading || (step === 'otp' && otp.length !== 6)} className="flex items-center justify-center gap-2 rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60">
                   {loading && <Loader2 className="h-4 w-4 animate-spin" />}
                   {loading ? 'Please wait...' : step === 'email' ? 'Send reset code' : 'Reset password'}
                 </button>

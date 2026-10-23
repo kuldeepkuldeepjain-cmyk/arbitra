@@ -53,6 +53,7 @@ function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
   const [referralValid, setReferralValid] = useState<boolean | null>(null)
   const [referralChecking, setReferralChecking] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [successMessage, setSuccessMessage] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [resending, setResending] = useState(false)
 
@@ -99,6 +100,7 @@ function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
+    setSuccessMessage(null)
     setCaptchaError(false)
 
     // ── Sign-up: verify captcha before anything else ────────────────────────
@@ -174,7 +176,7 @@ function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
       }
       setLoading(false)
       setOtpSent(true)
-      setError('A verification code was sent to your email. Enter it to continue.')
+      setSuccessMessage(`Verification code sent successfully to ${email}. Enter the code below to complete your account.`)
       return
     } else {
       if (loginMethod === 'otp') {
@@ -237,7 +239,7 @@ function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
       type: isSignUp ? 'email-verification' : 'sign-in',
     })
     if (resendError) setError(resendError.message ?? 'Unable to resend the verification code.')
-    else setError('A new verification code was sent.')
+    else setSuccessMessage(`A new verification code was sent to ${email}.`)
     setResending(false)
   }
 
@@ -412,6 +414,11 @@ function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
           )}
 
 
+          {successMessage && (
+            <div className="rounded-lg border border-emerald-500/25 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-700 dark:text-emerald-300" role="status">
+              {successMessage}
+            </div>
+          )}
           {error && (
             <p className="text-sm text-destructive" role="alert">
               {error}

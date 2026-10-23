@@ -111,6 +111,8 @@ export const auth = betterAuth({
     // Primary origin from env (set per-environment via Vercel CLI)
     ...(process.env.BETTER_AUTH_URL ? [process.env.BETTER_AUTH_URL] : []),
     // Known static aliases — all production & preview domains for this project
+    'https://algobot.online',
+    'https://www.algobot.online',
     'https://arbitrageiq.exchange',
     'https://www.arbitrageiq.exchange',
     'https://arbitra-rho.vercel.app',

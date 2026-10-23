@@ -173,7 +173,8 @@ function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
         } catch { /* non-fatal */ }
       }
       setLoading(false)
-      window.location.href = '/trader'
+      setOtpSent(true)
+      setError('A verification code was sent to your email. Enter it to continue.')
       return
     } else {
       if (loginMethod === 'otp') {

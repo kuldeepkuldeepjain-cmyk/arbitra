@@ -16,6 +16,9 @@ export default async function TraderPage() {
 
   if (!session?.user) redirect('/sign-in')
 
+  const emailVerified = Boolean((session.user as unknown as { emailVerified?: boolean }).emailVerified)
+  if (!emailVerified) redirect('/sign-in?verify=required')
+
   const role = (session.user as unknown as { role?: string }).role ?? 'viewer'
   if (role === 'admin') redirect('/admin')
   if (role === 'protrader') redirect('/protrader')

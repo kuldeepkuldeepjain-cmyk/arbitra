@@ -36,6 +36,7 @@ type Network = 'TRC20' | 'BEP20' | 'ERC20'
 interface User {
   id: string; name: string | null; email: string; role: string; isActivated: boolean; createdAt: Date
   lastLoginAt: Date | string | null; lastLoginIp: string | null
+  lastActiveAt: Date | string | null; sessionExpiresAt: Date | string | null; lastUserAgent: string | null
 }
 interface DepositAddress { id: number; network: string; address: string; label: string | null; isActive: boolean; createdAt: Date }
 interface FundRequest {
@@ -644,7 +645,7 @@ export default function AdminClient() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-slate-800 bg-slate-950/40">
-                      {['Name', 'Email', 'Role', 'Password', 'Joined', 'Last Login', 'Login IP', 'Actions'].map(h => (
+                      {['Name', 'Email', 'Role', 'Password', 'Joined', 'Last Login', 'Last Active', 'Status', 'Login IP', 'Actions'].map(h => (
                         <th key={h} className="px-5 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{h}</th>
                       ))}
                     </tr>
@@ -652,7 +653,7 @@ export default function AdminClient() {
                   <tbody>
                     {users.map((u, i) => (
                       <tr key={u.id} className={`border-b border-slate-800/60 hover:bg-slate-800/30 transition-colors ${i % 2 !== 0 ? 'bg-slate-900/20' : ''}`}>
-                        <td className="px-5 py-3.5 text-white font-medium">{u.name || '—'}</td>
+                        <td className="px-5 py-3.5 text-white font-medium" title={`ID: ${u.id}${u.lastUserAgent ? `\nDevice: ${u.lastUserAgent}` : ''}`}>{u.name || '—'}<div className="mt-1 text-[10px] font-normal text-slate-600">ID: {u.id.slice(0, 8)}…</div></td>
                         <td className="px-5 py-3.5 text-slate-400">{u.email}</td>
                         <td className="px-5 py-3.5">
                           <div className="flex items-center gap-2">
@@ -697,7 +698,7 @@ export default function AdminClient() {
                           )}
                         </td>
                         <td className="px-5 py-3.5 text-slate-500 text-xs">{new Date(u.createdAt).toLocaleDateString()}</td>
-                        <td className="px-5 py-3.5 text-xs">
+                        <td className="px-5 py-3.5 text-xs" title={u.sessionExpiresAt ? `Session expires: ${new Date(u.sessionExpiresAt).toLocaleString()}` : undefined}>
                           {u.lastLoginAt ? (
                             <div className="flex items-center gap-1.5 text-slate-300 whitespace-nowrap" title={new Date(u.lastLoginAt).toLocaleString()}>
                               <LogIn className="w-3.5 h-3.5 text-emerald-400" />
@@ -706,6 +707,19 @@ export default function AdminClient() {
                           ) : (
                             <span className="text-slate-600 italic">Never</span>
                           )}
+                        </td>
+                        <td className="px-5 py-3.5 text-xs">
+                          {u.lastActiveAt ? (
+                            <div className="flex items-center gap-1.5 text-slate-300 whitespace-nowrap" title={new Date(u.lastActiveAt).toLocaleString()}>
+                              <Activity className="w-3.5 h-3.5 text-cyan-400" />
+                              {new Date(u.lastActiveAt).toLocaleString()}
+                            </div>
+                          ) : <span className="text-slate-600 italic">Never</span>}
+                        </td>
+                        <td className="px-5 py-3.5 text-xs">
+                          {u.lastActiveAt && Date.now() - new Date(u.lastActiveAt).getTime() < 15 * 60 * 1000 ? (
+                            <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2 py-1 text-emerald-300"><span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />Active now</span>
+                          ) : <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-700 bg-slate-800/60 px-2 py-1 text-slate-500"><span className="h-1.5 w-1.5 rounded-full bg-slate-600" />Offline</span>}
                         </td>
                         <td className="px-5 py-3.5 text-xs">
                           {u.lastLoginIp ? (

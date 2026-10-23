@@ -48,12 +48,12 @@ export async function getAllUsers() {
 
   const [users, sessions] = await Promise.all([
     db.select().from(user).orderBy(user.createdAt),
-    db.select({ userId: sessionTable.userId, createdAt: sessionTable.createdAt, ipAddress: sessionTable.ipAddress })
+    db.select({ userId: sessionTable.userId, createdAt: sessionTable.createdAt, updatedAt: sessionTable.updatedAt, expiresAt: sessionTable.expiresAt, ipAddress: sessionTable.ipAddress, userAgent: sessionTable.userAgent })
       .from(sessionTable)
       .orderBy(desc(sessionTable.createdAt)),
   ])
 
-  const latestSessionByUser = new Map<string, { createdAt: Date; ipAddress: string | null }>()
+  const latestSessionByUser = new Map<string, { createdAt: Date; updatedAt: Date; expiresAt: Date; ipAddress: string | null; userAgent: string | null }>()
   for (const session of sessions) {
     if (!latestSessionByUser.has(session.userId)) {
       latestSessionByUser.set(session.userId, session)
@@ -69,6 +69,9 @@ export async function getAllUsers() {
     createdAt: u.createdAt,
     lastLoginAt: u.lastLoginAt ?? latestSessionByUser.get(u.id)?.createdAt ?? null,
     lastLoginIp: u.lastLoginIp ?? latestSessionByUser.get(u.id)?.ipAddress ?? null,
+    lastActiveAt: latestSessionByUser.get(u.id)?.updatedAt ?? u.lastLoginAt ?? null,
+    sessionExpiresAt: latestSessionByUser.get(u.id)?.expiresAt ?? null,
+    lastUserAgent: latestSessionByUser.get(u.id)?.userAgent ?? null,
   }))
 }
 

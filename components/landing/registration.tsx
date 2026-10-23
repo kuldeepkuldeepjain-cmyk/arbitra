@@ -121,6 +121,20 @@ export function Registration() {
           return
         }
 
+        const { error: signInError } = await authClient.signIn.email({
+          email: form.email.toLowerCase().trim(),
+          password: form.password,
+        })
+        if (signInError) {
+          setError('Email verified. Please sign in to continue.')
+          setOtpStep(false)
+          return
+        }
+
+        await saveRegistrationProfile({
+          phone: form.phone || undefined,
+          country: form.country || undefined,
+        })
         setOtpStep(false)
         setSubmitted(true)
         return

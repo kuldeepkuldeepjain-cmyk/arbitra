@@ -26,7 +26,7 @@ export const auth = betterAuth({
           : 'http://localhost:3000'),
   emailAndPassword: {
     enabled: true,
-    autoSignIn: true,
+    autoSignIn: false,
   },
   plugins: [
     emailOTP({

@@ -165,13 +165,10 @@ export function Registration() {
         return
       }
 
-      // Step 3: Save extended profile fields (phone, country, experience)
-      await saveRegistrationProfile({
-        phone: form.phone || undefined,
-        country: form.country || undefined,
-      })
-
-      setSubmitted(true)
+      // Keep the customer in the registration flow until the emailed code is verified.
+      setOtp('')
+      setOtpStep(true)
+      setError(null)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.')
       refreshChallenge()
@@ -241,11 +238,12 @@ export function Registration() {
                   </Link>
                 </div>
               ) : otpStep ? (
-                <>
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#020914]/80 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="verify-email-title">
+                  <div className="w-full max-w-md rounded-2xl border border-[#078dff] bg-[#071426] p-7 shadow-[0_0_70px_rgba(0,132,255,0.28)] sm:p-9">
                   <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full border border-[#00D4FF]/30 bg-[#00D4FF]/10">
                     <ShieldCheck className="h-7 w-7 text-[#00D4FF]" />
                   </div>
-                  <h3 className="text-center text-xl font-bold text-white mb-2">Verify your email</h3>
+                  <h3 id="verify-email-title" className="text-center text-xl font-bold text-white mb-2">Enter your verification code</h3>
                   <p className="text-center text-sm text-[#98A2B3] mb-6">
                     Enter the 6-digit code sent to <span className="font-medium text-white">{form.email}</span>. The code is valid for 15 minutes.
                   </p>
@@ -286,7 +284,8 @@ export function Registration() {
                       Resend code
                     </button>
                   </form>
-                </>
+                  </div>
+                </div>
               ) : (
                 <>
                   <div className="mb-6 flex items-center gap-3">

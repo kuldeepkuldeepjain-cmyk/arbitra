@@ -47,7 +47,6 @@ function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
   const [password, setPassword] = useState('')
   const [otp, setOtp] = useState('')
   const [otpSent, setOtpSent] = useState(false)
-  const [loginMethod, setLoginMethod] = useState<'password' | 'otp'>('password')
   const [showPassword, setShowPassword] = useState(false)
   const [referralCode, setReferralCode] = useState('')
   const [referralValid, setReferralValid] = useState<boolean | null>(null)
@@ -179,21 +178,6 @@ function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
       setSuccessMessage(`Verification code sent successfully to ${email}. Enter the code below to complete your account.`)
       return
     } else {
-      if (loginMethod === 'otp') {
-        const { error: otpSendError } = await authClient.emailOtp.sendVerificationOtp({
-          email: email.toLowerCase(),
-          type: 'sign-in',
-        })
-        if (otpSendError) {
-          setError('Unable to send a verification code. Please try again.')
-          setLoading(false)
-          return
-        }
-        setOtpSent(true)
-        setLoading(false)
-        return
-      }
-
       const { data: signInData, error } = await authClient.signIn.email({
         email: email.toLowerCase(),
         password,
@@ -269,16 +253,9 @@ function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
               ? `We sent a 6-digit verification code to ${email}`
               : isSignUp
                 ? 'Sign up to get started'
-                : loginMethod === 'otp' ? 'Sign in securely with a one-time email code' : 'Sign in with your email and password'}
+                : 'Sign in with your email and password'}
           </p>
         </div>
-
-        {!isSignUp && !otpSent && (
-          <div className="mb-4 grid grid-cols-2 rounded-lg bg-muted p-1 text-sm">
-            <button type="button" onClick={() => { setLoginMethod('password'); setError(null) }} className={`rounded-md px-3 py-2 transition-colors ${loginMethod === 'password' ? 'bg-background font-medium shadow-sm' : 'text-muted-foreground'}`}>Email &amp; Password</button>
-            <button type="button" onClick={() => { setLoginMethod('otp'); setError(null) }} className={`rounded-md px-3 py-2 transition-colors ${loginMethod === 'otp' ? 'bg-background font-medium shadow-sm' : 'text-muted-foreground'}`}>Email Code</button>
-          </div>
-        )}
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           {otpSent ? (
@@ -369,7 +346,7 @@ function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
                   autoComplete="email"
                 />
               </div>
-              {(isSignUp || loginMethod === 'password') && (
+              {(
                 <div className="flex flex-col gap-2">
                   <Label htmlFor="password">{isSignUp ? 'Create password' : 'Password'}</Label>
                   <div className="relative">
@@ -396,7 +373,7 @@ function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
                   </div>
                 </div>
               )}
-              {!isSignUp && loginMethod === 'password' && (
+              {!isSignUp && (
                 <div className="-mt-2 text-right">
                   <Link href="/forgot-password" className="text-xs text-primary hover:underline">Forgot password?</Link>
                 </div>
@@ -438,9 +415,7 @@ function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
                 ? 'Verify code'
                 : isSignUp
               ? 'Send verification code'
-              : loginMethod === 'otp'
-                ? 'Send sign-in code'
-                : 'Sign in'}
+              : 'Sign in'}
           </Button>
         </form>
 

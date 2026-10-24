@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { getRoleLabel, UserRole } from '@/lib/roles'
 import {
-  LogOut, Users, Trash2, ChevronDown, Wallet, Plus,
+  LogOut, Users, Trash2, ChevronDown, Wallet, Plus, Download,
   CheckCircle2, XCircle, Clock, AlertCircle, Pencil,
   Zap, Shield, BarChart3, RefreshCw, UserPlus, X, Eye, EyeOff, KeyRound,
   TrendingUp, Activity, PauseCircle, StopCircle, DollarSign, Gift, ArrowUpCircle,
@@ -34,7 +34,7 @@ type Tab = 'users' | 'deposit-addresses' | 'fund-requests' | 'auto-trade' | 'act
 type Network = 'TRC20' | 'BEP20' | 'ERC20'
 
 interface User {
-  id: string; name: string | null; email: string; role: string; isActivated: boolean; createdAt: Date
+  id: string; name: string | null; email: string; phone: string | null; role: string; isActivated: boolean; createdAt: Date
   lastLoginAt: Date | string | null; lastLoginIp: string | null
   lastActiveAt: Date | string | null; sessionExpiresAt: Date | string | null; lastUserAgent: string | null
 }
@@ -212,6 +212,24 @@ export default function AdminClient() {
       setUsers((await getAllUsers()) as User[])
     } catch (e) { showToast(e instanceof Error ? e.message : 'Failed to load users', 'error') }
     finally { setLoadingUsers(false) }
+  }
+
+  const downloadTraderContacts = (format: 'csv' | 'xls') => {
+    const columns = ['Name', 'Mobile Number', 'Email']
+    const rows = users
+      .filter(u => u.role === 'trader' || u.role === 'protrader')
+      .map(u => [u.name ?? '', u.phone ?? '', u.email])
+    const escape = (value: string) => `"${value.replaceAll('"', '""')}"`
+    const content = format === 'csv'
+      ? [columns, ...rows].map(row => row.map(escape).join(',')).join('\\r\\n')
+      : [columns, ...rows].map(row => row.map(escape).join('\\t')).join('\\r\\n')
+    const blob = new Blob([content], { type: format === 'csv' ? 'text/csv;charset=utf-8' : 'application/vnd.ms-excel;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `trader-contacts-${new Date().toISOString().slice(0, 10)}.${format}`
+    link.click()
+    URL.revokeObjectURL(url)
   }
 
   const loadAddresses = async () => {
@@ -622,6 +640,12 @@ export default function AdminClient() {
                   <UserPlus className="w-3.5 h-3.5" />
                   Create Pro Trader
                 </Button>
+                <Button size="sm" variant="outline" onClick={() => downloadTraderContacts('csv')} className="gap-2 h-8 text-xs">
+                  <Download className="w-3.5 h-3.5" /> CSV
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => downloadTraderContacts('xls')} className="gap-2 h-8 text-xs">
+                  <Download className="w-3.5 h-3.5" /> Excel
+                </Button>
                 <Button
                   size="sm"
                   onClick={() => setShowCreateAdmin(true)}
@@ -645,7 +669,7 @@ export default function AdminClient() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-slate-800 bg-slate-950/40">
-                      {['Name', 'Email', 'Role', 'Password', 'Joined', 'Last Login', 'Last Active', 'Status', 'Login IP', 'Actions'].map(h => (
+                      {['Name', 'Mobile Number', 'Email', 'Role', 'Password', 'Joined', 'Last Login', 'Last Active', 'Status', 'Login IP', 'Actions'].map(h => (
                         <th key={h} className="px-5 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{h}</th>
                       ))}
                     </tr>
@@ -654,6 +678,7 @@ export default function AdminClient() {
                     {users.map((u, i) => (
                       <tr key={u.id} className={`border-b border-slate-800/60 hover:bg-slate-800/30 transition-colors ${i % 2 !== 0 ? 'bg-slate-900/20' : ''}`}>
                         <td className="px-5 py-3.5 text-white font-medium" title={`ID: ${u.id}${u.lastUserAgent ? `\nDevice: ${u.lastUserAgent}` : ''}`}>{u.name || '—'}<div className="mt-1 text-[10px] font-normal text-slate-600">ID: {u.id.slice(0, 8)}…</div></td>
+                        <td className="px-5 py-3.5 text-slate-300 whitespace-nowrap">{u.phone || <span className="text-slate-600 italic">Not provided</span>}</td>
                         <td className="px-5 py-3.5 text-slate-400">{u.email}</td>
                         <td className="px-5 py-3.5">
                           <div className="flex items-center gap-2">

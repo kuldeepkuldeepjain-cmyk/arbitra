@@ -64,6 +64,7 @@ export async function getAllUsers() {
     id: u.id,
     name: u.name,
     email: u.email,
+    phone: u.phone,
     role: u.role,
     isActivated: u.isActivated,
     createdAt: u.createdAt,

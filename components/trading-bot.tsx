@@ -158,9 +158,9 @@ const OPPORTUNITY_TYPES = [
     description: 'Double position size after each loss. High risk / high reward strategy for experienced traders only.',
     features: ['Aggressive recovery', 'Compounding logic', 'Max loss limits', 'Not for beginners'],
     risk: 'Very High',
-    returnRange: '50–500%',
-    timeframe: 'Variable',
-    locked: true,
+    returnRange: '6–18% monthly',
+    timeframe: 'Hours–Days',
+    locked: false,
   },
   {
     id: 'gold-silver',
@@ -276,6 +276,21 @@ const STRATEGY_TEMPLATES = [
 // ─── Gold & Silver Strategy Templates ────────────────────────────────────────
 const GOLD_SILVER_STRATEGIES = [
   {
+    id: 'xau-martingale-guarded',
+    name: 'Gold Guarded Martingale',
+    pair: 'XAU/USDT',
+    exchange: 'delta',
+    exchangeLabel: 'Delta Exchange',
+    icon: '🔥',
+    description: 'A capped recovery system for Gold that increases size gradually after a losing cycle, with hard limits to protect the account from runaway exposure.',
+    strategy: 'Guarded Martingale',
+    config: { baseOrderSize: 80, safetyOrderSize: 60, maxSafetyOrders: 3, priceDeviationPct: 1.2, takeProfitPct: 1.8, safetyOrderVolumePct: 1.35, interval: '1h' },
+    stats: { risk: 'High', monthly: '+6–18%', winRate: '78%' },
+    tags: ['Gold', 'Martingale', 'Capped Risk', 'Delta Exchange'],
+    highlight: 'Uses a 3-step cap and volatility spacing instead of unlimited doubling',
+    popular: true,
+  },
+  {
     id: 'xau-safe-haven',
     name: 'Gold Safe-Haven DCA',
     pair: 'XAU/USDT',
@@ -384,6 +399,21 @@ const GOLD_SILVER_STRATEGIES = [
 
 // ─── MetaTrader 4/5 Strategy Templates ───────────────────────────────────────
 const META_TRADER_STRATEGIES = [
+  {
+    id: 'eurusd-hedge-balance',
+    name: 'Forex Balance Hedge',
+    pair: 'EUR/USD',
+    platform: 'mt5',
+    platformLabel: 'MetaTrader 5',
+    icon: '🛡️',
+    description: 'A controlled hedging strategy for Forex that pairs directional entries with a smaller protection leg, then closes the basket when the combined position returns to target.',
+    strategy: 'Dynamic Hedging',
+    config: { baseOrderSize: 180, safetyOrderSize: 90, maxSafetyOrders: 3, priceDeviationPct: 0.55, takeProfitPct: 1.1, safetyOrderVolumePct: 1.1, interval: '1h' },
+    stats: { risk: 'Low–Med', monthly: '+4–12%', winRate: '84%' },
+    tags: ['EUR/USD', 'Hedging', 'Risk Control', 'MT5'],
+    highlight: 'Balances exposure instead of chasing every market move',
+    popular: true,
+  },
   {
     id: 'eurusd-trend-rider',
     name: 'EUR/USD Trend Rider',
